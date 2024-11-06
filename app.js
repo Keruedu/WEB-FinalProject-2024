@@ -9,7 +9,8 @@ require('dotenv').config();
 const app = express();
 
 // Connect to MongoDB
-mongoose.connect(process.env.MONGODB_URI, {
+//todo: Security issues
+mongoose.connect('mongodb+srv://omigosp2004:123@cluster0.z2qc2.mongodb.net/', {
   useNewUrlParser: true,
   useUnifiedTopology: true
 }).then(() => {
