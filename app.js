@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const blogRoutes = require('./routes/blogRoutes');
 const userRoutes = require('./routes/userRoutes');
+const webRoutes = require('./routes/webRoutes');
 require('dotenv').config();
 
 const app = express();
@@ -26,8 +27,12 @@ app.set('view engine', 'ejs');
 app.use(express.static('public'));
 
 // Routes
+app.use('/', webRoutes);
+app.use('/', userRoutes);
 app.use('/', blogRoutes);
-app.use('/user', userRoutes);
+
+
+
 
 // Start the server
 const PORT = process.env.PORT || 3000;
