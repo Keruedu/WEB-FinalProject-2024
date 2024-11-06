@@ -1,17 +1,5 @@
 const User = require('../models/user');
 
-
-router.get('/signup', (req, res) => {
-  res.render('signup');
-});
-router.post('/signup', userController.registerUser);
-
-router.get('/signin', (req, res) => {
-  res.render('signin');
-});
-router.post('/signin', userController.loginUser);
-module.exports = router;
-
 exports.registerUser = async (req, res) => {
   try {
     const { username, password, email } = req.body;

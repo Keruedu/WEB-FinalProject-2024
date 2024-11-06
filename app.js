@@ -25,11 +25,8 @@ app.set('view engine', 'ejs');
 app.use(express.static('public'));
 
 // Routes
-app.get('/', (req, res) => {
-  res.redirect('/signin');
-});
 app.use('/', blogRoutes);
-app.use('/', userRoutes);
+app.use('/user', userRoutes);
 
 // Start the server
 const PORT = process.env.PORT || 3000;
