@@ -5,7 +5,7 @@
   "description": "Play is an open-source and free Tailwind CSS template co-created by TailGrids and UIdeck. This template specially crafted for SaaS, startup, business and software website. Play crafted in a way that you can use with almost all sort of web project. This is Tailwind CSS template built using [TailGrids](https://tailgrids.com/) components.",
   "main": "tailwind.config.js",
   "scripts": {
-    "build-css": "tailwindcss -i ./src/tailwind.css -o ./public/css/tailwind.css -w",
+    "build-css": "tailwindcss -i ./public/src/tailwind.css -o ./public/css/tailwind.css -w",
     "start": "node app.js",
     "watch": "nodemon app.js"
   },
