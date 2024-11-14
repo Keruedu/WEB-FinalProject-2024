@@ -1174,6 +1174,10 @@ body {
   grid-template-columns: repeat(1, minmax(0, 1fr));
 }
 
+.flex-row{
+  flex-direction: row;
+}
+
 .flex-col{
   flex-direction: column;
 }
@@ -1641,6 +1645,16 @@ body {
 .py-\[6px\]{
   padding-top: 6px;
   padding-bottom: 6px;
+}
+
+.px-0{
+  padding-left: 0px;
+  padding-right: 0px;
+}
+
+.px-0\.5{
+  padding-left: 0.125rem;
+  padding-right: 0.125rem;
 }
 
 .pb-10{
@@ -2332,6 +2346,11 @@ body {
 :is(.dark .dark\:bg-white){
   --tw-bg-opacity: 1;
   background-color: rgb(255 255 255 / var(--tw-bg-opacity));
+}
+
+:is(.dark .dark\:bg-primary){
+  --tw-bg-opacity: 1;
+  background-color: rgb(55 88 249 / var(--tw-bg-opacity));
 }
 
 :is(.dark .dark\:via-dark-3){
