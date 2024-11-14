@@ -427,7 +427,7 @@
                           />
                         </svg>
                       </span>
-                      35
+                      <%= blog.views %>
                     </p>
                   </div>
                 </div>
@@ -623,24 +623,14 @@
                         class="flex flex-wrap items-center gap-3 mb-8 wow fadeInUp md:mb-0"
                         data-wow-delay=".1s"
                       >
+                      <% blog.tags.forEach(tag => { %>
                         <a
                           href="javascript:void(0)"
                           class="block rounded-md bg-primary/[0.08] px-[14px] py-[5px] text-base text-dark hover:bg-primary hover:text-white dark:text-white"
                         >
-                          Design
+                          <%= tag.name %>
                         </a>
-                        <a
-                          href="javascript:void(0)"
-                          class="block rounded-md bg-primary/[0.08] px-[14px] py-[5px] text-base text-dark hover:bg-primary hover:text-white dark:text-white"
-                        >
-                          Development
-                        </a>
-                        <a
-                          href="javascript:void(0)"
-                          class="block rounded-md bg-primary/[0.08] px-[14px] py-[5px] text-base text-dark hover:bg-primary hover:text-white dark:text-white"
-                        >
-                          Info
-                        </a>
+                      <% }); %>
                       </div>
                     </div>
                     <div class="w-full px-4 md:w-1/2">

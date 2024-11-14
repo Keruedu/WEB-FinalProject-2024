@@ -12,7 +12,10 @@ const blogSchema = new mongoose.Schema({
   views: {
     type: Number,
     default: 0
-  }
+  },
+  tags: [{ 
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Tag' }]
 });
 
 module.exports = mongoose.model('Blog', blogSchema);
