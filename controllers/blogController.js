@@ -31,3 +31,28 @@ exports.createBlog = async (req, res) => {
     res.status(500).send(error.message);
   }
 };
+
+const ITEMS_PER_PAGE = 10;
+
+// Get blogs by page
+exports.getBlogsByPage = async (req, res) => {
+  const page = parseInt(req.params.page) || 1;
+  try {
+    const totalBlogs = await Blog.countDocuments();
+    const blogs = await Blog.find()
+      .skip((page - 1) * ITEMS_PER_PAGE)
+      .limit(ITEMS_PER_PAGE)
+      .populate('author');
+    res.render('blog-grids', {
+      blogs,
+      currentPage: page,
+      hasNextPage: ITEMS_PER_PAGE * page < totalBlogs,
+      hasPreviousPage: page > 1,
+      nextPage: page + 1,
+      previousPage: page - 1,
+      lastPage: Math.ceil(totalBlogs / ITEMS_PER_PAGE)
+    });
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+};

@@ -286,11 +286,14 @@
           </div>
         <% }) %>
         
-      <div class="mt-8 text-center wow fadeInUp" data-wow-delay=".2s">
-        <div class="inline-flex p-3 bg-white dark:bg-dark-2 border rounded-[10px] border-stroke dark:border-dark-3">
-          <ul class="flex items-center -mx-1">
+    </div>
+    
+    <div class="mt-8 text-center wow fadeInUp" data-wow-delay=".2s">
+      <div class="inline-flex p-3 bg-white dark:bg-dark-2 border rounded-[10px] border-stroke dark:border-dark-3">
+        <ul class="flex items-center -mx-1">
+          <% if (hasPreviousPage) { %>
             <li class="px-1">
-              <a href="javascript:void(0)"
+              <a href="/blogs/page/<%= previousPage %>"
                 class="flex items-center justify-center text-base bg-transparent border rounded-md hover:border-primary hover:bg-primary h-[34px] w-[34px] border-stroke dark:border-dark-3 text-body-color dark:text-dark-6 hover:text-white dark:hover:border-primary dark:hover:text-white">
                 <span>
                   <svg width="8" height="15" viewBox="0 0 8 15" class="fill-current stroke-current">
@@ -301,32 +304,18 @@
                 </span>
               </a>
             </li>
+          <% } %>
+          <% for (let i = 1; i <= lastPage; i++) { %>
             <li class="px-1">
-              <a href="javascript:void(0)"
+              <a href="/blogs/page/<%= i %>"
                 class="flex items-center justify-center text-base bg-transparent border rounded-md hover:border-primary hover:bg-primary h-[34px] w-[34px] border-stroke dark:border-dark-3 text-body-color dark:text-dark-6 hover:text-white dark:hover:border-primary dark:hover:text-white">
-                1
+                <%= i %>
               </a>
             </li>
+          <% } %>
+          <% if (hasNextPage) { %>
             <li class="px-1">
-              <a href="javascript:void(0)"
-                class="flex items-center justify-center text-base bg-transparent border rounded-md hover:border-primary hover:bg-primary h-[34px] w-[34px] border-stroke dark:border-dark-3 text-body-color dark:text-dark-6 hover:text-white dark:hover:border-primary dark:hover:text-white">
-                2
-              </a>
-            </li>
-            <li class="px-1">
-              <a href="javascript:void(0)"
-                class="flex items-center justify-center text-base bg-transparent border rounded-md hover:border-primary hover:bg-primary h-[34px] w-[34px] border-stroke dark:border-dark-3 text-body-color dark:text-dark-6 hover:text-white dark:hover:border-primary dark:hover:text-white">
-                3
-              </a>
-            </li>
-            <li class="px-1">
-              <a href="javascript:void(0)"
-                class="flex items-center justify-center text-base bg-transparent border rounded-md hover:border-primary hover:bg-primary h-[34px] w-[34px] border-stroke dark:border-dark-3 text-body-color dark:text-dark-6 hover:text-white dark:hover:border-primary dark:hover:text-white">
-                4
-              </a>
-            </li>
-            <li class="px-1">
-              <a href="javascript:void(0)"
+              <a href="/blogs/page/<%= nextPage %>"
                 class="flex items-center justify-center text-base bg-transparent border rounded-md hover:border-primary hover:bg-primary h-[34px] w-[34px] border-stroke dark:border-dark-3 text-body-color dark:text-dark-6 hover:text-white dark:hover:border-primary dark:hover:text-white">
                 <span>
                   <svg width="8" height="15" viewBox="0 0 8 15" class="fill-current stroke-current">
@@ -337,8 +326,8 @@
                 </span>
               </a>
             </li>
-          </ul>
-        </div>
+          <% } %>
+        </ul>
       </div>
     </div>
   </section>
