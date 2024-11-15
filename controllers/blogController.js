@@ -15,10 +15,19 @@ exports.getAllBlogs = async (req, res) => {
 // Get blog by ID
 exports.getBlogById = async (req, res) => {
   try {
-    const blog = await Blog.findById(req.params.id)
+    const blogId = req.params.id;
+    const blog = await Blog.findById(blogId)
     .populate('author')
     .populate('tags');
-    res.render('blog-details', { blog });
+    
+    // Lấy các blog liên quan dựa trên tag
+    const relatedBlogs = await Blog.find({
+      tags: { $in: blog.tags },
+      _id: { $ne: blogId }
+    }).limit(3); // Giới hạn số lượng blog liên quan
+
+    res.render('blog-details', { blog, relatedBlogs });
+
   } catch (error) {
     res.status(500).send(error.message);
   }
@@ -43,7 +52,7 @@ const getBlogsHandler = async (req, res, pageParam) => {
   const { search, filter, tags } = req.query;
   const page = parseInt(pageParam) || 1;
   let query = {};
-
+  console.log('req.query:', req.query);
   if (search) {
     query = {
       $or: [
@@ -52,9 +61,10 @@ const getBlogsHandler = async (req, res, pageParam) => {
       ]
     };
   }
-
+  let tagsArray = [];
   if (tags && tags.length > 0) {
-    query.tags = { $in: tags };
+    tagsArray = Array.isArray(tags) ? tags : [tags];
+    query.tags = { $in: tagsArray };
   }
 
   let sort = {};
@@ -63,7 +73,7 @@ const getBlogsHandler = async (req, res, pageParam) => {
   } else if (filter === 'oldest') {
     sort.date = 1;
   } else if (filter === 'popular') {
-    sort.views = -1; // Giả sử bạn có trường 'views' để lưu số lượt xem
+    sort.views = -1; 
   }
 
   
@@ -77,7 +87,6 @@ const getBlogsHandler = async (req, res, pageParam) => {
       .populate('tags');
 
     const allTags = await Tag.find(); 
-
     res.render('blog-grids', {
       blogs,
       currentPage: page,
@@ -89,7 +98,7 @@ const getBlogsHandler = async (req, res, pageParam) => {
       search,
       filter,
       tags: allTags,
-      selectedTags: tags || []
+      selectedTags: tagsArray || []
     });
   } catch (error) {
     res.status(500).send(error.message);

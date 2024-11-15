@@ -245,21 +245,30 @@
   <!-- ====== Blog Section Start -->
   <section class="pt-20 pb-10 lg:pt-[80px] lg:pb-20 dark:bg-dark">
     <div class="container">
-      <form action="/search" method="GET" class="flex items-center gap-4 pb-20 w-[60%] mx-auto">
+      <form action="/search" method="GET" class="flex flex-wrap items-center justify-center gap-4 pb-20 w-full md:w-[80%] mx-auto">
         <input type="text" name="search" placeholder="Search blogs..." value="<%= search %>"
-          class="w-[60%] px-5 py-3 text-base transition bg-transparent border rounded-md outline-none border-stroke dark:border-dark-3 text-body-color dark:text-dark-6 placeholder:text-dark-6 focus:border-primary dark:focus:border-primary focus-visible:shadow-none" />
-        <select name="filter" class="px-5 py-3 text-base transition bg-transparent border rounded-md outline-none border-stroke dark:border-dark-3 text-body-color dark:text-dark-6 focus:border-primary dark:focus:border-primary focus-visible:shadow-none" onchange="this.form.submit()">
+          class="w-full md:w-auto px-5 py-3 text-base transition bg-transparent border rounded-md outline-none border-stroke dark:border-dark-3 text-body-color dark:text-dark-6 placeholder:text-dark-6 focus:border-primary dark:focus:border-primary focus-visible:shadow-none" />
+        <select name="filter" class="w-full md:w-auto px-5 py-3 text-base transition bg-transparent border rounded-md outline-none border-stroke dark:border-dark-3 text-body-color dark:text-dark-6 focus:border-primary dark:focus:border-primary focus-visible:shadow-none" onchange="this.form.submit()">
           <option value="" <%= filter === '' ? 'selected' : '' %>>All</option>
           <option value="latest" <%= filter === 'latest' ? 'selected' : '' %>>Latest</option>
           <option value="oldest" <%= filter === 'oldest' ? 'selected' : '' %>>Oldest</option>
           <option value="popular" <%= filter === 'popular' ? 'selected' : '' %>>Most Popular</option>
         </select>
-        <select name="tags" class="px-5 py-3 text-base transition bg-transparent border rounded-md outline-none border-stroke dark:border-dark-3 text-body-color dark:text-dark-6 focus:border-primary dark:focus:border-primary focus-visible:shadow-none">
-          <% tags.forEach(tag => { %>
-            <option value="<%= tag._id %>" <%= Array.isArray(selectedTags) && selectedTags.includes(tag._id.toString()) ? 'selected' : '' %>><%= tag.name %></option>
-          <% }); %>
-        </select>
-        <button type="submit" class="px-5 py-3 text-base text-white transition duration-300 ease-in-out border rounded-md cursor-pointer border-primary bg-primary hover:bg-blue-dark">Search</button>
+      
+        <div class="relative w-full md:w-auto">
+          <button type="button" id="dropdownButton" class="w-full md:w-auto px-5 py-3 text-base text-white transition duration-300 ease-in-out border rounded-md cursor-pointer border-primary bg-primary hover:bg-blue-dark">Tags</button>
+      
+          <div id="dropdown" class="hidden h-[160px] overflow-auto flex-col gap-2 mt-4 absolute z-10 p-2 bg-white border border-stroke rounded-md shadow-lg scrollbar-hide">
+            <% tags.forEach(tag => { %>
+              <label class="flex items-center">
+                <input type="checkbox" name="tags" value="<%= tag._id %>" <%= selectedTags.includes(tag._id.toString()) ? 'checked' : '' %> />
+                <span class="ml-2"><%= tag.name %></span>
+              </label>
+            <% }); %>
+          </div>
+        </div>
+      
+        <button type="submit" class="w-full md:w-auto px-5 py-3 text-base text-white transition duration-300 ease-in-out border rounded-md cursor-pointer border-primary bg-primary hover:bg-blue-dark">Search</button>
       </form>
       <div class="flex flex-wrap -mx-4">
         
@@ -308,9 +317,28 @@
     <div class="mt-8 text-center wow fadeInUp" data-wow-delay=".2s">
       <div class="inline-flex p-3 bg-white dark:bg-dark-2 border rounded-[10px] border-stroke dark:border-dark-3">
         <ul class="flex items-center -mx-1">
+          <% 
+            const generateUrl = (page) => {
+              let url = '';
+              if (search || filter || selectedTags.length > 0) {
+                url = '/search?';
+                if (search) url += 'search=' + encodeURIComponent(search) + '&';
+                if (filter) url += 'filter=' + encodeURIComponent(filter) + '&';
+                if (selectedTags.length > 0) {
+                  selectedTags.forEach(tag => {
+                    url += 'tags=' + encodeURIComponent(tag) + '&';
+                  });
+                }
+                url += 'page=' + page;
+              } else {
+                url = '/blogs/page/' + page;
+              }
+              return url;
+            };
+          %>
           <% if (hasPreviousPage) { %>
             <li class="px-1">
-              <a href="<%= search || filter ? '/search?search=' + search + '&filter=' + filter + '&page=' + previousPage : '/blogs/page/' + previousPage %>"
+              <a href="<%= generateUrl(previousPage) %>"
                 class="flex items-center justify-center text-base bg-transparent border rounded-md hover:border-primary hover:bg-primary h-[34px] w-[34px] border-stroke dark:border-dark-3 text-body-color dark:text-dark-6 hover:text-white dark:hover:border-primary dark:hover:text-white">
                 <span>
                   <svg width="8" height="15" viewBox="0 0 8 15" class="fill-current stroke-current">
@@ -324,7 +352,7 @@
           <% } %>
           <% for (let i = 1; i <= lastPage; i++) { %>
             <li class="px-1">
-              <a href="<%= search || filter ? '/search?search=' + search + '&filter=' + filter + '&page=' + i : '/blogs/page/' + i %>"
+              <a href="<%= generateUrl(i) %>"
                 class="flex items-center justify-center text-base bg-transparent border rounded-md h-[34px] w-[34px] border-stroke dark:border-dark-3 text-body-color dark:text-dark-6 hover:border-primary hover:bg-primary hover:text-white dark:hover:border-primary dark:hover:text-white <%= currentPage === i ? 'bg-primary text-white' : '' %>">
                 <%= i %>
               </a>
@@ -332,7 +360,7 @@
           <% } %>
           <% if (hasNextPage) { %>
             <li class="px-1">
-              <a href="<%= search || filter ? '/search?search=' + search + '&filter=' + filter + '&page=' + nextPage : '/blogs/page/' + nextPage %>"
+              <a href="<%= generateUrl(nextPage) %>"
                 class="flex items-center justify-center text-base bg-transparent border rounded-md hover:border-primary hover:bg-primary h-[34px] w-[34px] border-stroke dark:border-dark-3 text-body-color dark:text-dark-6 hover:text-white dark:hover:border-primary dark:hover:text-white">
                 <span>
                   <svg width="8" height="15" viewBox="0 0 8 15" class="fill-current stroke-current">
@@ -771,3 +799,17 @@
   </div>
 </body>
 </html> -->
+
+<script>
+  document.getElementById('dropdownButton').addEventListener('click', function() {
+    var dropdown = document.getElementById('dropdown');
+    if (dropdown.classList.contains('hidden')) {
+      dropdown.classList.remove('hidden');
+      dropdown.classList.add('flex');
+    } else {
+      dropdown.classList.add('hidden');
+    }
+  });
+
+  
+</script>
