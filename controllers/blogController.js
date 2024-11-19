@@ -1,10 +1,12 @@
 const Blog = require('../models/blog');
 const Tag = require('../models/tag');
+const Category = require('../models/category');
 // Get all blogs
 exports.getAllBlogs = async (req, res) => {
   try {
     const blogs = await Blog.find()
     .populate('author')
+    .populate('category')
     .populate('tags');
     res.render('blog-grids', { blogs });
   } catch (error) {
@@ -18,13 +20,13 @@ exports.getBlogById = async (req, res) => {
     const blogId = req.params.id;
     const blog = await Blog.findById(blogId)
     .populate('author')
+    .populate('category')
     .populate('tags');
     
-    // Lấy các blog liên quan dựa trên tag
     const relatedBlogs = await Blog.find({
       tags: { $in: blog.tags },
       _id: { $ne: blogId }
-    }).limit(3); // Giới hạn số lượng blog liên quan
+    }).limit(3).populate('category'); 
 
     res.render('blog-details', { blog, relatedBlogs });
 
@@ -49,7 +51,7 @@ const ITEMS_PER_PAGE = 9;
 
 // search filter pagination
 const getBlogsHandler = async (req, res, pageParam) => {
-  const { search, filter, tags } = req.query;
+  const { search, filter, tags, category } = req.query;
   const page = parseInt(pageParam) || 1;
   let query = {};
   console.log('req.query:', req.query);
@@ -60,6 +62,9 @@ const getBlogsHandler = async (req, res, pageParam) => {
         { content: { $regex: search, $options: 'i' } } // Tìm kiếm theo nội dung, không phân biệt chữ hoa chữ thường
       ]
     };
+  }
+  if (category) {
+    query.category = category;
   }
   let tagsArray = [];
   if (tags && tags.length > 0) {
@@ -84,8 +89,10 @@ const getBlogsHandler = async (req, res, pageParam) => {
       .limit(ITEMS_PER_PAGE)
       .sort(sort)
       .populate('author')
+      .populate('category')
       .populate('tags');
 
+    const allCategories = await Category.find();
     const allTags = await Tag.find(); 
     res.render('blog-grids', {
       blogs,
@@ -98,7 +105,9 @@ const getBlogsHandler = async (req, res, pageParam) => {
       search,
       filter,
       tags: allTags,
-      selectedTags: tagsArray || []
+      categories: allCategories,
+      selectedTags: tagsArray || [],
+      selectedCategory: category || ''
     });
   } catch (error) {
     res.status(500).send(error.message);

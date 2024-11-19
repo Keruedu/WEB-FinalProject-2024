@@ -13,9 +13,14 @@ const blogSchema = new mongoose.Schema({
     type: Number,
     default: 0
   },
+  category: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Category'
+  },
   tags: [{ 
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Tag' }]
+    ref: 'Tag'
+  }]
 });
 
 module.exports = mongoose.model('Blog', blogSchema);
