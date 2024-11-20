@@ -854,6 +854,10 @@ body {
   margin-left: 0.5rem;
 }
 
+.ml-3{
+  margin-left: 0.75rem;
+}
+
 .mr-3{
   margin-right: 0.75rem;
 }
@@ -908,14 +912,6 @@ body {
 
 .mt-\[6px\]{
   margin-top: 6px;
-}
-
-.mr-\[3\]{
-  margin-right: 3;
-}
-
-.ml-3{
-  margin-left: 0.75rem;
 }
 
 .block{
@@ -1713,10 +1709,6 @@ body {
 
 .pt-\[120px\]{
   padding-top: 120px;
-}
-
-.pr-4{
-  padding-right: 1rem;
 }
 
 .text-center{

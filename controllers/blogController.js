@@ -38,7 +38,7 @@ exports.getBlogById = async (req, res) => {
 // Create a new blog
 exports.createBlog = async (req, res) => {
   try {
-    const { imageUrl, date, title, content, author } = req.body;
+    const { imageUrl, date, title, content, author, timeRange } = req.body;
     const blog = new Blog({ imageUrl, date, title, content, author, views: 0, tags});
     await blog.save();
     res.redirect('/blogs');
@@ -51,7 +51,7 @@ const ITEMS_PER_PAGE = 9;
 
 // search filter pagination
 const getBlogsHandler = async (req, res, pageParam) => {
-  const { search, filter, tags, category } = req.query;
+  const { search, filter, tags, category, timeRange } = req.query;
   const page = parseInt(pageParam) || 1;
   let query = {};
   console.log('req.query:', req.query);
@@ -72,6 +72,27 @@ const getBlogsHandler = async (req, res, pageParam) => {
     query.tags = { $in: tagsArray };
   }
 
+  if (timeRange) {
+    const now = new Date();
+    let startDate;
+    if (timeRange === '24h') {
+      startDate = new Date(now.getTime() - (24 * 60 * 60 * 1000));
+    } else if (timeRange === 'week') {
+      startDate = new Date(now.getTime() - (7 * 24 * 60 * 60 * 1000));
+    } else if (timeRange === 'month') {
+      startDate = new Date(now.getTime() - (30 * 24 * 60 * 60 * 1000));
+    } else if (timeRange === 'year') {
+      startDate = new Date(now.getTime() - (365 * 24 * 60 * 60 * 1000));
+    }
+    if (startDate) {
+      query.date = { $gte: startDate };
+    }
+    console.log('Time range:', timeRange);
+    console.log('Start date:', startDate);
+  }
+
+  console.log('Constructed query:', query);
+
   let sort = {};
   if (filter === 'latest') {
     sort.date = -1;
@@ -81,7 +102,6 @@ const getBlogsHandler = async (req, res, pageParam) => {
     sort.views = -1; 
   }
 
-  
   try {
     const totalBlogs = await Blog.countDocuments(query);
     const blogs = await Blog.find(query)
@@ -107,7 +127,8 @@ const getBlogsHandler = async (req, res, pageParam) => {
       tags: allTags,
       categories: allCategories,
       selectedTags: tagsArray || [],
-      selectedCategory: category || ''
+      selectedCategory: category || '',
+      timeRange: timeRange || ''
     });
   } catch (error) {
     res.status(500).send(error.message);
