@@ -13,24 +13,30 @@ exports.registerUser = async (req, res) => {
       email: req.body.email
     });
   }
-
   try {
     const { username, password, email } = req.body;
 
     const existingUser = await User.findOne({ $or: [{ username }, { email }] });
     if (existingUser) {
-      req.flash('error_msg', 'Username or email already exists');
-      return res.redirect('/signup');
+      return res.status(400).render('signup', {
+        errors: [{ msg: 'Username or email already exists' }],
+        username,
+        email
+      });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = new User({ username, password: hashedPassword, email });
     await user.save();
-    req.flash('success_msg', 'You are now registered and can log in');
-    res.redirect('/signin');
+    return res.status(200).render('signin', {
+      success_msg: 'You are now registered and can log in'
+    });
   } catch (error) {
-    req.flash('error_msg', 'Something went wrong. Please try again.');
-    res.redirect('/signup');
+    return res.status(500).render('signup', {
+      errors: [{ msg: 'Something went wrong. Please try again.' }],
+      username: req.body.username,
+      email: req.body.email
+    });
   }
 };
 
@@ -62,16 +68,15 @@ exports.loginUser = (req, res, next) => {
       return next(err); // Xử lý lỗi hệ thống
     }
     if (!user) {
-      // Không đăng nhập được, render lại hoặc chuyển hướng với lỗi
       return res.render('signin', {
-        errors: [info.message], // Lấy thông báo lỗi từ `info`
+        errors: [info.message],
       });
     }
     req.logIn(user, (err) => {
       if (err) {
-        return next(err); // Lỗi khi đăng nhập
+        return next(err);
       }
-      return res.redirect('/'); // Đăng nhập thành công
+      return res.redirect('/');
     });
   })(req, res, next);
 };

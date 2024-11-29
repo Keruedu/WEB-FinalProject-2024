@@ -258,12 +258,15 @@
               </a>
             </div>
             <form action="/signin" method="POST">
-              <% if (errors) { %>
+              <% if (errors && errors.length > 0) { %>
                 <ul class="error-list mb-4">
                   <% errors.forEach(error => { %>
                     <li class="error-item text-red-500"><%= error %></li>
                   <% }) %>
                 </ul>
+              <% } %>
+              <% if (success_msg) { %>
+                <div class="alert alert-success text-green-500"><%= success_msg %></div>
               <% } %>
               <div class="mb-[22px]">
                 <input type="text" placeholder="Username or Email" id="identifier" name="identifier" required
