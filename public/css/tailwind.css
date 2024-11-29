@@ -590,6 +590,10 @@ body {
   border-width: 0;
 }
 
+.collapse{
+  visibility: collapse;
+}
+
 .fixed{
   position: fixed;
 }
