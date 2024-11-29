@@ -16,8 +16,8 @@ router.post('/signup', [
 
 router.get('/signin', (req, res) => {
   res.render('signin', { 
-    errors: req.flash('error'), 
-    success_msg: req.flash('success_msg')
+    errors: [], 
+    success_msg: ''
   });
 });
 
