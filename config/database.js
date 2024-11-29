@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 async function connectToMongoDB() {
-  const mongoURI = process.env.MONGO_URI || 'your_default_mongo_uri_here';
+  const mongoURI = process.env.MONGO_URI || 'mongodb+srv://omigosp2004:123@cluster0.z2qc2.mongodb.net/';
   try {
     await mongoose.connect(mongoURI, {
       useNewUrlParser: true,
