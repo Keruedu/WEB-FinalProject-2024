@@ -1,16 +1,25 @@
 const express = require('express');
+const { check, validationResult } = require('express-validator');
 const router = express.Router();
 const userController = require('../controllers/userController');
 const { ensureAuthenticated } = require('../middlewares/auth');
 
 router.get('/signup', (req, res) => {
-  res.render('../views/signup');
+  res.render('signup', { errors: [], username: '', email: '' });
 });
-router.post('/signup', userController.registerUser);
+
+router.post('/signup', [
+  check('username', 'Username is required').not().isEmpty().trim().escape(),
+  check('email', 'Please include a valid email').isEmail().normalizeEmail(),
+  check('password', 'Password must be at least 6 characters').isLength({ min: 6 }).trim().escape()
+], userController.registerUser);
 
 router.get('/signin', (req, res) => {
-  res.render('../views/signin');
+  res.render('signin', { 
+    errors: req.flash('error'), 
+  });
 });
+
 router.post('/signin', userController.loginUser);
 
 router.get('/profile', ensureAuthenticated, (req, res) => {
