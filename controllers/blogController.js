@@ -139,9 +139,7 @@ const ITEMS_PER_PAGE = 9;
 
 const getBlogsHandler = async (req, res) => {
   const { search, filter, tags, category, timeRange } = req.query;
-  const url = new URL(req.url, `http://${req.headers.host}`);
-  url.searchParams.delete('page');
-  const cleanUrl = url.toString();
+  const url = req.url;
   const page = parseInt(req.query.page) || 1;
   let query = {};
   if (search) {
@@ -228,7 +226,7 @@ const getBlogsHandler = async (req, res) => {
           throw err;
         });
 
-      return res.status(200).json({ blogsHtml, paginationHtml, url });
+      return res.status(200).json({ blogsHtml, paginationHtml });
     } else {
       res.render('blog-grids', {
         blogs,

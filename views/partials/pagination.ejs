@@ -3,9 +3,17 @@
     <% 
     const generateUrl = (page) => {
       let url = oldUrl;
-      if (page > 1) {
+    
+      // Loại bỏ tham số `page` cũ nếu tồn tại
+      url = url.replace(/([?&])page=\d+(&|$)/, (match, p1, p2) => (p2 === '&' ? p1 : ''));
+    
+      // Thêm tham số `page` mới
+      if (url.includes('?')) {
         url += '&page=' + page;
+      } else {
+        url += '?page=' + page;
       }
+    
       return url;
     };
     %>
