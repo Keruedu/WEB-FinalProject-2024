@@ -1,0 +1,17 @@
+<% if (!user || !user.isPremium) { %>
+    <div id="advertisements" class="container flex flex-col gap-6 mx-auto my-8 p-4 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
+      <% advertisements.forEach(ad => { %>
+        <div class="advertisement bg-gray-100 dark:bg-gray-700 rounded-lg shadow-md relative">
+          <a href="<%= ad.link %>" class="block relative">
+            <img src="<%= ad.imageUrl %>" alt="<%= ad.description %>" class="w-full min-h-[100px] max-h-[150px] rounded-lg object-cover">
+            <div class="absolute top-0 left-0 bg-black bg-opacity-50 text-white text-xs px-2 py-1 rounded-br-lg rounded-tl-lg">
+              <p>ads</p>
+            </div>
+            <div class="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white text-center py-2 rounded-b-lg">
+              <p class="text-sm font-semibold"><%= ad.description %></p>
+            </div>
+          </a>
+        </div>
+      <% }) %>
+    </div>
+  <% } %>

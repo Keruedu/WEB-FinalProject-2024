@@ -258,21 +258,7 @@
               </a>
             </div>
             <form id="signupForm" action="/signup" method="POST">
-              <% if (errors && errors.length > 0) { %>
-                <script>
-                  Swal.fire({
-                    icon: 'error',
-                    title: 'Oops...',
-                    html: '<ul class="error-list mb-4"><% errors.forEach(error => { %><li class="error-item text-red-500 dark:text-red-300"><%= error %></li><% }) %></ul>',
-                    customClass: {
-                      popup: 'bg-[#F4F7FF] dark:bg-gray-800 text-[#333] dark:text-gray-200',
-                      title: 'text-[#1a202c] dark:text-gray-100',
-                      confirmButton: 'bg-[#1a202c] text-white dark:bg-gray-700',
-                      cancelButton: 'bg-[#e53e3e] text-white dark:bg-red-600'
-                    }
-                  });
-                </script>
-              <% } %>
+              
 
               <div class="mb-[22px]">
                 <input type="text" placeholder="Name" id="username" name="username" required

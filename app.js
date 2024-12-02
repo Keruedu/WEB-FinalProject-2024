@@ -2,7 +2,6 @@ const express = require('express');
 const mongoose = require('mongoose');
 const session = require('express-session');
 const passport = require('passport');
-const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const flash = require('connect-flash');
 require('dotenv').config();
@@ -16,6 +15,8 @@ const adminRoutes = require('./routes/adminRoutes');
 // Import configurations
 require('./config/passport');
 const { connectToMongoDB } = require('./config/database');
+const User = require('./models/user');
+const Advertisement = require('./models/advertisement');
 
 // Initialize Express
 const app = express();
@@ -26,11 +27,10 @@ connectToMongoDB();
 
 // Middleware
 app.use(express.urlencoded({ extended: true }));
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.json());
 app.use(cookieParser());
 app.use(express.static('public'));
 app.set('view engine', 'ejs');
-
 
 // Session & Passport configuration
 app.use(
@@ -38,30 +38,46 @@ app.use(
     secret: process.env.SESSION_SECRET || 'default_secret_key',
     resave: false,
     saveUninitialized: false,
-    cookie: { maxAge: 3600000 }
+    cookie: { maxAge: 3600000 },
   })
 );
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(flash());
-app.use(express.json());
-app.use((req, res, next) => {
-  res.locals.user = req.user;
-  res.locals.success_msg = req.flash('success_msg');
-  res.locals.error_msg = req.flash('error_msg');
-  res.locals.error = req.flash('error');
-  next();
+
+app.use(async (req, res, next) => {
+  try {
+    const user = req.user || null;
+    let advertisements = [];
+    if (!user) {
+      advertisements = await Advertisement.find();
+    } else if (user.isPremium && user.premiumExpiration > new Date()) {
+      advertisements = [];
+    } else {
+      advertisements = await Advertisement.find();
+    }
+
+    res.locals.user = user;
+    res.locals.advertisements = advertisements;
+  } catch (error) {
+    console.error('Error fetching advertisements:', error);
+    res.locals.advertisements = [];
+  } finally {
+    next();
+  }
 });
+
 // Routes
-app.use('/', adminRoutes);
-app.use('/', webRoutes);
-app.use('/', userRoutes);
-app.use('/', blogRoutes);
+app.use('/', [adminRoutes, webRoutes, userRoutes, blogRoutes]);
 
 // Global error handler
 app.use((err, req, res, next) => {
   console.error(err.stack);
-  res.status(500).send(`Something broke! ${err.message}`);
+  const statusCode = err.status || 500;
+  res.status(statusCode).render('error', {
+    message: err.message || 'Something went wrong!',
+    status: statusCode,
+  });
 });
 
 // Start the server

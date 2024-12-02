@@ -8,6 +8,14 @@ const userSchema = new mongoose.Schema({
     type: String,
     enum: ['admin', 'client'],
     default: 'client'
+  },
+  isPremium: {
+    type: Boolean,
+    default: false
+  },
+  premiumExpiration: {
+    type: Date,
+    default: null
   }
 });
 
