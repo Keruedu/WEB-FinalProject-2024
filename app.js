@@ -11,6 +11,8 @@ const blogRoutes = require('./routes/blogRoutes');
 const userRoutes = require('./routes/userRoutes');
 const webRoutes = require('./routes/webRoutes');
 const adminRoutes = require('./routes/adminRoutes');
+const checkoutRoutes = require('./routes/checkoutRoutes');
+
 
 // Import configurations
 require('./config/passport');
@@ -68,7 +70,7 @@ app.use(async (req, res, next) => {
 });
 
 // Routes
-app.use('/', [adminRoutes, webRoutes, userRoutes, blogRoutes]);
+app.use('/', [adminRoutes, webRoutes, userRoutes, blogRoutes, checkoutRoutes]);
 
 // Global error handler
 app.use((err, req, res, next) => {

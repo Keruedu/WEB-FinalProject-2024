@@ -3,7 +3,7 @@ module.exports = {
       if (req.isAuthenticated()) {
         return next();
       }
-      res.redirect('../view/signin');
+      res.redirect('/signin?notification=true');
     },
     ensureAdmin: (req, res, next) => {
       if (req.isAuthenticated() && req.user.role === 'admin') {

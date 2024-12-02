@@ -1,8 +1,9 @@
 const express = require('express');
 const router = express.Router();
+const SubscriptionPlan = require('../models/subscriptionPlan');
 
 router.get('/', (req, res) => {
-    res.render('index', { user: req.user });
+    res.render('index');
 });
 router.get('/404', (req, res) => {
     res.render('../views/404');
@@ -16,8 +17,15 @@ router.get('/about', (req, res) => {
 router.get('/contact', (req, res) => {
     res.render('../views/contact');
 });
-router.get('/pricing', (req, res) => {
-    res.render('../views/pricing');
+
+router.get('/pricing', async (req, res) => {
+    try {
+      const subscriptionPlans = await SubscriptionPlan.find();
+      res.render('pricing', { subscriptionPlans });
+    } catch (error) {
+      console.error('Error fetching subscription plans:', error);
+      res.status(500).send('Internal Server Error');
+    }
 });
 
 module.exports = router;
