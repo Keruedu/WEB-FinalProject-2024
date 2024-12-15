@@ -183,7 +183,7 @@ const getBlogsHandler = async (req, res) => {
   if (filter === 'oldest') sort.date = 1;
   if (filter === 'popular') sort.views = -1;
 
-  // try {
+  try {
     const totalBlogs = await Blog.countDocuments(query);
     const blogs = await Blog.find(query)
       .skip((page - 1) * ITEMS_PER_PAGE)
@@ -245,10 +245,10 @@ const getBlogsHandler = async (req, res) => {
         timeRange: timeRange || ''
       });
     }
-  // } catch (error) {
-  //   console.error('Error in getBlogsHandler:', error);
-  //   res.status(500).json({ message: 'Internal Server Error', error: error.message });
-  // }
+  } catch (error) {
+    console.error('Error in getBlogsHandler:', error);
+    res.status(500).json({ message: 'Internal Server Error', error: error.message });
+  }
 };
 
 

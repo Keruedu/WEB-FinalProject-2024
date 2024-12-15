@@ -168,8 +168,21 @@
       $('#searchForm').on('submit', function (event) {
         event.preventDefault(); // Ngăn hành vi mặc định của form
 
-        const url = $(this).attr('action') || '/default-url';
-        const data = $(this).serialize();
+        const url = $(this).attr('action') || '/blogs';
+        let data = $(this).serialize();
+        
+        console.log(data);
+        // Loại bỏ các trường không có giá trị và trường page
+        data = new URLSearchParams(data);
+        const entries = Array.from(data.entries());
+        for (let i = 0; i < entries.length; i++) {
+          const [key, value] = entries[i];
+          if (!value || key === 'page') {
+            data.delete(key);
+          }
+        }
+
+        data = data.toString();
 
         $.ajax({
           url: url,
@@ -179,6 +192,8 @@
             if (response.blogsHtml && response.paginationHtml) {
               $('#blogContainer').html(response.blogsHtml);
               $('#paginationContainer').html(response.paginationHtml);
+              const newUrl = `${url}?${data}`;
+              window.history.pushState({ path: newUrl }, '', newUrl);
             } else {
               console.error('Unexpected response format:', response);
             }
@@ -201,6 +216,7 @@
           .serializeArray()
           .filter(field => field.name !== 'page'); // Loại bỏ trường page nếu đã tồn tại
 
+        formData = formData.filter(field => field.value);
         if (page > 1)
           formData.push({ name: 'page', value: page });
 
@@ -208,6 +224,29 @@
           url: $('#searchForm').attr('action') || '/blogs',
           method: 'GET',
           data: $.param(formData),
+          success: function (response) {
+            if (response.blogsHtml && response.paginationHtml) {
+              $('#blogContainer').html(response.blogsHtml);
+              $('#paginationContainer').html(response.paginationHtml);
+              const newUrl = `${url.pathname}?${$.param(formData)}`;
+              window.history.pushState({ path: newUrl }, '', newUrl);
+            } else {
+              console.error('Unexpected response format:', response);
+            }
+          },
+          error: function (xhr) {
+            console.error('Error:', xhr);
+            alert('Có lỗi xảy ra khi tải dữ liệu. Vui lòng thử lại!');
+          },
+        });      
+      });
+
+      // Xử lý sự kiện popstate để tải lại các đối tượng cũ khi người dùng nhấn nút "Quay lại" hoặc "Tiến tới"
+      window.addEventListener('popstate', function (event) {
+        const path = event.state ? event.state.path : window.location.href;
+        $.ajax({
+          url: path,
+          method: 'GET',
           success: function (response) {
             if (response.blogsHtml && response.paginationHtml) {
               $('#blogContainer').html(response.blogsHtml);
