@@ -169,31 +169,23 @@
         event.preventDefault(); // Ngăn hành vi mặc định của form
 
         const url = $(this).attr('action') || '/blogs';
-        let data = $(this).serialize();
+        let data = $(this)
+          .serializeArray()
+          .filter(field => field.name !== 'page' && field.value.trim() !== '');
         
         console.log(data);
-        // Loại bỏ các trường không có giá trị và trường page
-        data = new URLSearchParams(data);
-        const entries = Array.from(data.entries());
-        for (let i = 0; i < entries.length; i++) {
-          const [key, value] = entries[i];
-          if (!value || key === 'page') {
-            data.delete(key);
-          }
-        }
-
-        data = data.toString();
-
         $.ajax({
           url: url,
           method: 'GET',
-          data: data,
+          data: $.param(data),
           success: function (response) {
             if (response.blogsHtml && response.paginationHtml) {
               $('#blogContainer').html(response.blogsHtml);
               $('#paginationContainer').html(response.paginationHtml);
-              const newUrl = `${url}?${data}`;
+
+              const newUrl = `${url}?${$.param(data)}`;
               window.history.pushState({ path: newUrl }, '', newUrl);
+              
             } else {
               console.error('Unexpected response format:', response);
             }
@@ -214,9 +206,8 @@
         const page = url.searchParams.get('page'); // Lấy giá trị của tham số "page"
         const formData = $('#searchForm')
           .serializeArray()
-          .filter(field => field.name !== 'page'); // Loại bỏ trường page nếu đã tồn tại
+          .filter(field => field.name !== 'page' && field.value.trim() !== ''); // Loại bỏ trường page nếu đã tồn tại
 
-        formData = formData.filter(field => field.value);
         if (page > 1)
           formData.push({ name: 'page', value: page });
 
