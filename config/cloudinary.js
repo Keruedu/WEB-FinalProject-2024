@@ -28,7 +28,12 @@ const storage = new CloudinaryStorage({
         return 'jpg'; // Định dạng mặc định
       }
     },
-    public_id: (req, file) => Date.now() + '-' + file.originalname // Tên file
+    public_id: (req, file) => {
+      const nameWithoutExt = path.basename(file.originalname, path.extname(file.originalname));
+      const publicId = Date.now() + '-' + nameWithoutExt;
+      console.log(`Public ID: ${publicId}`); // Log public ID
+      return publicId;
+    } // Tên file trên Cloudinary
   }
 });
 
