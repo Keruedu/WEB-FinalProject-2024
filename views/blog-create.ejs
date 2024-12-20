@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Blog Create | Play Tailwind</title>
+  <link rel="shortcut icon" href="/images/favicon.png" type="image/x-icon" />
+  <link rel="stylesheet" href="/css/animate.css" />
+  <link rel="stylesheet" href="/css/tailwind.css" />
+
+  <!-- ==== WOW JS ==== -->
+  <script src="/js/wow.min.js"></script>
+  <script>
+    new WOW().init();
+  </script>
+</head>
+
+<body>
+  <!-- ====== Navbar Section Start -->
+  <%- include('partials/navbar') %>
+  <!-- ====== Navbar Section End -->
+
+  <!-- ====== Banner Section Start -->
+  <div class="relative z-10 overflow-hidden pt-[120px] pb-[60px] md:pt-[130px] lg:pt-[160px] dark:bg-dark">
+    <div
+      class="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-stroke/0 via-stroke dark:via-dark-3 to-stroke/0">
+    </div>
+    <div class="container">
+      <div class="flex flex-wrap items-center -mx-4">
+        <div class="w-full px-4">
+          <div class="text-center">
+            <h1 class="mb-4 text-3xl font-bold text-dark dark:text-white sm:text-4xl md:text-[40px] md:leading-[1.2]">
+              Blog Create Page</h1>
+            <p class="mb-5 text-base text-body-color dark:text-dark-6">
+              There are many variations of passages of Lorem Ipsum available.
+            </p>
+
+            <ul class="flex items-center justify-center gap-[10px]">
+              <li>
+                <a href="../index"
+                  class="flex items-center gap-[10px] text-base font-medium text-dark dark:text-white">
+                  Home
+                </a>
+              </li>
+              <li>
+                <a href="javascript:void(0)" class="flex items-center gap-[10px] text-base font-medium text-body-color">
+                  <span class="text-body-color dark:text-dark-6"> / </span>
+                  Create
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- ====== Banner Section End -->
+
+  <!-- ====== Pricing Section Start -->
+  <section class="pt-20 pb-10 lg:pt-[80px] lg:pb-20 dark:bg-dark">
+    <div class="container">
+      <form id="createForm" action="/" method="post" class="flex flex-col flex-wrap items-center justify-center gap-4 pb-20 w-full md:w-[80%] mx-auto">
+        <input type="text" name="create" placeholder="Title" 
+          class="w-full md:w-full px-5 py-3 text-base transition border rounded-md outline-none border-stroke dark:border-dark-3 text-body-color dark:text-dark-700 placeholder:text-dark-6 focus:border-primary dark:focus:border-primary focus-visible:shadow-none" />
+
+        <input type="text" name="create" placeholder="Content" 
+          class="w-full h-full md:w-full md:h-full px-5 py-3 text-base transition border rounded-md outline-none border-stroke dark:border-dark-3 text-body-color dark:text-dark-700 placeholder:text-dark-6 focus:border-primary dark:focus:border-primary focus-visible:shadow-none" />
+        
+
+        
+
+        <button type="submit" class="w-full md:w-auto px-5 py-3 text-base text-white transition duration-300 ease-in-out border rounded-md cursor-pointer border-primary bg-primary hover:bg-blue-dark">Create</button>
+      </form>
+    </div>
+  </section>
+
+
+  
+  <!-- ====== Pricing Section End -->
+
+  <!-- ====== Footer Section Start -->
+  <%- include('partials/footer') %>
+  <!-- ====== Footer Section End -->
+
+  <!-- ====== Back To Top Start -->
+  <a href="javascript:void(0)"
+    class="back-to-top fixed bottom-8 right-8 left-auto z-[999] hidden h-10 w-10 items-center justify-center rounded-md bg-primary text-white shadow-md transition duration-300 ease-in-out hover:bg-dark">
+    <span class="mt-[6px] h-3 w-3 rotate-45 border-t border-l border-white"></span>
+  </a>
+  <!-- ====== Back To Top End -->
+
+  <!-- ====== Made With Button Start -->
+  <a target="_blank" rel="nofollow noopener"
+    class="inline-flex items-center gap-[10px] py-2 px-[14px] rounded-lg bg-white dark:bg-dark-2 shadow-2 fixed bottom-8 left-4 sm:left-9 z-[999]"
+    href="https://tailgrids.com/">
+    <span class="text-base font-medium text-dark-3 dark:text-dark-6">
+      Made with
+    </span>
+    <span class="block w-px h-4 bg-stroke dark:bg-dark-3"></span>
+    <span class="block max-w-[88px] w-full">
+      <img src="/images/brands/tailgrids.svg" alt="tailgrids" class="dark:hidden">
+      <img src="/images/brands/tailgrids-white.svg" alt="tailgrids" class="hidden dark:block">
+    </span>
+  </a>
+  <!-- ====== Made With Button End -->
+
+  <!-- ====== All Scripts -->
+  <script src="/js/main.js"></script>
+</body>
+
+</html>
