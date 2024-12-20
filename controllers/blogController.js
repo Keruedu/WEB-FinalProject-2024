@@ -3,6 +3,20 @@ const Tag = require('../models/tag');
 const Category = require('../models/category');
 const path = require('path');
 const ejs = require('ejs');
+const upload = require('../config/cloudinary');
+
+// Endpoint để xử lý ảnh tải lên
+exports.uploadImage = (req, res) => {
+  upload.single('upload')(req, res, function (err) {
+    if (err) {
+      return res.status(500).json({ error: err.message });
+    }
+    res.status(200).json({
+      url: req.file.path // URL của ảnh đã tải lên
+    });
+  });
+};
+
 // Get all blogs
 exports.getAllBlogs = async (req, res) => {
   try {
@@ -40,102 +54,31 @@ exports.getBlogById = async (req, res) => {
 // Create a new blog
 exports.createBlog = async (req, res) => {
   try {
-    const { imageUrl, date, title, content, author, timeRange } = req.body;
-    const blog = new Blog({ imageUrl, date, title, content, author, views: 0, tags});
-    await blog.save();
+    const { title, content, imageUrl, category, tags } = req.body;
+
+    // Tạo một blog mới với tiêu đề và nội dung từ biểu mẫu
+    const newBlog = new Blog({
+      title,
+      content,
+      imageUrl,
+      category,
+      tags,
+      author: req.user._id,
+      date: new Date(),
+      views: 0
+    });
+
+    await newBlog.save();
+
     res.redirect('/blogs');
   } catch (error) {
-    res.status(500).send(error.message);
+    console.error('Error creating blog:', error);
+    res.status(500).send('Internal Server Error');
   }
 };
 
 const ITEMS_PER_PAGE = 9;
 
-// search filter pagination
-// const getBlogsHandler = async (req, res, pageParam) => {
-//   const { search, filter, tags, category, timeRange } = req.query;
-//   const page = parseInt(pageParam) || 1;
-//   let query = {};
-//   console.log('req.query:', req.query);
-//   if (search) {
-//     query = {
-//       $or: [
-//         { title: { $regex: search, $options: 'i' } }, // Tìm kiếm theo tiêu đề, không phân biệt chữ hoa chữ thường
-//         { content: { $regex: search, $options: 'i' } } // Tìm kiếm theo nội dung, không phân biệt chữ hoa chữ thường
-//       ]
-//     };
-//   }
-//   if (category) {
-//     query.category = category;
-//   }
-//   let tagsArray = [];
-//   if (tags && tags.length > 0) {
-//     tagsArray = Array.isArray(tags) ? tags : [tags];
-//     query.tags = { $in: tagsArray };
-//   }
-
-//   if (timeRange) {
-//     const now = new Date();
-//     let startDate;
-//     if (timeRange === '24h') {
-//       startDate = new Date(now.getTime() - (24 * 60 * 60 * 1000));
-//     } else if (timeRange === 'week') {
-//       startDate = new Date(now.getTime() - (7 * 24 * 60 * 60 * 1000));
-//     } else if (timeRange === 'month') {
-//       startDate = new Date(now.getTime() - (30 * 24 * 60 * 60 * 1000));
-//     } else if (timeRange === 'year') {
-//       startDate = new Date(now.getTime() - (365 * 24 * 60 * 60 * 1000));
-//     }
-//     if (startDate) {
-//       query.date = { $gte: startDate };
-//     }
-//     console.log('Time range:', timeRange);
-//     console.log('Start date:', startDate);
-//   }
-
-//   console.log('Constructed query:', query);
-
-//   let sort = {};
-//   if (filter === 'latest') {
-//     sort.date = -1;
-//   } else if (filter === 'oldest') {
-//     sort.date = 1;
-//   } else if (filter === 'popular') {
-//     sort.views = -1; 
-//   }
-
-//   try {
-//     const totalBlogs = await Blog.countDocuments(query);
-//     const blogs = await Blog.find(query)
-//       .skip((page - 1) * ITEMS_PER_PAGE)
-//       .limit(ITEMS_PER_PAGE)
-//       .sort(sort)
-//       .populate('author')
-//       .populate('category')
-//       .populate('tags');
-
-//     const allCategories = await Category.find();
-//     const allTags = await Tag.find(); 
-//     res.render('blog-grids', {
-//       blogs,
-//       currentPage: page,
-//       hasNextPage: ITEMS_PER_PAGE * page < totalBlogs,
-//       hasPreviousPage: page > 1,
-//       nextPage: page + 1,
-//       previousPage: page - 1,
-//       lastPage: Math.ceil(totalBlogs / ITEMS_PER_PAGE),
-//       search,
-//       filter,
-//       tags: allTags,
-//       categories: allCategories,
-//       selectedTags: tagsArray || [],
-//       selectedCategory: category || '',
-//       timeRange: timeRange || ''
-//     });
-//   } catch (error) {
-//     res.status(500).send(error.message);
-//   }
-// };
 
 const getBlogsHandler = async (req, res) => {
   const { search, filter, tags, category, timeRange } = req.query;
@@ -258,3 +201,15 @@ exports.getBlogs = (req, res) => {
   getBlogsHandler(req, res);
 };
 
+
+// Create a new blog
+exports.renderCreateBlogPage = async (req, res) => {
+  try {
+    const categories = await Category.find();
+    const tags = await Tag.find();
+    res.render('blog-create', { categories, tags });
+  } catch (error) {
+    console.error('Error rendering create blog page:', error);
+    res.status(500).send('Internal Server Error');
+  }
+};
