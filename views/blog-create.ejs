@@ -312,15 +312,18 @@
             const errors = xhr.responseJSON.errors;
             let errorList = '<ul class="error-list mb-4">';
             
-            if (Array.isArray(errors)) {
-              errors.forEach(function(error) {
-                errorList += `<li class="error-item text-red-500 dark:text-red-300">${error.msg}</li>`;
+            if (typeof errors === 'object' && errors !== null) {
+              Object.keys(errors).forEach(function(key) {
+                if (errors[key]) {
+                  errorList += `<li class="error-item text-red-500 dark:text-red-300">${errors[key]}</li>`;
+                }
               });
             } else {
               errorList += `<li class="error-item text-red-500 dark:text-red-300">An unexpected error occurred.</li>`;
             }
+
           
-          errorList += '</ul>';
+            errorList += '</ul>';
 
             Swal.fire({
             icon: 'error',
