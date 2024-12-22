@@ -4,6 +4,8 @@ const Category = require('../models/category');
 const path = require('path');
 const ejs = require('ejs');
 const upload = require('../config/cloudinary');
+const tag = require('../models/tag');
+const mongoose = require('mongoose');
 
 // Endpoint để xử lý ảnh tải lên
 exports.uploadImage = (req, res) => {
@@ -51,31 +53,94 @@ exports.getBlogById = async (req, res) => {
   }
 };
 
-// Create a new blog
 exports.createBlog = async (req, res) => {
-  try {
-    const { title, content, imageUrl, category, tags } = req.body;
+  const session = await mongoose.startSession();
+  session.startTransaction();
 
-    // Tạo một blog mới với tiêu đề và nội dung từ biểu mẫu
+  try {
+    const { title, content, category, tags: rawTags } = req.body;
+
+    // Validate input
+    if (!title || !content || !category || !req.file) {
+      return res.status(400).json({
+        errors: {
+          title: !title ? 'Title is required' : undefined,
+          content: !content ? 'Content is required' : undefined,
+          category: !category ? 'Category is required' : undefined,
+          image: !req.file ? 'Image is required' : undefined,
+        },
+      });
+    }
+
+    // Parse and sanitize tags (if provided)
+    const tags = rawTags
+      ? rawTags.split(',').map(tag => tag.trim()).filter(tag => tag) // Remove empty strings
+      : [];
+
+    // Get image URL from Cloudinary
+    const imageUrl = req.file.path;
+
+    // Process tags if provided
+    let allTagIds = [];
+    if (tags.length > 0) {
+      const existingTags = await Tag.find({ name: { $in: tags } }).session(session);
+      const existingTagNames = existingTags.map(tag => tag.name);
+
+      // Create new tags if necessary
+      const newTagNames = tags.filter(tagName => !existingTagNames.includes(tagName));
+      let newTagDocs = [];
+      if (newTagNames.length > 0) {
+        newTagDocs = await Tag.insertMany(
+          newTagNames.map(name => ({ name })),
+          { session }
+        );
+      }
+
+      // Combine all tag IDs
+      allTagIds = [
+        ...existingTags.map(tag => tag._id),
+        ...newTagDocs.map(tag => tag._id),
+      ];
+    }
+
+    // Create new blog
     const newBlog = new Blog({
       title,
       content,
       imageUrl,
       category,
-      tags,
+      tags: allTagIds, // Can be empty
       author: req.user._id,
       date: new Date(),
-      views: 0
+      views: 0,
     });
 
-    await newBlog.save();
+    await newBlog.save({ session });
 
-    res.redirect('/blogs');
+    // Commit the transaction
+    await session.commitTransaction();
+    session.endSession();
+
+    res.status(201).json({ success_msg: 'Blog created successfully', blog: newBlog });
   } catch (error) {
+    // Rollback transaction on error
+    await session.abortTransaction();
+    session.endSession();
+
     console.error('Error creating blog:', error);
-    res.status(500).send('Internal Server Error');
+
+    res.status(500).json({
+      errors: {
+        server: 'An error occurred while creating the blog. Please try again later.',
+        details: error.message,
+      },
+    });
   }
 };
+
+
+
+
 
 const ITEMS_PER_PAGE = 9;
 

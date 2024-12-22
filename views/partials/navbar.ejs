@@ -12,7 +12,7 @@
               />
             </a>
           </div>
-          <div class="flex w-full items-center justify-between px-4">
+          <div class="flex w-full items-center justify-end px-4">
             <div>
               <button
                 id="navbarToggler"
@@ -32,55 +32,37 @@
                 id="navbarCollapse"
                 class="absolute right-4 top-full hidden w-full max-w-[250px] rounded-lg bg-white py-5 shadow-lg dark:bg-dark-2 lg:static lg:block lg:w-full lg:max-w-full lg:bg-transparent lg:px-4 lg:py-0 lg:shadow-none dark:lg:bg-transparent xl:px-6"
               >
+
                 <ul class="blcok lg:flex 2xl:ml-20">
                   <li class="group relative">
-                    <a
-                      href="#home"
-                      class="ud-menu-scroll mx-8 flex py-2 text-base font-medium text-dark group-hover:text-primary dark:text-white lg:mr-0 lg:inline-flex lg:px-0 lg:py-6 lg:text-white lg:group-hover:text-white lg:group-hover:opacity-70"
-                    >
-                      Home
-                    </a>
+                    <div class="flex lg:hidden">
+                      <% if (user) { %>
+                        <span class="px-[22px] py-2 text-base font-medium text-white">
+                          Welcome, <%= user.username %>
+                        </span>
+                        <a
+                          href="/logout"
+                          class="loginBtn px-[22px] py-2 text-base font-medium text-white hover:opacity-70"
+                        >
+                          Logout
+                        </a>
+                      <% } else { %>
+                        <a
+                          href="/signin"
+                          class="loginBtn px-[22px] py-2 text-base font-medium text-white hover:opacity-70"
+                        >
+                          Sign In
+                        </a>
+                        <a
+                          href="/signup"
+                          class="signUpBtn rounded-md bg-white bg-opacity-20 px-6 py-2 text-base font-medium text-white duration-300 ease-in-out hover:bg-opacity-100 hover:text-dark"
+                        >
+                          Sign Up
+                        </a>
+                      <% } %>
+                    </div>
                   </li>
-                  <li class="group relative">
-                    <a
-                      href="#about"
-                      class="ud-menu-scroll mx-8 flex py-2 text-base font-medium text-dark group-hover:text-primary dark:text-white lg:ml-7 lg:mr-0 lg:inline-flex lg:px-0 lg:py-6 lg:text-white lg:group-hover:text-white lg:group-hover:opacity-70 xl:ml-10"
-                    >
-                      About
-                    </a>
-                  </li>
-                  <li class="group relative">
-                    <a
-                      href="#pricing"
-                      class="ud-menu-scroll mx-8 flex py-2 text-base font-medium text-dark group-hover:text-primary dark:text-white lg:ml-7 lg:mr-0 lg:inline-flex lg:px-0 lg:py-6 lg:text-white lg:group-hover:text-white lg:group-hover:opacity-70 xl:ml-10"
-                    >
-                      Pricing
-                    </a>
-                  </li>
-                  <li class="group relative">
-                    <a
-                      href="#team"
-                      class="ud-menu-scroll mx-8 flex py-2 text-base font-medium text-dark group-hover:text-primary dark:text-white lg:ml-7 lg:mr-0 lg:inline-flex lg:px-0 lg:py-6 lg:text-white lg:group-hover:text-white lg:group-hover:opacity-70 xl:ml-10"
-                    >
-                      Team
-                    </a>
-                  </li>
-                  <li class="group relative">
-                    <a
-                      href="#contact"
-                      class="ud-menu-scroll mx-8 flex py-2 text-base font-medium text-dark group-hover:text-primary dark:text-white lg:ml-7 lg:mr-0 lg:inline-flex lg:px-0 lg:py-6 lg:text-white lg:group-hover:text-white lg:group-hover:opacity-70 xl:ml-10"
-                    >
-                      Contact
-                    </a>
-                  </li>
-                  <li class="group relative">
-                    <a
-                      href="/blogs"
-                      class="mx-8 flex py-2 text-base font-medium text-dark group-hover:text-primary dark:text-white lg:ml-7 lg:mr-0 lg:inline-flex lg:px-0 lg:py-6 lg:text-white lg:group-hover:text-white lg:group-hover:opacity-70 xl:ml-10"
-                    >
-                      Blog
-                    </a>
-                  </li>
+
                   <li class="submenu-item group relative">
                     <a
                       href="javascript:void(0)"
@@ -129,7 +111,7 @@
                         Blog Grid Page
                       </a>
                       <a
-                        href="/blog/create"
+                        href="/blog-create"
                         class="block rounded px-4 py-[10px] text-sm text-body-color hover:text-primary dark:text-dark-6 dark:hover:text-primary"
                       >
                         Blog Create Page
@@ -153,6 +135,11 @@
                         404 Page
                       </a>
                     </div>
+                  </li>
+                  <li class="group relative flex items-center justify-center">
+                    <a href="/blog-create" class="group  flex h-10 w-10 items-center justify-center rounded-md bg-primary text-white shadow-md transition duration-150 ease-in-out group-hover:hover:bg-white">
+                      <svg class="h-5 w-5 text-white group-hover:text-primary fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M256 80c0-17.7-14.3-32-32-32s-32 14.3-32 32l0 144L48 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l144 0 0 144c0 17.7 14.3 32 32 32s32-14.3 32-32l0-144 144 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-144 0 0-144z"/></svg>
+                    </a>
                   </li>
                 </ul>
               </nav>
@@ -230,7 +217,7 @@
                   </svg>
                 </span>
               </label>
-              <div class="hidden sm:flex">
+              <div class="hidden lg:flex">
                 <% if (user) { %>
                   <span class="px-[22px] py-2 text-base font-medium text-white">
                     Welcome, <%= user.username %>

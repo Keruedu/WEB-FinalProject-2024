@@ -234,7 +234,13 @@
 
       // Xử lý sự kiện popstate để tải lại các đối tượng cũ khi người dùng nhấn nút "Quay lại" hoặc "Tiến tới"
       window.addEventListener('popstate', function (event) {
-        const path = event.state ? event.state.path : window.location.href;
+      const path = event.state ? event.state.path : window.location.href;
+
+      if (!path.includes('/blogs')) {
+        // Chuyển hướng đến /blogs nếu đường dẫn không phải là /blogs
+        window.location.replace('/blogs');
+      } else {
+        // Thực hiện AJAX để tải nội dung động
         $.ajax({
           url: path,
           method: 'GET',
@@ -251,7 +257,8 @@
             alert('Có lỗi xảy ra khi tải dữ liệu. Vui lòng thử lại!');
           },
         });
-      });
+      }
+    });
     });
   </script>
 </body>

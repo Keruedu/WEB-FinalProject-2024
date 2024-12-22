@@ -39,8 +39,8 @@
             </a>
           </h3>
           <p class="max-w-[370px] text-base text-body-color dark:text-dark-6">
-            <%= blog.content ? blog.content.substring(0, 100) : 'No Content Available' %>...
-          </p>
+            <!--Solve html to string if have-->
+            <%= blog.content ? (blog.content.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' - ').substring(0, 100)) : 'No Content Available' %>...
         </div>
       </div>
     </div>
