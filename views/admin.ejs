@@ -51,6 +51,7 @@
                 <th class="px-6 py-3 text-left">Email</th>
                 <th class="px-6 py-3 text-left">Role</th>
                 <th class="px-6 py-3 text-left">Premium</th>
+                <th class="px-6 py-3 text-left">Status</th>
                 <th class="px-6 py-3 text-left">Actions</th>
               </tr>
             </thead>
@@ -61,6 +62,11 @@
                   <td class="px-6 py-4"><%= user.email %></td>
                   <td class="px-6 py-4"><%= user.role %></td>
                   <td class="px-6 py-4"><%= user.isPremium ? 'Yes' : 'No' %></td>
+                  <td class="px-6 py-4">
+                    <span class="<%= user.isBanned ? 'text-red-500' : 'text-green-500' %>">
+                      <%= user.isBanned ? 'Banned' : 'Active' %>
+                    </span>
+                  </td>
                   <td class="px-6 py-4">
                     <% if (user.role !== 'admin') { %>
                       <div class="relative inline-block text-left">
@@ -73,9 +79,9 @@
                           <div class="py-1">
                             <button 
                               class="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-dark-3"
-                              onclick="alert('Chức năng này sẽ được triển khai sau')"
+                              onclick="toggleBan('<%= user._id %>')"
                             >
-                              Ban User
+                              <%= user.isBanned ? 'Unban User' : 'Ban User' %>
                             </button>
                           </div>
                         </div>
@@ -97,6 +103,33 @@
   </section>
 
   <script>
+  function toggleBan(userId) {
+    console.log('Sending request to:', `/users/${userId}/toggle-ban`);
+    fetch(`/users/${userId}/toggle-ban`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      credentials: 'same-origin'
+    })
+    .then(response => {
+      console.log('Response status:', response.status);
+      return response.json();
+    })
+    .then(data => {
+      console.log('Response data:', data);
+      if (data.success) {
+        window.location.reload();
+      } else {
+        alert(data.errors[0].msg);
+      }
+    })
+    .catch(error => {
+      console.error('Error details:', error);
+      alert('An error occurred while processing your request');
+    });
+  }
+
   function toggleDropdown(userId) {
     const dropdown = document.getElementById(`dropdown-${userId}`);
     const allDropdowns = document.querySelectorAll('[id^="dropdown-"]');

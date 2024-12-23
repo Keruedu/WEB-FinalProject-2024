@@ -22,6 +22,10 @@ passport.use(
         if (!isMatch) {
           return done(null, false, { message: 'Incorrect password.' });
         }
+        // Kiểm tra user có bị banned không
+        if (user.isBanned) {
+          return done(null, false, { message: 'Your account has been banned.' });
+        }
         return done(null, user);
       } catch (err) {
         return done(err);

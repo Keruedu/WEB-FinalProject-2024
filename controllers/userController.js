@@ -106,13 +106,35 @@ exports.registerUser = async (req, res) => {
 // };
 
 exports.loginUser = (req, res, next) => {
-  passport.authenticate('local', (err, user, info) => {
+  passport.authenticate('local', async (err, user, info) => {
     if (err) {
       return res.status(500).json({ errors: [{ msg: 'Internal server error' }] });
     }
+    
     if (!user) {
+      // Nếu user bị banned, tìm email admin
+      if (info.message === 'Your account has been banned.') {
+        try {
+          const adminUser = await User.findOne({ role: 'admin' });
+          const adminEmail = adminUser ? adminUser.email : 'admin@example.com'; // fallback nếu không tìm thấy admin
+
+          return res.status(403).json({ 
+            errors: [{ msg: info.message }],
+            isBanned: true,
+            adminEmail: adminEmail
+          });
+        } catch (error) {
+          console.error('Error finding admin email:', error);
+          return res.status(403).json({ 
+            errors: [{ msg: info.message }],
+            isBanned: true,
+            adminEmail: 'admin@example.com' // fallback nếu có lỗi
+          });
+        }
+      }
       return res.status(400).json({ errors: [{ msg: info.message }] });
     }
+
     req.logIn(user, (err) => {
       if (err) {
         return res.status(500).json({ errors: [{ msg: 'Internal server error' }] });
@@ -120,6 +142,38 @@ exports.loginUser = (req, res, next) => {
       return res.status(200).json({ success_msg: 'You are now logged in' });
     });
   })(req, res, next);
+};
+
+exports.toggleUserBan = async (req, res) => {
+  try {
+    console.log('Toggle ban request for user:', req.params.userId);
+    const userId = req.params.userId;
+    const user = await User.findById(userId);
+    
+    if (!user) {
+      console.log('User not found');
+      return res.status(404).json({ errors: [{ msg: 'User not found' }] });
+    }
+    
+    if (user.role === 'admin') {
+      console.log('Cannot ban admin');
+      return res.status(403).json({ errors: [{ msg: 'Cannot ban admin users' }] });
+    }
+    
+    user.isBanned = !user.isBanned;
+    user.bannedAt = user.isBanned ? new Date() : null;
+    await user.save();
+    
+    console.log('User ban status updated:', user.isBanned);
+    return res.status(200).json({ 
+      success: true, 
+      isBanned: user.isBanned,
+      message: `User has been ${user.isBanned ? 'banned' : 'unbanned'}`
+    });
+  } catch (error) {
+    console.error('Error in toggleUserBan:', error);
+    return res.status(500).json({ errors: [{ msg: 'Server error' }] });
+  }
 };
 
 

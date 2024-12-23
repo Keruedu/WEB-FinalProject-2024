@@ -255,25 +255,37 @@
             });
           },
           error: function(xhr) {
-            // Handle error response
-            const errors = xhr.responseJSON.errors;
-            let errorList = '<ul class="error-list mb-4">';
-            errors.forEach(function(error) {
-              errorList += `<li class="error-item text-red-500 dark:text-red-300">${error.msg}</li>`;
-            });
-            errorList += '</ul>';
-  
-            Swal.fire({
-              icon: 'error',
-              title: 'Oops...',
-              html: errorList,
-              customClass: {
-                popup: 'bg-[#F4F7FF] dark:bg-gray-800 text-[#333] dark:text-gray-200',
-                title: 'text-[#1a202c] dark:text-gray-100',
-                confirmButton: 'bg-[#1a202c] text-white dark:bg-gray-700',
-                cancelButton: 'bg-[#e53e3e] text-white dark:bg-red-600'
-              }
-            });
+            const response = xhr.responseJSON;
+
+            // Kiểm tra nếu tài khoản bị banned
+            if (response.isBanned) {
+              Swal.fire({
+                icon: 'error',
+                title: 'Account Banned',
+                html: `${response.errors[0].msg}<br><br>
+                      <span class="text-sm">If you believe this is a mistake, please contact our admin at:<br>
+                      <a href="mailto:${response.adminEmail}" class="text-blue-600 hover:underline">${response.adminEmail}</a></span>`,
+                confirmButtonText: 'OK',
+                customClass: {
+                  popup: 'bg-[#F4F7FF] dark:bg-gray-800 text-[#333] dark:text-gray-200',
+                  title: 'text-[#1a202c] dark:text-gray-100',
+                  confirmButton: 'bg-[#1a202c] text-white dark:bg-gray-700'
+                }
+              }).then(() => {
+                window.location.href = '/logout';
+              });
+            } else if (response.errors) {
+              Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: response.errors[0].msg,
+                customClass: {
+                  popup: 'bg-[#F4F7FF] dark:bg-gray-800 text-[#333] dark:text-gray-200',
+                  title: 'text-[#1a202c] dark:text-gray-100',
+                  confirmButton: 'bg-[#1a202c] text-white dark:bg-gray-700'
+                }
+              });
+            }
           }
         });
       });

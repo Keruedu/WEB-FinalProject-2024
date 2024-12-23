@@ -2,7 +2,8 @@ const express = require('express');
 const { check, validationResult } = require('express-validator');
 const router = express.Router();
 const userController = require('../controllers/userController');
-const { ensureAuthenticated } = require('../middlewares/auth');
+const { ensureAuthenticated, ensureAdmin } = require('../middlewares/auth');
+//const { ensureAuthenticated } = require('../middlewares/auth');
 
 router.get('/signup', (req, res) => {
   res.render('signup', { errors: [], username: '', email: '' });
@@ -34,4 +35,7 @@ router.get('/logout', (req, res) => {
     res.redirect('/signin');
   });
 });
+
+router.post('/users/:userId/toggle-ban', ensureAuthenticated, ensureAdmin, userController.toggleUserBan);
+
 module.exports = router;

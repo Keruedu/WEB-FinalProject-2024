@@ -16,6 +16,10 @@ const userSchema = new mongoose.Schema({
   premiumExpiration: {
     type: Date,
     default: null
+  },
+  isBanned: {
+    type: Boolean,
+    default: false
   }
 });
 

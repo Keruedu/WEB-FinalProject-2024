@@ -710,6 +710,10 @@ body {
   z-index: 40;
 }
 
+.z-50{
+  z-index: 50;
+}
+
 .z-\[-1\]{
   z-index: -1;
 }
@@ -903,6 +907,10 @@ body {
   margin-top: 4rem;
 }
 
+.mt-2{
+  margin-top: 0.5rem;
+}
+
 .mt-4{
   margin-top: 1rem;
 }
@@ -983,6 +991,10 @@ body {
   height: 1.25rem;
 }
 
+.h-6{
+  height: 1.5rem;
+}
+
 .h-\[120px\]{
   height: 120px;
 }
@@ -1051,8 +1063,16 @@ body {
   width: 8rem;
 }
 
+.w-48{
+  width: 12rem;
+}
+
 .w-5{
   width: 1.25rem;
+}
+
+.w-6{
+  width: 1.5rem;
 }
 
 .w-60{
@@ -1097,6 +1117,10 @@ body {
 
 .w-px{
   width: 1px;
+}
+
+.min-w-full{
+  min-width: 100%;
 }
 
 .max-w-\[160px\]{
@@ -1313,6 +1337,10 @@ body {
 
 .overflow-hidden{
   overflow: hidden;
+}
+
+.overflow-x-auto{
+  overflow-x: auto;
 }
 
 .scroll-smooth{
@@ -1607,6 +1635,10 @@ body {
      object-position: center;
 }
 
+.p-1{
+  padding: 0.25rem;
+}
+
 .p-2{
   padding: 0.5rem;
 }
@@ -1733,6 +1765,11 @@ body {
   padding-bottom: 0.75rem;
 }
 
+.py-4{
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+}
+
 .py-5{
   padding-top: 1.25rem;
   padding-bottom: 1.25rem;
@@ -1806,6 +1843,10 @@ body {
   padding-bottom: 2rem;
 }
 
+.pb-\[120px\]{
+  padding-bottom: 120px;
+}
+
 .pb-\[60px\]{
   padding-bottom: 60px;
 }
@@ -1828,6 +1869,14 @@ body {
 
 .pt-\[120px\]{
   padding-top: 120px;
+}
+
+.pt-\[150px\]{
+  padding-top: 150px;
+}
+
+.text-left{
+  text-align: left;
 }
 
 .text-center{
@@ -2356,6 +2405,11 @@ body {
   background-color: rgb(17 25 40 / var(--tw-bg-opacity));
 }
 
+.hover\:bg-gray-100:hover{
+  --tw-bg-opacity: 1;
+  background-color: rgb(243 244 246 / var(--tw-bg-opacity));
+}
+
 .hover\:bg-gray-2:hover{
   --tw-bg-opacity: 1;
   background-color: rgb(243 244 246 / var(--tw-bg-opacity));
@@ -2579,6 +2633,11 @@ body {
 :is(.dark .dark\:hover\:border-primary:hover){
   --tw-border-opacity: 1;
   border-color: rgb(55 88 249 / var(--tw-border-opacity));
+}
+
+:is(.dark .dark\:hover\:bg-dark-3:hover){
+  --tw-bg-opacity: 1;
+  background-color: rgb(55 65 81 / var(--tw-bg-opacity));
 }
 
 :is(.dark .dark\:hover\:text-primary:hover){
@@ -2885,6 +2944,10 @@ body {
 
   .lg\:mb-0{
     margin-bottom: 0px;
+  }
+
+  .lg\:mb-20{
+    margin-bottom: 5rem;
   }
 
   .lg\:mb-4{

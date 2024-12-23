@@ -9,6 +9,6 @@ module.exports = {
       if (req.isAuthenticated() && req.user.role === 'admin') {
         return next();
       }
-      res.status(403).send('Access denied');
+      res.status(403).json({ errors: [{ msg: 'Access denied' }] });
     }
   };
