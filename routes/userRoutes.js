@@ -34,4 +34,9 @@ router.get('/logout', (req, res) => {
     res.redirect('/signin');
   });
 });
+
+router.get('/user/:userId', userController.getUserDetails);
+
+router.patch('/follow/:id', ensureAuthenticated, userController.toggleFollowUser);
+
 module.exports = router;

@@ -16,7 +16,28 @@ const userSchema = new mongoose.Schema({
   premiumExpiration: {
     type: Date,
     default: null
-  }
-});
+  },
+  isBanned: {
+    type: Boolean,
+    default: false
+  },
+  followers: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  }],
+  following: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  }],
+}, { timestamps: true });
+
+userSchema.methods.isPremiumActive = function() {
+  if (!this.isPremium || !this.premiumExpiration) return false;
+  return this.premiumExpiration > Date.now();
+};
+
+userSchema.statics.findBannedUsers = function() {
+  return this.find({ isBanned: true });
+};
 
 module.exports = mongoose.model('User', userSchema);

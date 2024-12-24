@@ -1,4 +1,4 @@
-<% if (!user || !user.isPremium) { %>
+<% if (!user || !user.isPremiumActive()) { %>
     <div id="advertisements" class="container flex flex-col gap-6 mx-auto my-8 p-4 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
       <% advertisements.forEach(ad => { %>
         <div class="advertisement bg-gray-100 dark:bg-gray-700 rounded-lg shadow-md relative">

@@ -9,7 +9,7 @@
   <link rel="shortcut icon" href="/images/favicon.png" type="image/x-icon" />
   <link rel="stylesheet" href="/css/animate.css" />
   <link rel="stylesheet" href="/css/tailwind.css" />
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  
   <!-- ==== WOW JS ==== -->
   <script src="/js/wow.min.js"></script>
   <script>
@@ -149,6 +149,7 @@
   <!-- ====== Made With Button End -->
 
   <!-- ====== All Scripts -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script src="/js/main.js"></script>
   <script>
     document.getElementById('dropdownButton').addEventListener('click', function() {
@@ -236,7 +237,7 @@
       window.addEventListener('popstate', function (event) {
       const path = event.state ? event.state.path : window.location.href;
 
-      if (!path.includes('/blogs')) {
+      if (!window.location.href.includes('/blogs')) {
         // Chuyển hướng đến /blogs nếu đường dẫn không phải là /blogs
         window.location.replace('/blogs');
       } else {
@@ -265,44 +266,6 @@
 
 </html>
 
-
-<!-- <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Blog Grids</title>
-  <link rel="stylesheet" href="/css/tailwind.css">
-</head>
-<body>
-  <div class="container mx-auto">
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-      <% blogs.forEach(blog => { %>
-        <div class="mb-10 wow fadeInUp group" data-wow-delay=".1s">
-          <div class="mb-8 overflow-hidden rounded-[5px]">
-            <a href="/<%= blog._id %>" class="block">
-              <img src="<%= blog.imageUrl %>" alt="image" class="w-full transition group-hover:rotate-6 group-hover:scale-125" />
-            </a>
-          </div>
-          <div>
-            <span class="inline-block px-4 py-0.5 mb-6 text-xs font-medium leading-loose text-center text-white rounded-[5px] bg-primary">
-              <%= blog.date.toDateString() %>
-            </span>
-            <h3>
-              <a href="/<%= blog._id %>" class="inline-block mb-4 text-xl font-semibold text-dark dark:text-white hover:text-primary dark:hover:text-primary sm:text-2xl lg:text-xl xl:text-2xl">
-                <%= blog.title %>
-              </a>
-            </h3>
-            <p class="max-w-[370px] text-base text-body-color dark:text-dark-6">
-              <%= blog.content.substring(0, 100) %>...
-            </p>
-          </div>
-        </div>
-      <% }) %>
-    </div>
-  </div>
-</body>
-</html> -->
 
 
 

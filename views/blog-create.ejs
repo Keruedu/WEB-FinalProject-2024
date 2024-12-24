@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="/css/animate.css" />
   <link rel="stylesheet" href="/css/tailwind.css" />
   <link rel="stylesheet" href="/css/ckeditor.css" />
+  <link rel="stylesheet" href="https://cdn.ckeditor.com/ckeditor5/44.1.0/ckeditor5.css" />
 
   <!-- sweetalert2 -->
   <!-- jquery -->
@@ -17,7 +18,7 @@
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> 
   <!-- ==== WOW JS ==== -->
   <script src="/js/wow.min.js"></script>
-  <script src="https://cdn.ckeditor.com/ckeditor5/35.0.1/classic/ckeditor.js"></script>
+  <script src="https://cdn.ckeditor.com/ckeditor5/44.1.0/ckeditor5.umd.js"></script>
   <script>
     new WOW().init();
   </script>
@@ -80,20 +81,22 @@
           </button>
           <img id="imagePreview" src="#" alt="Image Preview" class="hidden w-32 h-32 object-cover rounded-md border border-stroke dark:border-dark-3" />
         </div>
-        <span id="imageError" class="text-red-500 hidden">Image is required</span>
   
-        <div class="w-full border border-stroke dark:border-dark-3 rounded-md">
+        <!-- <div class="w-full border border-stroke dark:border-dark-3 rounded-md">
           <textarea name="content" id="editor" placeholder="Content" 
           class="w-full h-full md:w-full md:h-full px-5 py-3 text-base transition border rounded-md outline-none border-stroke dark:border-dark-3 text-body-color dark:text-dark-700 placeholder:text-dark-6 focus:border-primary dark:focus:border-primary focus-visible:shadow-none"></textarea>
+        </div> -->
+        <div class="main-container w-full border border-stroke dark:border-dark-3 rounded-md">
+          <div class="editor-container editor-container_classic-editor editor-container_include-block-toolbar" id="editor-container">
+            <div class="editor-container__editor"><textarea name="content" id="editor" placeholder="Content"></textarea></div>
+          </div>
         </div>
-        <span id="contentError" class="text-red-500 hidden">Content is required</span>
-  
+
         <select name="category" id="category" class="w-full md:w-full px-5 py-3 text-base transition border rounded-md outline-none border-stroke dark:border-dark-3 text-body-color dark:text-dark-700 focus:border-primary dark:focus:border-primary focus-visible:shadow-none">
           <% categories.forEach(category => { %>
             <option value="<%= category._id %>"><%= category.name %></option>
           <% }) %>
         </select>
-        <span id="categoryError" class="text-red-500 hidden">Category is required</span>
   
         <div id="tagTodoList" class="w-full md:w-full px-5 py-3 text-base transition border rounded-md outline-none border-stroke dark:border-dark-3 text-body-color dark:text-dark-700 focus:border-primary dark:focus:border-primary focus-visible:shadow-none">
           <input type="text" id="tagInput" placeholder="Add a tag" class="w-full px-3 py-2 mb-2 border rounded-md" />
@@ -101,7 +104,6 @@
           </ul>
         </div>
         <input type="hidden" name="tags" id="tagsInput" />
-        <span id="tagsError" class="text-red-500 hidden">At least one tag is required</span>
   
         <button type="submit" class="w-full md:w-auto px-5 py-3 text-base text-white transition duration-300 ease-in-out border rounded-md cursor-pointer border-primary bg-primary hover:bg-blue-dark">Create</button>
       </form>
@@ -140,127 +142,303 @@
 
   <!-- init CKEditor-->
   <script>
-    ClassicEditor
-      .create(document.querySelector('#editor'), {
-        ckfinder: {
-          uploadUrl: '/upload'
-        },
-        toolbar: {
-          items: [
-            'heading', '|',
-            'bold', 'italic', 'link', 'bulletedList', 'numberedList', '|',
-            'outdent', 'indent', '|',
-            'imageUpload', 'blockQuote', 'insertTable', 'mediaEmbed', '|',
-            'undo', 'redo'
-          ]
-        },
-        image: {
-          toolbar: [
-            'imageTextAlternative', 'imageStyle:full', 'imageStyle:side'
-          ]
-        },
-        table: {
-          contentToolbar: [
-            'tableColumn', 'tableRow', 'mergeTableCells'
-          ]
-        },
-        language: 'en'
-      })
-      .then(editor => {
-        editor.ui.view.element.classList.add('blog-editor');
-        editor.plugins.get('FileRepository').createUploadAdapter = (loader) => {
-          return {
-            upload: () => {
-              return loader.file
-                .then(file => new Promise((resolve, reject) => {
-                  const data = new FormData();
-                  data.append('upload', file);
-  
-                  fetch('/upload', {
-                    method: 'POST',
-                    body: data
-                  })
-                  .then(response => response.json())
-                  .then(result => {
-                    if (result.error) {
-                      console.error('Error uploading file:', result.error);
-                      reject(result.error);
-                    } else {
-                      console.log('File uploaded successfully:', result.url);
-                      resolve({
-                        default: result.url
-                      });
-                    }
-                  })
-                  .catch(error => {
-                    console.error('Error uploading file:', error);
-                    reject(error);
-                  });
-                }));
-            }
-          };
-        };
-      })
-      .catch(error => {
-        console.error('Error initializing the editor:', error);
-        alert('Error initializing the editor: ' + error.message);
-      });
-  </script>
-  <!-- Add and remove tags -->
-  <script>
-    function previewImage(event) {
-      const input = event.target;
-      const reader = new FileReader();
-      reader.onload = function() {
-        const imagePreview = document.getElementById('imagePreview');
-        imagePreview.src = reader.result;
-        imagePreview.classList.remove('hidden');
-      };
-      reader.readAsDataURL(input.files[0]);
-    }
+    const {
+      ClassicEditor,
+      AutoImage,
+      Autosave,
+      BalloonToolbar,
+      BlockQuote,
+      BlockToolbar,
+      Bold,
+      CloudServices,
+      Code,
+      CodeBlock,
+      Essentials,
+      FontBackgroundColor,
+      FontColor,
+      FontFamily,
+      FontSize,
+      GeneralHtmlSupport,
+      Heading,
+      Highlight,
+      ImageBlock,
+      ImageInline,
+      ImageInsertViaUrl,
+      ImageResize,
+      ImageStyle,
+      ImageTextAlternative,
+      ImageToolbar,
+      ImageUpload,
+      Indent,
+      IndentBlock,
+      Italic,
+      Link,
+      LinkImage,
+      List,
+      ListProperties,
+      Paragraph,
+      SourceEditing,
+      Strikethrough,
+      Table,
+      TableCaption,
+      TableCellProperties,
+      TableColumnResize,
+      TableProperties,
+      TableToolbar,
+      TodoList,
+      Underline,
+      SimpleUploadAdapter
+    } = window.CKEDITOR;
 
-    document.getElementById('tagInput').addEventListener('keypress', function (e) {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        addTag();
+    const LICENSE_KEY =
+      'eyJhbGciOiJFUzI1NiJ9.eyJleHAiOjE3MzU5NDg3OTksImp0aSI6ImFmNTg1MzBjLWJkZTItNDExZS04Y2ViLWRjM2VhZDIwYTYzMyIsInVzYWdlRW5kcG9pbnQiOiJodHRwczovL3Byb3h5LWV2ZW50LmNrZWRpdG9yLmNvbSIsImRpc3RyaWJ1dGlvbkNoYW5uZWwiOlsiY2xvdWQiLCJkcnVwYWwiLCJzaCJdLCJ3aGl0ZUxhYmVsIjp0cnVlLCJsaWNlbnNlVHlwZSI6InRyaWFsIiwiZmVhdHVyZXMiOlsiKiJdLCJ2YyI6IjY0NmMxM2UyIn0.htzd4mbtVMP7hkY1yo08aCWSsBW9Chs6bAqLx4xMJzUbADGuIzZBb-3stsDoSNn83hTJbMSBCjstKQJozuzTkQ';
+
+    const editorConfig = {
+      toolbar: {
+        items: [
+          'undo',
+          'redo',
+          'sourceEditing',
+          '|',
+          'heading',
+          '|',
+          'insertImage',
+          'code',
+          '|',
+          'fontSize',
+          'fontFamily',
+          'fontColor',
+          'fontBackgroundColor',
+          '|',
+          'bold',
+          'italic',
+          'underline',
+          'strikethrough',
+          '|',
+          'link',
+          'insertTable',
+          'highlight',
+          'blockQuote',
+          'codeBlock',
+          '|',
+          'bulletedList',
+          'numberedList',
+          'todoList',
+          'outdent',
+          'indent'
+        ],
+        shouldNotGroupWhenFull: false
+      },
+
+      
+      plugins: [
+        AutoImage,
+        Autosave,
+        BalloonToolbar,
+        BlockQuote,
+        BlockToolbar,
+        Bold,
+        CloudServices,
+        Code,
+        CodeBlock,
+        Essentials,
+        FontBackgroundColor,
+        FontColor,
+        FontFamily,
+        FontSize,
+        GeneralHtmlSupport,
+        Heading,
+        Highlight,
+        ImageBlock,
+        ImageInline,
+        ImageInsertViaUrl,
+        ImageResize,
+        ImageStyle,
+        ImageTextAlternative,
+        ImageToolbar,
+        ImageUpload,
+        Indent,
+        IndentBlock,
+        Italic,
+        Link,
+        LinkImage,
+        List,
+        ListProperties,
+        Paragraph,
+        SourceEditing,
+        Strikethrough,
+        Table,
+        TableCaption,
+        TableCellProperties,
+        TableColumnResize,
+        TableProperties,
+        TableToolbar,
+        TodoList,
+        Underline,
+        SimpleUploadAdapter
+      ],
+      balloonToolbar: ['bold', 'italic', '|', 'link', 'insertImage', '|', 'bulletedList', 'numberedList'],
+      blockToolbar: ['bold', 'italic', '|', 'link', 'insertImage', 'insertTable', '|', 'bulletedList', 'numberedList', 'outdent', 'indent'],
+      fontFamily: {
+        supportAllValues: true
+      },
+      fontSize: {
+        options: [10, 12, 14, 'default', 18, 20, 22],
+        supportAllValues: true
+      },
+      inlineStyles: true,
+      heading: {
+        options: [
+          {
+            model: 'paragraph',
+            title: 'Paragraph',
+            class: 'ck-heading_paragraph'
+          },
+          {
+            model: 'heading1',
+            view: 'h1',
+            title: 'Heading 1',
+            class: 'ck-heading_heading1'
+          },
+          {
+            model: 'heading2',
+            view: 'h2',
+            title: 'Heading 2',
+            class: 'ck-heading_heading2'
+          },
+          {
+            model: 'heading3',
+            view: 'h3',
+            title: 'Heading 3',
+            class: 'ck-heading_heading3'
+          },
+          {
+            model: 'heading4',
+            view: 'h4',
+            title: 'Heading 4',
+            class: 'ck-heading_heading4'
+          },
+          {
+            model: 'heading5',
+            view: 'h5',
+            title: 'Heading 5',
+            class: 'ck-heading_heading5'
+          },
+          {
+            model: 'heading6',
+            view: 'h6',
+            title: 'Heading 6',
+            class: 'ck-heading_heading6'
+          }
+        ]
+      },
+      htmlSupport: {
+        allow: [
+          {
+            name: /^.*$/,
+            styles: true,
+            attributes: true,
+            classes: true
+          }
+        ]
+      },
+      image: {
+        toolbar: ['imageTextAlternative', '|', 'imageStyle:inline', 'imageStyle:wrapText', 'imageStyle:breakText', '|', 'resizeImage']
+      },
+      simpleUpload: {
+        uploadUrl: '/upload',
+      },
+      initialData:
+        '<h2>Your new blog here 🎉</h2>',
+      licenseKey: LICENSE_KEY,
+      link: {
+        addTargetToExternalLinks: true,
+        defaultProtocol: 'https://',
+        decorators: {
+          toggleDownloadable: {
+            mode: 'manual',
+            label: 'Downloadable',
+            attributes: {
+              download: 'file'
+            }
+          }
+        }
+      },
+      list: {
+        properties: {
+          styles: true,
+          startIndex: true,
+          reversed: true
+        }
+      },
+      menuBar: {
+        isVisible: true
+      },
+      placeholder: 'Type or paste your content here!',
+      table: {
+        contentToolbar: ['tableColumn', 'tableRow', 'mergeTableCells', 'tableProperties', 'tableCellProperties']
       }
-    });
-  
-    function addTag() {
-      const tagInput = document.getElementById('tagInput');
-      const tagList = document.getElementById('tagList');
-      const tagsInput = document.getElementById('tagsInput');
-  
-      if (tagInput.value.trim() !== '') {
-        const li = document.createElement('li');
-        li.classList.add('pl-3', 'h-10', 'text-dark-700', 'dark:text-white', 'bg-primary', 'rounded');
-        li.textContent = tagInput.value.trim();
-        li.innerHTML += '<button type="button" onclick="removeTag(this)" class="ml-2 px-2 bg-gray-700 h-full text-white rounded-e">x</button>';
-        tagList.appendChild(li);
-  
-        updateTagsInput();
-        tagInput.value = '';
+    };
+
+    ClassicEditor.create(document.querySelector('#editor'), editorConfig);
+
+
+    </script>
+    <!-- Add and remove tags -->
+    <script>
+      function previewImage(event) {
+        const input = event.target;
+        const reader = new FileReader();
+        reader.onload = function() {
+          const imagePreview = document.getElementById('imagePreview');
+          imagePreview.src = reader.result;
+          imagePreview.classList.remove('hidden');
+        };
+        reader.readAsDataURL(input.files[0]);
       }
-    }
-  
-    function removeTag(button) {
-      const li = button.parentElement;
-      li.remove();
-      updateTagsInput();
-    }
-  
-    function updateTagsInput() {
-      const tagList = document.getElementById('tagList');
-      const tagsInput = document.getElementById('tagsInput');
-      const tags = [];
-  
-      tagList.querySelectorAll('li').forEach(li => {
-        tags.push(li.textContent.replace(' Remove', ''));
+
+      document.getElementById('tagInput').addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          addTag();
+        }
       });
-  
-      tagsInput.value = tags.join(',');
-    }
-  </script>
+    
+      function addTag() {
+        const tagInput = document.getElementById('tagInput');
+        const tagList = document.getElementById('tagList');
+        const tagsInput = document.getElementById('tagsInput');
+    
+        if (tagInput.value.trim() !== '') {
+          const li = document.createElement('li');
+          li.classList.add('pl-3', 'h-10', 'text-dark-700', 'dark:text-white', 'bg-primary', 'rounded');
+          li.textContent = tagInput.value.trim();
+          li.innerHTML += '<button type="button" onclick="removeTag(this)" class="ml-2 px-2 bg-gray-700 h-full text-white rounded-e">x</button>';
+          tagList.appendChild(li);
+    
+          updateTagsInput();
+          tagInput.value = '';
+        }
+      }
+    
+      function removeTag(button) {
+        const li = button.parentElement;
+        li.remove();
+        updateTagsInput();
+      }
+    
+      function updateTagsInput() {
+        const tagList = document.getElementById('tagList');
+        const tagsInput = document.getElementById('tagsInput');
+        const tags = [];
+    
+        tagList.querySelectorAll('li').forEach(li => {
+          tags.push(li.textContent.replace(' Remove', ''));
+        });
+    
+        tagsInput.value = tags.join(',');
+      }
+    </script>
   <!-- Ajax -->
   <script>
     $(document).ready(function() {

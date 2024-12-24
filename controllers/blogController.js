@@ -4,8 +4,10 @@ const Category = require('../models/category');
 const path = require('path');
 const ejs = require('ejs');
 const upload = require('../config/cloudinary');
-const tag = require('../models/tag');
 const mongoose = require('mongoose');
+const { buildBlogQuery } = require('../utils/queryBuilder');
+const { paginateAndSortBlogs } = require('../utils/paginator');
+const { ITEMS_PER_PAGE } = require('../utils/constants');
 
 // Endpoint để xử lý ảnh tải lên
 exports.uploadImage = (req, res) => {
@@ -36,6 +38,8 @@ exports.getAllBlogs = async (req, res) => {
 exports.getBlogById = async (req, res) => {
   try {
     const blogId = req.params.id;
+
+    await Blog.findByIdAndUpdate(blogId, { $inc: { views: 1 } });
     const blog = await Blog.findById(blogId)
     .populate('author')
     .populate('category')
@@ -111,7 +115,6 @@ exports.createBlog = async (req, res) => {
       category,
       tags: allTagIds, // Can be empty
       author: req.user._id,
-      date: new Date(),
       views: 0,
     });
 
@@ -140,102 +143,54 @@ exports.createBlog = async (req, res) => {
 
 
 
-
-
-const ITEMS_PER_PAGE = 9;
-
-
 const getBlogsHandler = async (req, res) => {
-  const { search, filter, tags, category, timeRange } = req.query;
+  const { search, tags, category, timeRange } = req.query;
+  const filter = req.query.filter || 'latest';
   const url = req.url;
   const page = parseInt(req.query.page) || 1;
-  let query = {};
-  if (search) {
-    query.$or = [
-      { title: { $regex: search, $options: 'i' } },
-      { content: { $regex: search, $options: 'i' } }
-    ];
-  }
-  if (category) {
-    query.category = category;
-  }
-
-  let tagsArray = [];
-  if (tags) {
-    tagsArray = Array.isArray(tags) ? tags : [tags];
-    query.tags = { $in: tagsArray };
-  }
-
-  if (timeRange) {
-    const now = new Date();
-    let startDate;
-    switch (timeRange) {
-      case '24h':
-        startDate = new Date(now.getTime() - 24 * 60 * 60 * 1000);
-        break;
-      case 'week':
-        startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-        break;
-      case 'month':
-        startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-        break;
-      case 'year':
-        startDate = new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000);
-        break;
-    }
-    if (startDate) query.date = { $gte: startDate };
-  }
-
-  let sort = {};
-  if (filter === 'latest') sort.date = -1;
-  if (filter === 'oldest') sort.date = 1;
-  if (filter === 'popular') sort.views = -1;
 
   try {
-    const totalBlogs = await Blog.countDocuments(query);
-    const blogs = await Blog.find(query)
-      .skip((page - 1) * ITEMS_PER_PAGE)
-      .limit(ITEMS_PER_PAGE)
-      .sort(sort)
-      .populate('author', 'name')
-      .populate('category', 'name')
-      .populate('tags', 'name');
+    // Build query using utility function
+    const query = buildBlogQuery({ search, category, tags, timeRange });
 
-    const allCategories = await Category.find().catch(err => {
-      console.error('Error fetching categories:', err);
-      throw err;
-    });
+    // Determine sort order
+    const sort =
+      filter === 'latest' ? { createdAt: -1 } :
+      filter === 'oldest' ? { createdAt: 1 } :
+      filter === 'popular' ? { views: -1 } : {};
 
-    const allTags = await Tag.find().catch(err => {
-      console.error('Error fetching tags:', err);
-      throw err;
-    });
-    
+    // Fetch paginated and sorted blogs
+    const { blogs, totalBlogs } = await paginateAndSortBlogs(query, page, sort, ITEMS_PER_PAGE);
+
+    // Fetch categories and tags
+    const [allCategories, allTags] = await Promise.all([
+      Category.find(),
+      Tag.find()
+    ]);
+
+    // Render partials for AJAX requests
     if (req.xhr) {
-      const blogsHtml = await ejs
-        .renderFile(path.join(__dirname, '../views/partials/blogs.ejs'), { blogs })
-        .catch(err => {
-          console.error('Error rendering blogsHtml:', err);
-          throw err;
-        });
+      const blogsHtml = await ejs.renderFile(
+        path.join(__dirname, '../views/partials/blogs.ejs'),
+        { blogs }
+      );
 
-      const paginationHtml = await ejs
-        .renderFile(path.join(__dirname, '../views/partials/pagination.ejs'), {
+      const paginationHtml = await ejs.renderFile(
+        path.join(__dirname, '../views/partials/pagination.ejs'),
+        {
           currentPage: page,
           hasNextPage: ITEMS_PER_PAGE * page < totalBlogs,
           hasPreviousPage: page > 1,
           nextPage: page + 1,
           previousPage: page - 1,
           lastPage: Math.ceil(totalBlogs / ITEMS_PER_PAGE),
-          oldUrl : url 
-        })
-        .catch(err => {
-          console.error('Error rendering paginationHtml:', err);
-          throw err;
-        });
+          oldUrl: url,
+        }
+      );
 
       return res.status(200).json({ blogsHtml, paginationHtml });
     } else {
+      // Render full page for non-AJAX requests
       res.render('blog-grids', {
         blogs,
         currentPage: page,
@@ -248,9 +203,9 @@ const getBlogsHandler = async (req, res) => {
         filter,
         tags: allTags,
         categories: allCategories,
-        selectedTags: tagsArray || [],
+        selectedTags: tags || [],
         selectedCategory: category || '',
-        timeRange: timeRange || ''
+        timeRange: timeRange || '',
       });
     }
   } catch (error) {
@@ -258,8 +213,6 @@ const getBlogsHandler = async (req, res) => {
     res.status(500).json({ message: 'Internal Server Error', error: error.message });
   }
 };
-
-
 
 // Get blogs with search and filter
 exports.getBlogs = (req, res) => {

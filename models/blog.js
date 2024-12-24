@@ -2,7 +2,6 @@ const mongoose = require('mongoose');
 
 const blogSchema = new mongoose.Schema({
   imageUrl: String,
-  date: Date,
   title: String,
   content: String,
   author: {
@@ -21,6 +20,6 @@ const blogSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Tag'
   }]
-});
+}, { timestamps: true });
 
 module.exports = mongoose.model('Blog', blogSchema);
