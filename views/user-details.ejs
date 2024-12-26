@@ -91,32 +91,44 @@
                     </div>
                   <% } %>
                 </div>
-                <p class="dark:text-white bg-primary px-2 py-1 rounded-md mb-4"><%= userDetails.role %></p>
-                <button id="followButton" class="px-4 py-2 rounded-md <%= isFollowing ? 'bg-gray-500' : 'bg-primary' %> text-white">
+                <div class="flex justify-center items-center gap-2">
+                  <% if (userDetails.isBanned) { %>
+                    <p class="text-white bg-orange-500 px-2 py-1 rounded-md mb-4">banned</p>
+                  <% } %>
+                  <p class="text-white bg-primary px-2 py-1 rounded-md mb-4"><%= userDetails.role %></p>
+                </div>
+                <button id="followButton" class="disabled:opacity-50 disabled:pointer-events-none px-4 py-2 rounded-md <%= isFollowing ? 'bg-gray-500' : 'bg-primary' %> text-white">
                   <%= isFollowing ? 'Following' : 'Follow' %>
                 </button>
                 <div class="max-w-[600px] text-center">
-                  <p>I'm a web developer with experience in creating and maintaining websites. I specialize in front-end development</p>
+                  <p><%= userDetails.description %></p>
                 </div>
             </div>
           </div>
           <div class="flex flex-row flex-wrap gap-y-3 justify-between w-full px-4 dark:text-dark-6 text-base">
 
             <div class="flex flex-col text-white justify-center items-center flex-wrap bg-primary rounded-lg w-[30%] p-5">
-              <p class="text-4xl font-bold overflow-hidden"><%= userBlogCount %></p>
+              <p id="userBlogCount" class="sm:text-4xl text-xl font-bold overflow-hidden"><%= userBlogCount %></p>
               <p class="">Total Blogs</p>
             </div>
-
+            
             <div class="flex flex-col text-white justify-center items-center flex-wrap bg-primary rounded-lg w-[30%] p-5">
-              <p class="text-4xl font-bold overflow-hidden"><%= totalUserViews %></p>
+              <p id="totalUserViews" class="sm:text-4xl text-xl font-bold overflow-hidden"><%= totalUserViews %></p>
               <p class="">Total Views</p>
             </div>
-
+            
             <div class="flex flex-col text-white justify-center items-center flex-wrap bg-primary rounded-lg w-[30%] p-5">
-              <p class="text-4xl font-bold overflow-hidden"><%= followers.length %></p>
+              <p id="followersCount" class="sm:text-4xl text-xl font-bold overflow-hidden"><%= followers.length %></p>
               <p class="">Followers</p>
             </div>
 
+
+            <div class="flex flex-row justify-center items-center flex-wrap rounded-lg w-full p-5">
+              <div class="flex flex-row gap-2">
+                <p class="font-bold">Email:</p>
+                <p class=""><%= userDetails.email %></p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -204,29 +216,73 @@
 
 
     <!-- ====== All Scripts -->
+    
+
+
     <script src="/js/main.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> 
+
+
     <script>
+      document.addEventListener('DOMContentLoaded', function () {
+        function formatNumber(num) {
+          if (num >= 1000000) {
+            return (num / 1000000).toFixed(1) + 'M';
+          } else if (num >= 10000) {
+            return (num / 1000).toFixed(1) + 'k';
+          } else {
+            return num;
+          }
+        }
+    
+        const userBlogCount = document.getElementById('userBlogCount');
+        const totalUserViews = document.getElementById('totalUserViews');
+        const followersCount = document.getElementById('followersCount');
+    
+        userBlogCount.textContent = formatNumber(parseInt(userBlogCount.textContent));
+        totalUserViews.textContent = formatNumber(parseInt(totalUserViews.textContent));
+        followersCount.textContent = formatNumber(parseInt(followersCount.textContent));
+      });
+    </script>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+        const followButton = document.getElementById('followButton');
+        const userId = '<%= user ? user._id : '' %>';
+        const followUserId = '<%= userDetails._id %>';
+
+        if (userId === followUserId) {
+          followButton.disabled = true;
+          return;
+        }
+      });
+
       document.getElementById('followButton').addEventListener('click', function () {
         const followButton = this;
         const userId = '<%= user ? user._id : '' %>';
         const followUserId = '<%= userDetails._id %>';
+
         if (userId === '') {
-        Swal.fire({
-          icon: 'error',
-          title: 'Oops...',
-          text: 'you need to login to follow this user',
-          customClass: {
-            popup: 'bg-[#F4F7FF] dark:bg-gray-800 text-[#333] dark:text-gray-200',
-            title: 'text-[#1a202c] dark:text-gray-100',
-            confirmButton: 'bg-[#1a202c] text-white dark:bg-gray-700',
-            cancelButton: 'bg-[#e53e3e] text-white dark:bg-red-600'
-          }
-        });
-        return;
-      }
-        
+          Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: 'you need to login to follow this user',
+            customClass: {
+              popup: 'bg-[#F4F7FF] dark:bg-gray-800 text-[#333] dark:text-gray-200',
+              title: 'text-[#1a202c] dark:text-gray-100',
+              confirmButton: 'bg-[#1a202c] text-white dark:bg-gray-700',
+              cancelButton: 'bg-[#e53e3e] text-white dark:bg-red-600'
+            }
+          });
+          return;
+        }
+
+        if (userId === followUserId) {
+          followButton.disabled = true;
+          return;
+        }
+
         $.ajax({
           url: `/follow/${followUserId}`,
           method: 'PATCH',

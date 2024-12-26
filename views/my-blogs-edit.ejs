@@ -39,7 +39,7 @@
         <div class="w-full px-4">
           <div class="text-center">
             <h1 class="mb-4 text-3xl font-bold text-dark dark:text-white sm:text-4xl md:text-[40px] md:leading-[1.2]">
-              Blog Create Page</h1>
+              Blog Edit Page</h1>
             <p class="mb-5 text-base text-body-color dark:text-dark-6">
               There are many variations of passages of Lorem Ipsum available.
             </p>
@@ -54,7 +54,7 @@
               <li>
                 <a href="javascript:void(0)" class="flex items-center gap-[10px] text-base font-medium text-body-color">
                   <span class="text-body-color dark:text-dark-6"> / </span>
-                  Create
+                  Edit
                 </a>
               </li>
             </ul>
@@ -65,11 +65,11 @@
   </div>
   <!-- ====== Banner Section End -->
 
-  <!-- ====== CreateBlog Section Start -->
+  <!-- ====== EditBlog Section Start -->
   <section class="pt-20 pb-10 lg:pt-[80px] lg:pb-20 dark:bg-dark">
     <div class="container">
-      <form id="createForm" action="/blog-create" method="post" class="flex flex-col flex-wrap items-center justify-center gap-4 pb-20 w-full md:w-[80%] mx-auto" enctype="multipart/form-data">
-        <input type="text" name="title" id="title" placeholder="Title" 
+      <form id="editForm" action="/my-blogs/<%= blog._id %>" method="post" class="flex flex-col flex-wrap items-center justify-center gap-4 pb-20 w-full md:w-[80%] mx-auto" enctype="multipart/form-data">
+        <input type="text" name="title" id="title" placeholder="Title" value="<%= blog.title %>"
           class="w-full md:w-full px-5 py-3 text-base transition border rounded-md outline-none border-stroke dark:border-dark-3 text-body-color dark:text-dark-700 placeholder:text-dark-6 focus:border-primary dark:focus:border-primary focus-visible:shadow-none" />
         <span id="titleError" class="text-red-500 hidden">Title is required</span>
   
@@ -79,37 +79,36 @@
             <svg class="w-8 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M149.1 64.8L138.7 96 64 96C28.7 96 0 124.7 0 160L0 416c0 35.3 28.7 64 64 64l384 0c35.3 0 64-28.7 64-64l0-256c0-35.3-28.7-64-64-64l-74.7 0L362.9 64.8C356.4 45.2 338.1 32 317.4 32L194.6 32c-20.7 0-39 13.2-45.5 32.8zM256 192a96 96 0 1 1 0 192 96 96 0 1 1 0-192z"/></svg>
             <span>Thumbnail</span>
           </button>
-          <img id="imagePreview" src="#" alt="Image Preview" class="hidden w-32 h-32 object-cover rounded-md border border-stroke dark:border-dark-3" />
+          <img id="imagePreview" src="<%= blog.imageUrl %>" alt="Image Preview" class="w-32 h-32 object-cover rounded-md border border-stroke dark:border-dark-3" />
         </div>
   
-        <!-- <div class="w-full border border-stroke dark:border-dark-3 rounded-md">
-          <textarea name="content" id="editor" placeholder="Content" 
-          class="w-full h-full md:w-full md:h-full px-5 py-3 text-base transition border rounded-md outline-none border-stroke dark:border-dark-3 text-body-color dark:text-dark-700 placeholder:text-dark-6 focus:border-primary dark:focus:border-primary focus-visible:shadow-none"></textarea>
-        </div> -->
         <div class="main-container w-full border border-stroke dark:border-dark-3 rounded-md">
           <div class="editor-container editor-container_classic-editor editor-container_include-block-toolbar" id="editor-container">
-            <div class="editor-container__editor"><textarea name="content" id="editor" placeholder="Content"></textarea></div>
+            <div class="editor-container__editor"><textarea name="content" id="editor" placeholder="Content"><%= blog.content %></textarea></div>
           </div>
         </div>
 
         <select name="category" id="category" class="w-full md:w-full px-5 py-3 text-base transition border rounded-md outline-none border-stroke dark:border-dark-3 text-body-color dark:text-dark-700 focus:border-primary dark:focus:border-primary focus-visible:shadow-none">
           <% categories.forEach(category => { %>
-            <option value="<%= category._id %>"><%= category.name %></option>
+            <option value="<%= category._id %>" <%= blog.category._id.toString() === category._id.toString() ? 'selected' : '' %>><%= category.name %></option>
           <% }) %>
         </select>
   
         <div id="tagTodoList" class="w-full md:w-full px-5 py-3 text-base transition border rounded-md outline-none border-stroke dark:border-dark-3 text-body-color dark:text-dark-700 focus:border-primary dark:focus:border-primary focus-visible:shadow-none">
           <input type="text" id="tagInput" placeholder="Add a tag" class="w-full px-3 py-2 mb-2 border rounded-md" />
           <ul id="tagList" class="flex flex-row items-center gap-[10px] flex-wrap dark:text-white text-white">
+            <% blog.tags.forEach(tag => { %>
+              <li class="pl-3 h-10 text-dark-700 dark:text-white bg-primary rounded"><%= tag.name %><button type="button" onclick="removeTag(this)" class="ml-2 px-2 bg-gray-700 h-full text-white rounded-e">x</button></li>
+            <% }) %>
           </ul>
         </div>
-        <input type="hidden" name="tags" id="tagsInput" />
+        <input type="hidden" name="tags" id="tagsInput" value="<%= blog.tags.map(tag => tag.name).join(',') %>" />
   
-        <button type="submit" class="w-full md:w-auto px-5 py-3 text-base text-white transition duration-300 ease-in-out border rounded-md cursor-pointer border-primary bg-primary hover:bg-blue-dark">Create</button>
+        <button type="submit" class="w-full md:w-auto px-5 py-3 text-base text-white transition duration-300 ease-in-out border rounded-md cursor-pointer border-primary bg-primary hover:bg-blue-dark">Update</button>
       </form>
     </div>
   </section>
-  <!-- ====== CreateBlog Section End -->
+  <!-- ====== EditBlog Section End -->
 
   <!-- ====== Footer Section Start -->
   <%- include('partials/footer') %>
@@ -121,21 +120,6 @@
     <span class="mt-[6px] h-3 w-3 rotate-45 border-t border-l border-white"></span>
   </a>
   <!-- ====== Back To Top End -->
-
-  <!-- ====== Made With Button Start -->
-  <a target="_blank" rel="nofollow noopener"
-    class="inline-flex items-center gap-[10px] py-2 px-[14px] rounded-lg bg-white dark:bg-dark-2 shadow-2 fixed bottom-8 left-4 sm:left-9 z-[999]"
-    href="https://tailgrids.com/">
-    <span class="text-base font-medium text-dark-3 dark:text-dark-6">
-      Made with
-    </span>
-    <span class="block w-px h-4 bg-stroke dark:bg-dark-3"></span>
-    <span class="block max-w-[88px] w-full">
-      <img src="/images/brands/tailgrids.svg" alt="tailgrids" class="dark:hidden">
-      <img src="/images/brands/tailgrids-white.svg" alt="tailgrids" class="hidden dark:block">
-    </span>
-  </a>
-  <!-- ====== Made With Button End -->
 
   <!-- ====== All Scripts -->
   <script src="/js/main.js"></script>
@@ -361,7 +345,7 @@
         uploadUrl: '/upload',
       },
       initialData:
-        '<h2 style="font-family: Arial, Helvetica, sans-serif; font-size: 18px;">Your new blog here 🎉</h2>',
+        '<%= blog.content %>',
       licenseKey: LICENSE_KEY,
       link: {
         addTargetToExternalLinks: true,
@@ -393,12 +377,12 @@
     };
 
     ClassicEditor.create(document.querySelector('#editor'), editorConfig)
-
+      .then(editor => {
+        editor.setData('<%- blog.content %>');
+      })
       .catch(error => {
         console.error(error);
       });
-
-
     </script>
     <!-- Add and remove tags -->
     <script>
@@ -458,9 +442,8 @@
   <!-- Ajax -->
   <script>
     $(document).ready(function() {
-      $('#createForm').on('submit', function(event) {
+      $('#editForm').on('submit', function(event) {
         event.preventDefault(); // Ngăn chặn form submit mặc định
-
 
         // Lấy giá trị của các thẻ từ #tagList
         const tags = [];
@@ -479,27 +462,26 @@
           console.log(pair[0] + ': ' + pair[1]);
         }
 
-
         $.ajax({
-          url: '/blog-create',
+          url: '/my-blogs/<%= blog._id %>',
           type: 'POST',
           data: formData,
           contentType: false,
           processData: false,
           success: function(response) {
             // Xử lý khi thành công
-          Swal.fire({
-          icon: 'success',
-          title: 'Success',
-          text: response.success_msg,
-          customClass: {
-            popup: 'bg-[#F4F7FF] dark:bg-gray-800 text-[#333] dark:text-gray-200',
-            title: 'text-[#1a202c] dark:text-gray-100',
-            confirmButton: 'bg-[#1a202c] text-white dark:bg-gray-700',
-            cancelButton: 'bg-[#e53e3e] text-white dark:bg-green-600'
-          }
-          }).then(() => {
-              window.location.href = '/blogs'; // Chuyển hướng sau khi thành công
+            Swal.fire({
+              icon: 'success',
+              title: 'Success',
+              text: response.success_msg,
+              customClass: {
+                popup: 'bg-[#F4F7FF] dark:bg-gray-800 text-[#333] dark:text-gray-200',
+                title: 'text-[#1a202c] dark:text-gray-100',
+                confirmButton: 'bg-[#1a202c] text-white dark:bg-gray-700',
+                cancelButton: 'bg-[#e53e3e] text-white dark:bg-green-600'
+              }
+            }).then(() => {
+              window.location.href = '/my-blogs'; // Chuyển hướng sau khi thành công
             });
           },
           error: function(xhr) {
@@ -516,18 +498,17 @@
               errorList += `<li class="error-item text-red-500 dark:text-red-300">An unexpected error occurred.</li>`;
             }
 
-          
             errorList += '</ul>';
 
             Swal.fire({
-            icon: 'error',
-            title: 'Oops...',
-            html: errorList,
-            customClass: {
-              popup: 'bg-[#F4F7FF] dark:bg-gray-800 text-[#333] dark:text-gray-200',
-              title: 'text-[#1a202c] dark:text-gray-100',
-              confirmButton: 'bg-[#1a202c] text-white dark:bg-gray-700',
-              cancelButton: 'bg-[#e53e3e] text-white dark:bg-red-600'
+              icon: 'error',
+              title: 'Oops...',
+              html: errorList,
+              customClass: {
+                popup: 'bg-[#F4F7FF] dark:bg-gray-800 text-[#333] dark:text-gray-200',
+                title: 'text-[#1a202c] dark:text-gray-100',
+                confirmButton: 'bg-[#1a202c] text-white dark:bg-gray-700',
+                cancelButton: 'bg-[#e53e3e] text-white dark:bg-red-600'
               }
             });
           }

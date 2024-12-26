@@ -26,6 +26,7 @@
     },
     "homepage": "https://github.com/uideck/play-tailwind#readme",
     "dependencies": {
+        "@tailwindcss/forms": "^0.5.9",
         "bcrypt": "^5.1.0",
         "body-parser": "^1.20.3",
         "cloudinary": "^1.41.3",
