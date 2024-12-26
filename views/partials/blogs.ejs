@@ -45,7 +45,7 @@
               <%= blog.title || 'No Title' %>
             </a>
           </h3>
-          <p class="max-w-[370px] h-[72px] text-base text-body-color dark:text-dark-6">
+          <p class="w-full h-[72px] text-base text-body-color dark:text-dark-6">
             <!--Solve html to string if have-->
             <%= blog.content ? (blog.content.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' - ').substring(0, 100)) : 'No Content Available' %>...
         </div>
