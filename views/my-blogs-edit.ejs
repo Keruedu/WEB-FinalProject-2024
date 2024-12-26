@@ -344,8 +344,6 @@
       simpleUpload: {
         uploadUrl: '/upload',
       },
-      initialData:
-        '<%= blog.content %>',
       licenseKey: LICENSE_KEY,
       link: {
         addTargetToExternalLinks: true,
@@ -377,9 +375,6 @@
     };
 
     ClassicEditor.create(document.querySelector('#editor'), editorConfig)
-      .then(editor => {
-        editor.setData('<%- blog.content %>');
-      })
       .catch(error => {
         console.error(error);
       });
