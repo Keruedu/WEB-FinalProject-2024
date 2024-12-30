@@ -100,6 +100,9 @@
           </div>
           <a id="momoPaymentButton" href="#" class="inline-block py-3 text-base font-medium text-center text-white transition rounded-md bg-primary px-7 hover:bg-blue-dark mt-auto">
             Pay with MoMo
+          </a>
+          <a id="vnpayPaymentButton" href="#" class="inline-block py-3 text-base font-medium text-center text-white transition rounded-md bg-primary px-7 hover:bg-blue-dark mt-auto">
+            Pay with VNPay
           </a>          
         </div>
       </div>
@@ -173,6 +176,33 @@
       } catch (error) {
         console.error('Error creating MoMo payment:', error);
         alert('Error creating MoMo payment');
+      }
+    });
+  </script>
+  <script>
+    document.getElementById('vnpayPaymentButton').addEventListener('click', async function() {
+      const amount = parseFloat(document.getElementById('totalPrice').value);
+      const orderId = 'order_' + new Date().getTime();
+      const orderInfo = 'Payment for order ' + orderId;
+  
+      try {
+        const response = await fetch('/vnpay', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ amount, orderId, orderInfo })
+        });
+  
+        const data = await response.json();
+        if (data.payUrl) {
+          window.location.href = data.payUrl;
+        } else {
+          alert('Failed to create VNPay payment');
+        }
+      } catch (error) {
+        console.error('Error creating VNPay payment:', error);
+        alert('Error creating VNPay payment');
       }
     });
   </script>
