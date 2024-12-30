@@ -3,6 +3,7 @@ const { check, validationResult } = require('express-validator');
 const router = express.Router();
 const userController = require('../controllers/userController');
 const { ensureAuthenticated } = require('../middlewares/auth');
+const passport = require('passport');
 
 router.get('/signup', (req, res) => {
   res.render('signup', { errors: [], username: '', email: '' });
@@ -26,6 +27,16 @@ router.post('/signin', userController.loginUser);
 router.get('/profile', ensureAuthenticated, (req, res) => {
   res.render('../views/profile', { user: req.user });
 });
+
+router.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+
+router.get('/auth/google/callback', 
+  passport.authenticate('google', { failureRedirect: '/signin' }),
+  (req, res) => {
+    res.redirect('/');
+  }
+);
+
 router.get('/logout', (req, res) => {
   req.logout((err) => {
     if (err) {
