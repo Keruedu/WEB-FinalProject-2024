@@ -810,6 +810,43 @@
             </div>
           <% }) %>
         </div>
+        <!-- Comments Section -->
+        <div class="mt-8">
+          <h2
+          class="relative pb-5 text-2xl font-semibold text-dark dark:text-white sm:text-[36px]"
+        >
+          Comments
+        </h2>
+          <div class="comment-form mb-6">
+            <form id="commentForm" class="w-full mb-4 border border-gray-200 rounded-lg bg-gray-50 dark:bg-gray-700 dark:border-gray-600">
+              <div class="px-4 py-2 bg-white rounded-t-lg dark:bg-gray-800">
+                <label for="content" class="sr-only">Your comment</label>
+                <textarea id="content" name="content" rows="4" class="w-full px-0 text-sm text-gray-900 bg-white border-0 dark:bg-gray-800 focus:ring-0 dark:text-white dark:placeholder-gray-400" placeholder="Write a comment..." required></textarea>
+                <input type="hidden" name="blogId" value="<%= blog._id %>">
+              </div>
+              <div class="flex items-center justify-between px-3 py-2 border-t dark:border-gray-600">
+                <button type="submit" class="inline-flex items-center py-2.5 px-4 text-xs font-medium text-center text-white bg-primary rounded-lg focus:ring-4 focus:ring-blue-200 dark:focus:ring-blue-900 hover:bg-blue-800">
+                  Post comment
+                </button>
+                <div class="flex ps-0 space-x-1 rtl:space-x-reverse sm:ps-2">
+                  <!-- <button type="button" class="inline-flex justify-center items-center p-2 text-gray-500 rounded cursor-pointer hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-600">
+                    <svg class="w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 18">
+                      <path d="M18 0H2a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2Zm-5.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Zm4.376 10.481A1 1 0 0 1 16 15H4a1 1 0 0 1-.895-1.447l3.5-7A1 1 0 0 1 7.468 6a.965.965 0 0 1 .9.5l2.775 4.757 1.546-1.887a1 1 0 0 1 1.618.1l2.541 4a1 1 0 0 1 .028 1.011Z"/>
+                    </svg>
+                    <span class="sr-only">Upload image</span>
+                  </button> -->
+                </div>
+              </div>
+            </form>
+          </div>
+        
+          <div class="comments-section flex flex-col gap-2" id="commentsContainer">
+
+          </div>
+          <div class="flex items-center justify-center">
+            <button id="loadMoreComments" class="mt-4  px-4 py-2 bg-primary text-white rounded">Load More Comments</button>
+          </div>
+        </div>
       </div>
     </section>
     <!-- ====== Blog Details Section End -->
@@ -858,6 +895,7 @@
 
     <!-- ====== All Scripts -->
     <script src="/js/main.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> 
     <!-- toogle section -->
     <script>
       document.getElementById('toggleSectionBtn').addEventListener('click', function() {
@@ -865,6 +903,133 @@
         const main = document.getElementById('mainContent');
         section.classList.toggle('hidden');
         main.classList.toggle('lg:w-8/12');
+      });
+    </script>
+    <script>
+      let currentPage = 1;
+      const blogId = '<%= blog._id %>';
+      const commentsContainer = document.getElementById('commentsContainer');
+      const loadMoreCommentsButton = document.getElementById('loadMoreComments');
+
+      async function loadComments(page) {
+        try {
+          const response = await fetch(`/blogs/${blogId}/comments?page=${page}`);
+          const data = await response.json();
+          if (data.success) {
+            data.comments.forEach(comment => {
+              const commentElement = document.createElement('div');
+              commentElement.classList.add('comment', 'flex', 'items-start');
+              commentElement.innerHTML = `
+                <img src="${comment.author.avatar}" alt="${comment.author.username}'s avatar" class="w-12 h-12 rounded-full mr-4">
+                <div class="flex flex-col">
+                  <div class="flex flex-col shadow-md rounded-3xl px-4 py-3 bg-white dark:bg-gray-800">
+                    <strong class="text-gray-900 dark:text-gray-100">${comment.author.username}</strong>
+                    <p class="text-gray-700 dark:text-gray-300">${comment.content}</p>
+                  </div>
+                  <small class="text-gray-500 dark:text-gray-400 px-4">${comment.createdAt}</small>
+                </div>
+              `;
+              commentsContainer.appendChild(commentElement);
+            });
+            if (page >= data.totalPages) {
+              loadMoreCommentsButton.style.display = 'none';
+            }
+          }
+        } catch (error) {
+          console.error('Error loading comments:', error);
+        }
+      }
+
+      loadMoreCommentsButton.addEventListener('click', () => {
+        currentPage++;
+        loadComments(currentPage);
+      });
+
+      // Load initial comments when the page loads
+      document.addEventListener('DOMContentLoaded', () => {
+        loadComments(currentPage);
+      });
+    </script>
+    <script>
+      document.getElementById('commentForm').addEventListener('submit', async function(event) {
+        event.preventDefault();
+        
+        // Kiểm tra xem người dùng đã đăng nhập hay chưa
+        const userId = '<%= user ? user._id : '' %>';
+        if (userId === '') {
+          Swal.fire({
+            icon: 'warning',
+            title: 'Not Logged In',
+            text: 'You need to be logged in to post a comment.',
+            customClass: {
+              popup: 'bg-[#F4F7FF] dark:bg-gray-800 text-[#333] dark:text-gray-200',
+              title: 'text-[#1a202c] dark:text-gray-100',
+              confirmButton: 'bg-[#1a202c] text-white dark:bg-gray-700',
+              cancelButton: 'bg-[#e53e3e] text-white dark:bg-red-600'
+            }
+          });
+          return;
+        }
+
+        const formData = new FormData(this);
+        
+        for (var pair of formData.entries()) {
+          console.log(pair[0] + ': ' + pair[1]);
+        }
+        const response = await fetch('/comments', {
+          method: 'POST',
+          body: formData
+        });
+        const result = await response.json();
+        if (result.success) {
+          addCommentToDOM(result.comment, result.timeRange);
+          this.reset();
+          Swal.fire({
+            icon: 'success',
+            title: 'Success',
+            text: 'Comment added successfully!',
+            customClass: {
+              popup: 'bg-[#F4F7FF] dark:bg-gray-800 text-[#333] dark:text-gray-200',
+              title: 'text-[#1a202c] dark:text-gray-100',
+              confirmButton: 'bg-[#1a202c] text-white dark:bg-gray-700',
+              cancelButton: 'bg-[#e53e3e] text-white dark:bg-green-600'
+            }
+          });
+        } else {
+          Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: 'Error adding comment',
+            customClass: {
+              popup: 'bg-[#F4F7FF] dark:bg-gray-800 text-[#333] dark:text-gray-200',
+              title: 'text-[#1a202c] dark:text-gray-100',
+              confirmButton: 'bg-[#1a202c] text-white dark:bg-gray-700',
+              cancelButton: 'bg-[#e53e3e] text-white dark:bg-red-600'
+            }
+          });
+        }
+      });
+      
+      function addCommentToDOM(comment, timeRange) {
+        const commentsSection = document.querySelector('.comments-section');
+        const commentDiv = document.createElement('div');
+        commentDiv.classList.add('comment', 'flex', 'items-start');
+        commentDiv.innerHTML = `
+          <img src="${comment.author.avatar}" alt="${comment.author.username}'s avatar" class="w-12 h-12 rounded-full mr-4">
+          <div class="flex flex-col">
+            <div class="flex flex-col shadow-md rounded-3xl px-4 py-3 bg-white dark:bg-gray-800">
+              <strong class="text-gray-900 dark:text-gray-100">${comment.author.username}</strong>
+              <p class="text-gray-700 dark:text-gray-300">${comment.content}</p>
+            </div>
+            <small class="text-gray-500 dark:text-gray-400 px-4">${timeRange}</small>
+          </div>
+        `;
+        commentsSection.prepend(commentDiv); }
+    </script>
+    <script>
+      document.getElementById('content').addEventListener('input', function() {
+        this.style.height = 'auto';
+        this.style.height = (this.scrollHeight) + 'px';
       });
     </script>
   </body>

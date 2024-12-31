@@ -8,6 +8,8 @@ const mongoose = require('mongoose');
 const { buildBlogQuery } = require('../utils/queryBuilder');
 const { paginateAndSortBlogs } = require('../utils/paginator');
 const { ITEMS_PER_PAGE } = require('../utils/constants');
+const Comment = require('../models/comment');
+const { timeAgo } = require('../utils/dateMoment');
 
 // Endpoint để xử lý ảnh tải lên
 exports.uploadImage = (req, res) => {
@@ -34,23 +36,25 @@ exports.getAllBlogs = async (req, res) => {
   }
 };
 
-// Get blog by ID
 exports.getBlogById = async (req, res) => {
   try {
     const blogId = req.params.id;
 
     await Blog.findByIdAndUpdate(blogId, { $inc: { views: 1 } });
     const blog = await Blog.findById(blogId)
-    .populate('author')
-    .populate('category')
-    .populate('tags');
-    
+      .populate('author')
+      .populate('category')
+      .populate('tags');
+
     const relatedBlogs = await Blog.find({
       tags: { $in: blog.tags },
       _id: { $ne: blogId }
-    }).limit(3).populate('category'); 
+    }).limit(3).populate('category');
 
-    res.render('blog-details', { blog, relatedBlogs });
+    res.render('blog-details', { 
+      blog, 
+      relatedBlogs,
+    });
 
   } catch (error) {
     res.status(500).send(error.message);
@@ -436,18 +440,103 @@ exports.postEditBlog = async (req, res) => {
   }
 };
 
-exports.deleteBlogs = async (req, res) => {
-  try {
-    const { ids } = req.body;
-    const result = await Blog.deleteMany({ _id: { $in: ids } });
+exports.deleteBlog = async (req, res) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
 
-    if (result.deletedCount === 0) {
-      return res.status(404).json({ success: false, message: 'No blogs found to delete' });
+  try {
+    const blogId = req.params.id;
+
+    // Xóa các bình luận liên quan đến blog
+    await Comment.deleteMany({ blog: blogId });
+
+    // Xóa blog
+    await Blog.findByIdAndDelete(blogId);
+
+    await session.commitTransaction();
+    session.endSession();
+
+    res.status(200).json({ success: true, message: 'Blog and related comments deleted successfully' });
+  } catch (error) {
+    await session.abortTransaction();
+    session.endSession();
+    res.status(500).json({ success: false, error: error.message });
+  }
+};
+
+
+// Create a new comment
+exports.createComment = async (req, res) => {
+  try {
+    const { content, blogId } = req.body;
+    const author = req.user._id;
+
+    if (!content || !blogId) {
+      return res.status(400).json({ success: false, error: req.body });
     }
 
-    res.status(200).json({ success: true, message: 'Blogs deleted successfully' });
+    const newComment = new Comment({
+      content,
+      author,
+      blog: blogId
+    });
+
+    await newComment.save();
+    await newComment.populate('author', 'username avatar')
+    timeRange = timeAgo(newComment.createdAt);
+
+    res.status(201).json({ success: true, comment: newComment, timeRange });
   } catch (error) {
-    console.error('Error deleting blogs:', error);
+    console.error('Error creating comment:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+};
+
+// Get comments for a blog
+exports.getComments = async (req, res) => {
+  try {
+    const blogId = req.params.blogId;
+    const page = parseInt(req.query.page) || 1;
+    const limit = 10;
+    const skip = (page - 1) * limit;
+
+    const comments = await Comment.find({ blog: blogId })
+      .populate('author', 'username avatar')
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+
+    const totalComments = await Comment.countDocuments({ blog: blogId });
+
+    // Chuyển đổi ngày thành khoảng thời gian đã đăng
+    const commentsWithRelativeTime = comments.map(comment => ({
+      ...comment._doc,
+      createdAt: timeAgo(comment.createdAt)
+    }));
+
+
+    res.status(200).json({ 
+      success: true, 
+      comments: commentsWithRelativeTime, 
+      totalComments, 
+      totalPages: Math.ceil(totalComments / limit),
+      currentPage: page 
+    });
+  } catch (error) {
+    console.error('Error fetching comments:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+};
+
+// Delete a comment
+exports.deleteComment = async (req, res) => {
+  try {
+    const commentId = req.params.commentId;
+    await Comment.findByIdAndDelete(commentId);
+
+    res.status(200).json({ success: true, message: 'Comment deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting comment:', error);
     res.status(500).json({ success: false, error: error.message });
   }
 };
