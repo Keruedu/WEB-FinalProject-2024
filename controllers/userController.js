@@ -380,7 +380,11 @@ exports.removeBookmark = async (req, res) => {
     const userId = req.user._id;
     const blogId = req.params.id;
 
-    const user = await User.findById(userId);
+    const user = await User.findOneAndUpdate(
+      { _id: userId },
+      { $pull: { bookmarks: blogId } },
+      { new: true }
+    );
     if (!user) {
       return res.status(404).json({ success: false, message: 'User not found' });
     }
@@ -391,7 +395,7 @@ exports.removeBookmark = async (req, res) => {
     res.status(200).json({ success: true, message: 'Blog unbookmarked successfully' });
   } catch (error) {
     console.error('Error removing bookmark:', error);
-    res.status(500).json({ success: false, message: 'Server error' });
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
