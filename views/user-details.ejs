@@ -77,7 +77,7 @@
         <div class="flex flex-wrap -mx-4">
           <div class="flex flex-col justify-center items-center p-5 m-auto">
             <div class="w-40 h-40 rounded-full overflow-hidden mb-6 shadow-lg">
-              <img src="https://images.unsplash.com/photo-1628891435222-065925dcb365?q=80&w=1770&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="image" class="w-full h-full object-cover object-center" />
+              <img src="<%= user.avatar %>" alt="image" class="w-full h-full object-cover object-center" />
             </div>
               <div class="flex flex-col items-center flex-wrap gap-2">
               
@@ -99,6 +99,9 @@
                 </div>
                 <button id="followButton" class="disabled:opacity-50 disabled:pointer-events-none px-4 py-2 rounded-md <%= isFollowing ? 'bg-gray-500' : 'bg-primary' %> text-white">
                   <%= isFollowing ? 'Following' : 'Follow' %>
+                </button>
+                <button id="editProfileButton" class="disabled:opacity-50 disabled:pointer-events-none px-4 py-2 rounded-md bg-primary text-white">
+                  <a href="/edit-profile">Edit Profile</a>
                 </button>
                 <div class="max-w-[600px] text-center">
                   <p><%= userDetails.description %></p>
@@ -249,12 +252,14 @@
     <script>
       document.addEventListener('DOMContentLoaded', function () {
         const followButton = document.getElementById('followButton');
+        const editProfileButton = document.getElementById('editProfileButton');
         const userId = '<%= user ? user._id : '' %>';
         const followUserId = '<%= userDetails._id %>';
 
         if (userId === followUserId) {
-          followButton.disabled = true;
-          return;
+          followButton.style.display = 'none';
+        } else {
+          editProfileButton.style.display = 'none';
         }
       });
 
