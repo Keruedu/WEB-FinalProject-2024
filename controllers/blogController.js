@@ -147,7 +147,7 @@ exports.createBlog = async (req, res) => {
 
 
 
-const getBlogsHandler = async (req, userId) => {
+const getBlogsHandler = async (req, userId, bookmarked) => {
   const { search, tags, category, timeRange } = req.query;
   const filter = req.query.filter || 'latest';
   const url = req.url;
@@ -155,12 +155,7 @@ const getBlogsHandler = async (req, userId) => {
 
   try {
     // Build query using utility function
-    const query = buildBlogQuery({ search, category, tags, timeRange, userId });
-
-    // Add user filter if userId is provided
-    if (userId) {
-      query.author = userId;
-    }
+    const query = await buildBlogQuery({ search, category, tags, timeRange, userId, bookmarked });
 
     // Determine sort order
     const sort =
@@ -216,7 +211,7 @@ exports.getBlogs = async (req, res) => {
     if (req.xhr) {
       const blogsHtml = await ejs.renderFile(
         path.join(__dirname, '../views/partials/blogs.ejs'),
-        { blogs }
+        { blogs, user: req.user, }
       );
 
       const paginationHtml = await ejs.renderFile(
@@ -278,7 +273,7 @@ exports.getUserBlogs = async (req, res) => {
     if (req.xhr) {
       const blogsHtml = await ejs.renderFile(
         path.join(__dirname, '../views/partials/blogs.ejs'),
-        { blogs }
+        { blogs, user: req.user, }
       );
 
       const paginationHtml = await ejs.renderFile(
@@ -319,6 +314,66 @@ exports.getUserBlogs = async (req, res) => {
   }
 };
 
+exports.getBookmarkedBlogs = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const {
+      blogs,
+      totalBlogs,
+      allCategories,
+      allTags,
+      page,
+      url,
+      search,
+      filter,
+      tags,
+      category,
+      timeRange
+    } = await getBlogsHandler(req, userId, req.user.bookmarks);
+
+    if (req.xhr) {
+      const blogsHtml = await ejs.renderFile(
+        path.join(__dirname, '../views/partials/blogs.ejs'),
+        { blogs, user: req.user, }
+      );
+
+      const paginationHtml = await ejs.renderFile(
+        path.join(__dirname, '../views/partials/pagination.ejs'),
+        {
+          currentPage: page,
+          hasNextPage: ITEMS_PER_PAGE * page < totalBlogs,
+          hasPreviousPage: page > 1,
+          nextPage: page + 1,
+          previousPage: page - 1,
+          lastPage: Math.ceil(totalBlogs / ITEMS_PER_PAGE),
+          oldUrl: url,
+        }
+      );
+
+      return res.status(200).json({ blogsHtml, paginationHtml });
+    } else {
+      res.render('blog-grids', {
+        blogs,
+        currentPage: page,
+        hasNextPage: ITEMS_PER_PAGE * page < totalBlogs,
+        hasPreviousPage: page > 1,
+        nextPage: page + 1,
+        previousPage: page - 1,
+        lastPage: Math.ceil(totalBlogs / ITEMS_PER_PAGE),
+        search,
+        filter,
+        tags: allTags,
+        categories: allCategories,
+        selectedTags: tags || [],
+        selectedCategory: category || '',
+        timeRange: timeRange || '',
+      });
+    }
+  } catch (error) {
+    console.error('Error fetching bookmarked blogs:', error);
+    res.status(500).json({ message: 'Internal Server Error', error: error.message });
+  }
+};
 
 // Create a new blog
 exports.renderCreateBlogPage = async (req, res) => {

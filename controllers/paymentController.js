@@ -162,8 +162,8 @@ exports.handleVNPayReturn = (req, res) => {
 
   const sortedParams = sortObject(vnp_Params);
   const secretKey = vnp_HashSecret;
-  const signData = querystring.stringify(sortedParams);
-  const checkSum = crypto.createHmac('sha256', secretKey).update(signData).digest('hex');
+  const signData = querystring.stringify(sortedParams, { encode: false });
+  const checkSum = crypto.createHmac('sha512', secretKey).update(signData).digest('hex');
 
   if (secureHash === checkSum) {
     if (vnp_Params['vnp_ResponseCode'] === '00') {

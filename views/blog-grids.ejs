@@ -150,6 +150,7 @@
 
   <!-- ====== All Scripts -->
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> 
   <script src="/js/main.js"></script>
   <script>
     document.getElementById('dropdownButton').addEventListener('click', function() {
@@ -164,8 +165,61 @@
     
   </script>
   <script>
+      function attachBookmarkEvents() {
+      const bookmarkButtons = document.querySelectorAll('.bookmarkButton');
+
+      bookmarkButtons.forEach(button => {
+        button.addEventListener('click', function() {
+          const blogId = this.getAttribute('data-blog-id');
+          const isBookmarked = this.classList.contains('bg-primary');
+          const url = isBookmarked ? `/bookmark/${blogId}` : `/bookmark/${blogId}`;
+          const method = isBookmarked ? 'DELETE' : 'POST';
+
+          $.ajax({
+            url: url,
+            method: method,
+            success: function(response) {
+              if (response.success) {
+                if (isBookmarked) {
+                  button.classList.remove('bg-primary');
+                } else {
+                  button.classList.add('bg-primary');
+                }
+              } else {
+                Swal.fire({
+                  icon: 'error',
+                  title: 'Oops...',
+                  text: response.message,
+                  customClass: {
+                    popup: 'bg-[#F4F7FF] dark:bg-gray-800 text-[#333] dark:text-gray-200',
+                    title: 'text-[#1a202c] dark:text-gray-100',
+                    confirmButton: 'bg-[#1a202c] text-white dark:bg-gray-700',
+                    cancelButton: 'bg-[#e53e3e] text-white dark:bg-red-600'
+                  }
+                });
+              }
+            },
+            error: function(xhr) {
+              Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: xhr.responseJSON.message,
+                customClass: {
+                  popup: 'bg-[#F4F7FF] dark:bg-gray-800 text-[#333] dark:text-gray-200',
+                  title: 'text-[#1a202c] dark:text-gray-100',
+                  confirmButton: 'bg-[#1a202c] text-white dark:bg-gray-700',
+                  cancelButton: 'bg-[#e53e3e] text-white dark:bg-red-600'
+                }
+              });
+            }
+          });
+        });
+      });
+    }
+
     $(document).ready(function () {
-  // Xử lý submit form tìm kiếm
+    // Xử lý submit form tìm kiếm
+    attachBookmarkEvents();
       $('#searchForm').on('submit', function (event) {
         event.preventDefault(); // Ngăn hành vi mặc định của form
 
@@ -186,6 +240,7 @@
 
               const newUrl = `${url}?${$.param(data)}`;
               window.history.pushState({ path: newUrl }, '', newUrl);
+              attachBookmarkEvents();
               
             } else {
               console.error('Unexpected response format:', response);
@@ -222,6 +277,7 @@
               $('#paginationContainer').html(response.paginationHtml);
               const newUrl = `${url.pathname}?${$.param(formData)}`;
               window.history.pushState({ path: newUrl }, '', newUrl);
+              attachBookmarkEvents();
             } else {
               console.error('Unexpected response format:', response);
             }
@@ -249,6 +305,7 @@
             if (response.blogsHtml && response.paginationHtml) {
               $('#blogContainer').html(response.blogsHtml);
               $('#paginationContainer').html(response.paginationHtml);
+              attachBookmarkEvents();
             } else {
               console.error('Unexpected response format:', response);
             }
@@ -262,6 +319,59 @@
     });
     });
   </script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const bookmarkButtons = document.querySelectorAll('.bookmarkButton');
+
+    bookmarkButtons.forEach(button => {
+      button.addEventListener('click', function() {
+        const blogId = this.getAttribute('data-blog-id');
+        const isBookmarked = this.classList.contains('bg-primary');
+        const url = isBookmarked ? `/bookmark/${blogId}` : `/bookmark/${blogId}`;
+        const method = isBookmarked ? 'DELETE' : 'POST';
+
+        $.ajax({
+          url: url,
+          method: method,
+          success: function(response) {
+            if (response.success) {
+              if (isBookmarked) {
+                button.classList.remove('bg-primary');
+              } else {
+                button.classList.add('bg-primary');
+              }
+            } else {
+              Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: response.message,
+                customClass: {
+                  popup: 'bg-[#F4F7FF] dark:bg-gray-800 text-[#333] dark:text-gray-200',
+                  title: 'text-[#1a202c] dark:text-gray-100',
+                  confirmButton: 'bg-[#1a202c] text-white dark:bg-gray-700',
+                  cancelButton: 'bg-[#e53e3e] text-white dark:bg-red-600'
+                }
+              });
+            }
+          },
+          error: function(xhr) {
+            Swal.fire({
+              icon: 'error',
+              title: 'Oops...',
+              text: xhr.responseJSON.message,
+              customClass: {
+                popup: 'bg-[#F4F7FF] dark:bg-gray-800 text-[#333] dark:text-gray-200',
+                title: 'text-[#1a202c] dark:text-gray-100',
+                confirmButton: 'bg-[#1a202c] text-white dark:bg-gray-700',
+                cancelButton: 'bg-[#e53e3e] text-white dark:bg-red-600'
+              }
+            });
+          }
+        });
+      });
+    });
+  });
+</script>
 </body>
 
 </html>
