@@ -183,7 +183,7 @@ exports.getUserDetails = async (req, res) => {
     }
 
     // Build the query for blogs
-    const query = buildBlogQuery({ search, category, tags, timeRange, userId. });
+    const query = buildBlogQuery({ search, category, tags, timeRange, userId });
 
     // Determine sort order
     const sort =
