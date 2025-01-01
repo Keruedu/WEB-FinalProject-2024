@@ -6,6 +6,7 @@ const jwt = require('jsonwebtoken');
 const Blog = require('../models/blog');
 const Tag = require('../models/tag');
 const Category = require('../models/category');
+const fs = require('fs');
 const { validationResult } = require('express-validator');
 const { buildBlogQuery } = require('../utils/queryBuilder');
 const { paginateAndSortBlogs } = require('../utils/paginator');
@@ -274,5 +275,80 @@ exports.getUserDetails = async (req, res) => {
 };
 
 
+// Render the edit profile page
+exports.renderEditProfilePage = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id);
+    res.render('edit-profile', { user });
+  } catch (error) {
+    console.error('Error rendering edit profile page:', error);
+    res.status(500).send('Internal Server Error');
+  }
+};
+
+// Handle profile update
+exports.updateProfile = async (req, res) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const { username, email, description } = req.body;
+    const user = await User.findById(req.user._id);
+
+    if (!user) {
+      return res.status(404).json({ errors: [{ msg: 'User not found' }] });
+    }
+
+    user.username = username || user.username;
+    user.email = email || user.email;
+    user.description = description;
+
+    if (req.file) {
+      try {
+        user.avatar = req.file.path;
+      } catch (fileError) {
+        console.error('Error updating avatar:', fileError);
+        return res.status(500).json({ errors: [{ msg: 'Error updating avatar' }] });
+      }
+    }
+
+    await user.save();
+
+    res.status(200).json({ success_msg: 'Profile updated successfully' });
+  } catch (error) {
+    console.error('Error updating profile:', error);
+    res.status(500).json({ errors: [{ msg: 'Internal Server Error' }] });
+  }
+};
+
+exports.resetPassword = async (req, res) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    const { oldPassword, newPassword } = req.body;
+    const user = await User.findById(req.user._id);
+
+    if (!user) {
+      return res.status(404).json({ errors: [{ msg: 'User not found' }] });
+    }
+
+    const isMatch = await bcrypt.compare(oldPassword, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ errors: [{ msg: 'Old password is incorrect' }] });
+    }
+
+    user.password = await bcrypt.hash(newPassword, 10);
+    await user.save();
+
+    res.status(200).json({ success_msg: 'Password reset successfully' });
+  } catch (error) {
+    console.error('Error resetting password:', error);
+    res.status(500).json({ errors: [{ msg: 'Internal Server Error' }] });
+  }
+};
 
 

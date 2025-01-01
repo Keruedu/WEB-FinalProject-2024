@@ -4,6 +4,7 @@ const router = express.Router();
 const userController = require('../controllers/userController');
 const { ensureAuthenticated } = require('../middlewares/auth');
 const passport = require('passport');
+const upload = require('../config/cloudinary');
 
 router.get('/signup', (req, res) => {
   res.render('signup', { errors: [], username: '', email: '' });
@@ -47,7 +48,29 @@ router.get('/logout', (req, res) => {
 });
 
 router.get('/user/:userId', userController.getUserDetails);
-
 router.patch('/follow/:id', ensureAuthenticated, userController.toggleFollowUser);
+
+router.get('/edit-profile', ensureAuthenticated, userController.renderEditProfilePage);
+router.post(
+  '/edit-profile',
+  ensureAuthenticated,
+  upload.single('avatar'),
+  [
+    check('username', 'Username is required').not().isEmpty().trim().escape(),
+    check('email', 'Please include a valid email').isEmail().normalizeEmail(),
+  ],
+  userController.updateProfile
+);
+router.post(
+  '/reset-password',
+  ensureAuthenticated,
+  [
+    check('oldPassword', 'Old password is required').notEmpty(),
+    check('newPassword', 'New password is required').notEmpty(),
+    check('newPassword', 'New password must be at least 6 characters long').isLength({ min: 6 }).trim().escape()
+  ],
+  userController.resetPassword
+);
+
 
 module.exports = router;
