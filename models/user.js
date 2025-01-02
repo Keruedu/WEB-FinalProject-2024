@@ -37,6 +37,8 @@ const userSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'
   }],
+  resetPasswordToken: String, // Add this line
+  resetPasswordExpires: Date, // Add this line
 }, { timestamps: true });
 
 userSchema.methods.isPremiumActive = function() {

@@ -10,6 +10,8 @@ const { validationResult } = require('express-validator');
 const { buildBlogQuery } = require('../utils/queryBuilder');
 const { paginateAndSortBlogs } = require('../utils/paginator');
 const { ITEMS_PER_PAGE } = require('../utils/constants');
+const nodemailer = require('nodemailer');
+const crypto = require('crypto');
 
 // exports.registerUser = async (req, res) => {
 //   const errors = validationResult(req);
@@ -270,6 +272,126 @@ exports.getUserDetails = async (req, res) => {
   } catch (error) {
     console.error('Error in getUserDetails:', error);
     res.status(500).json({ message: 'Internal Server Error', error: error.message });
+  }
+};
+
+const transporter = nodemailer.createTransport({
+  service: 'Gmail',
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS
+  }
+});
+
+exports.forgotPassword = async (req, res) => {
+  const { email } = req.body;
+  console.log(email);
+
+  try {
+    const user = await User.findOne({ email});
+    if (!user) {
+      return res.status(400).render('forgot-password', {
+        errors: [{ msg: 'No account with that email address exists.' }],
+        success_msg: ''
+      });
+    }
+
+    const token = crypto.randomBytes(20).toString('hex');
+    user.resetPasswordToken = token;
+    user.resetPasswordExpires = Date.now() + 3600000; // 1 hour
+    await user.save();
+
+    const mailOptions = {
+      to: user.email,
+      from: process.env.EMAIL_USER,
+      subject: 'Password Reset',
+      text: `You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n
+      Please click on the following link, or paste this into your browser to complete the process:\n\n
+      http://${req.headers.host}/reset-password/${token}\n\n
+      If you did not request this, please ignore this email and your password will remain unchanged.\n`
+    };
+
+    try {
+      await transporter.sendMail(mailOptions);
+      console.log('Password reset email sent successfully');
+    } catch (error) {
+      console.error('Error sending password reset email:', error);
+      throw new Error('Error sending password reset email');
+    }
+
+    res.status(200).render('forgot-password', {
+      errors: [],
+      success_msg: 'An e-mail has been sent to ' + user.email + ' with further instructions.'
+    });
+  } catch (error) {
+    res.status(500).render('forgot-password', {
+      errors: [{ msg: 'Something went wrong. Please try again.' }],
+      success_msg: ''
+    });
+  }
+};
+
+exports.renderResetPasswordForm = async (req, res) => {
+  try {
+    const user = await User.findOne({
+      resetPasswordToken: req.params.token,
+      resetPasswordExpires: { $gt: Date.now() }
+    });
+
+    if (!user) {
+      return res.status(400).render('forgot-password', {
+        errors: [{ msg: 'Password reset token is invalid or has expired.' }],
+        success_msg: ''
+      });
+    }
+
+    res.render('reset-password', { token: req.params.token, errors: [], success_msg: '' });
+  } catch (error) {
+    res.status(500).render('forgot-password', {
+      errors: [{ msg: 'Something went wrong. Please try again.' }],
+      success_msg: ''
+    });
+  }
+};
+
+exports.resetPassword = async (req, res) => {
+  const { password, confirmPassword } = req.body;
+  if (password !== confirmPassword) {
+    return res.status(400).render('reset-password', {
+      token: req.params.token,
+      errors: [{ msg: 'Passwords do not match.' }],
+      success_msg: ''
+    });
+  }
+
+  try {
+    const user = await User.findOne({
+      resetPasswordToken: req.params.token,
+      resetPasswordExpires: { $gt: Date.now() }
+    });
+
+    if (!user) {
+      return res.status(400).render('forgot-password', {
+        errors: [{ msg: 'Password reset token is invalid or has expired.' }],
+        success_msg: ''
+      });
+    }
+
+    user.password = await bcrypt.hash(password, 10);
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpires = undefined;
+    await user.save();
+
+    res.status(200).render('signin', {
+      errors: [],
+      success_msg: 'Your password has been updated. You can now log in.'
+    });
+  } catch (error) {
+    res.status(500).render('reset-password', {
+      token: req.params.token,
+      errors: [{ msg: 'Something went wrong. Please try again.' }],
+      success_msg: ''
+    });
   }
 };
 

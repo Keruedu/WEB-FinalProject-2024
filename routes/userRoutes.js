@@ -46,6 +46,16 @@ router.get('/logout', (req, res) => {
   });
 });
 
+router.get('/forgot-password', (req, res) => {
+  res.render('forgot-password', { errors: [], success_msg: '' });
+});
+
+router.post('/forgot-password', userController.forgotPassword);
+
+router.get('/reset-password/:token', userController.renderResetPasswordForm);
+
+router.post('/reset-password/:token', userController.resetPassword);
+
 router.get('/user/:userId', userController.getUserDetails);
 
 router.patch('/follow/:id', ensureAuthenticated, userController.toggleFollowUser);
