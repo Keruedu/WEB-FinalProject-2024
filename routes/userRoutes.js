@@ -82,5 +82,8 @@ router.post(
   userController.resetPassword
 );
 
+router.post('/bookmark/:id', ensureAuthenticated, userController.addBookmark);
+router.delete('/bookmark/:id', ensureAuthenticated, userController.removeBookmark);
+
 
 module.exports = router;

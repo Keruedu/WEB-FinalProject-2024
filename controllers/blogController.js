@@ -1,4 +1,5 @@
 const Blog = require('../models/blog');
+const User = require('../models/user');
 const Tag = require('../models/tag');
 const Category = require('../models/category');
 const path = require('path');
@@ -147,7 +148,7 @@ exports.createBlog = async (req, res) => {
 
 
 
-const getBlogsHandler = async (req, userId) => {
+const getBlogsHandler = async (req, userId, bookmarked) => {
   const { search, tags, category, timeRange } = req.query;
   const filter = req.query.filter || 'latest';
   const url = req.url;
@@ -155,12 +156,7 @@ const getBlogsHandler = async (req, userId) => {
 
   try {
     // Build query using utility function
-    const query = buildBlogQuery({ search, category, tags, timeRange, userId });
-
-    // Add user filter if userId is provided
-    if (userId) {
-      query.author = userId;
-    }
+    const query = await buildBlogQuery({ search, category, tags, timeRange, userId, bookmarked });
 
     // Determine sort order
     const sort =
@@ -216,7 +212,7 @@ exports.getBlogs = async (req, res) => {
     if (req.xhr) {
       const blogsHtml = await ejs.renderFile(
         path.join(__dirname, '../views/partials/blogs.ejs'),
-        { blogs }
+        { blogs, user: req.user, }
       );
 
       const paginationHtml = await ejs.renderFile(
@@ -278,7 +274,7 @@ exports.getUserBlogs = async (req, res) => {
     if (req.xhr) {
       const blogsHtml = await ejs.renderFile(
         path.join(__dirname, '../views/partials/blogs.ejs'),
-        { blogs }
+        { blogs, user: req.user, }
       );
 
       const paginationHtml = await ejs.renderFile(
@@ -319,6 +315,66 @@ exports.getUserBlogs = async (req, res) => {
   }
 };
 
+exports.getBookmarkedBlogs = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const {
+      blogs,
+      totalBlogs,
+      allCategories,
+      allTags,
+      page,
+      url,
+      search,
+      filter,
+      tags,
+      category,
+      timeRange
+    } = await getBlogsHandler(req, userId, req.user.bookmarks);
+
+    if (req.xhr) {
+      const blogsHtml = await ejs.renderFile(
+        path.join(__dirname, '../views/partials/blogs.ejs'),
+        { blogs, user: req.user, }
+      );
+
+      const paginationHtml = await ejs.renderFile(
+        path.join(__dirname, '../views/partials/pagination.ejs'),
+        {
+          currentPage: page,
+          hasNextPage: ITEMS_PER_PAGE * page < totalBlogs,
+          hasPreviousPage: page > 1,
+          nextPage: page + 1,
+          previousPage: page - 1,
+          lastPage: Math.ceil(totalBlogs / ITEMS_PER_PAGE),
+          oldUrl: url,
+        }
+      );
+
+      return res.status(200).json({ blogsHtml, paginationHtml });
+    } else {
+      res.render('blog-grids', {
+        blogs,
+        currentPage: page,
+        hasNextPage: ITEMS_PER_PAGE * page < totalBlogs,
+        hasPreviousPage: page > 1,
+        nextPage: page + 1,
+        previousPage: page - 1,
+        lastPage: Math.ceil(totalBlogs / ITEMS_PER_PAGE),
+        search,
+        filter,
+        tags: allTags,
+        categories: allCategories,
+        selectedTags: tags || [],
+        selectedCategory: category || '',
+        timeRange: timeRange || '',
+      });
+    }
+  } catch (error) {
+    console.error('Error fetching bookmarked blogs:', error);
+    res.status(500).json({ message: 'Internal Server Error', error: error.message });
+  }
+};
 
 // Create a new blog
 exports.renderCreateBlogPage = async (req, res) => {
@@ -440,29 +496,58 @@ exports.postEditBlog = async (req, res) => {
   }
 };
 
-exports.deleteBlog = async (req, res) => {
+exports.deleteBlogs = async (req, res) => {
   const session = await mongoose.startSession();
   session.startTransaction();
 
   try {
-    const blogId = req.params.id;
+    const blogIds = req.body.ids;
 
-    // Xóa các bình luận liên quan đến blog
-    await Comment.deleteMany({ blog: blogId });
+    // Kiểm tra nếu không có blogIds hoặc blogIds không phải là một mảng
+    if (!Array.isArray(blogIds) || blogIds.length === 0) {
+      await session.endSession();
+      return res.status(400).json({ success: false, message: 'No Blog IDs provided' });
+    }
 
-    // Xóa blog
-    await Blog.findByIdAndDelete(blogId);
+    // Kiểm tra tính hợp lệ của từng blogId
+    for (const blogId of blogIds) {
+      if (!mongoose.Types.ObjectId.isValid(blogId)) {
+        await session.endSession();
+        return res.status(400).json({ success: false, message: `Invalid Blog ID: ${blogId}` });
+      }
+    }
 
+    // Kiểm tra sự tồn tại của từng blog
+    const blogs = await Blog.find({ _id: { $in: blogIds } }).session(session);
+    if (blogs.length !== blogIds.length) {
+      await session.endSession();
+      return res.status(404).json({ success: false, message: 'One or more Blogs not found' });
+    }
+
+    // Xóa các bình luận liên quan đến các blog
+    await Comment.deleteMany({ blog: { $in: blogIds } }).session(session);
+
+    // Cập nhật bookmark của người dùng
+    await User.updateMany(
+      { bookmarks: { $in: blogIds } },
+      { $pull: { bookmarks: { $in: blogIds } } }
+    ).session(session);
+
+    // Xóa các blog
+    await Blog.deleteMany({ _id: { $in: blogIds } }).session(session);
+
+    // Commit transaction
     await session.commitTransaction();
     session.endSession();
 
-    res.status(200).json({ success: true, message: 'Blog and related comments deleted successfully' });
+    res.status(200).json({ success: true, message: 'Blogs and related comments deleted successfully' });
   } catch (error) {
     await session.abortTransaction();
     session.endSession();
-    res.status(500).json({ success: false, error: error.message });
+    res.status(500).json({ success: false, message: 'Internal server error', error: error.message });
   }
 };
+
 
 
 // Create a new comment
