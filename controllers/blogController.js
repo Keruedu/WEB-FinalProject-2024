@@ -1,4 +1,5 @@
 const Blog = require('../models/blog');
+const User = require('../models/user');
 const Tag = require('../models/tag');
 const Category = require('../models/category');
 const path = require('path');
@@ -495,29 +496,58 @@ exports.postEditBlog = async (req, res) => {
   }
 };
 
-exports.deleteBlog = async (req, res) => {
+exports.deleteBlogs = async (req, res) => {
   const session = await mongoose.startSession();
   session.startTransaction();
 
   try {
-    const blogId = req.params.id;
+    const blogIds = req.body.ids;
 
-    // Xóa các bình luận liên quan đến blog
-    await Comment.deleteMany({ blog: blogId });
+    // Kiểm tra nếu không có blogIds hoặc blogIds không phải là một mảng
+    if (!Array.isArray(blogIds) || blogIds.length === 0) {
+      await session.endSession();
+      return res.status(400).json({ success: false, message: 'No Blog IDs provided' });
+    }
 
-    // Xóa blog
-    await Blog.findByIdAndDelete(blogId);
+    // Kiểm tra tính hợp lệ của từng blogId
+    for (const blogId of blogIds) {
+      if (!mongoose.Types.ObjectId.isValid(blogId)) {
+        await session.endSession();
+        return res.status(400).json({ success: false, message: `Invalid Blog ID: ${blogId}` });
+      }
+    }
 
+    // Kiểm tra sự tồn tại của từng blog
+    const blogs = await Blog.find({ _id: { $in: blogIds } }).session(session);
+    if (blogs.length !== blogIds.length) {
+      await session.endSession();
+      return res.status(404).json({ success: false, message: 'One or more Blogs not found' });
+    }
+
+    // Xóa các bình luận liên quan đến các blog
+    await Comment.deleteMany({ blog: { $in: blogIds } }).session(session);
+
+    // Cập nhật bookmark của người dùng
+    await User.updateMany(
+      { bookmarks: { $in: blogIds } },
+      { $pull: { bookmarks: { $in: blogIds } } }
+    ).session(session);
+
+    // Xóa các blog
+    await Blog.deleteMany({ _id: { $in: blogIds } }).session(session);
+
+    // Commit transaction
     await session.commitTransaction();
     session.endSession();
 
-    res.status(200).json({ success: true, message: 'Blog and related comments deleted successfully' });
+    res.status(200).json({ success: true, message: 'Blogs and related comments deleted successfully' });
   } catch (error) {
     await session.abortTransaction();
     session.endSession();
-    res.status(500).json({ success: false, error: error.message });
+    res.status(500).json({ success: false, message: 'Internal server error', error: error.message });
   }
 };
+
 
 
 // Create a new comment

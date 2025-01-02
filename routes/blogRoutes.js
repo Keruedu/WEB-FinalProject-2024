@@ -16,7 +16,7 @@ router.post('/upload', blogController.uploadImage);
 router.get('/my-blogs', ensureAuthenticated, blogController.getUserBlogs);
 router.get('/my-blogs/:id', ensureAuthenticated, blogController.getEditBlog);
 router.post('/my-blogs/:id', ensureAuthenticated, upload.single('image'), blogController.postEditBlog);
-router.delete('/my-blogs',ensureAuthenticated, blogController.deleteBlog);
+router.delete('/my-blogs',ensureAuthenticated, blogController.deleteBlogs);
 
 router.get('/bookmarked-blogs', ensureAuthenticated, blogController.getBookmarkedBlogs);
 
