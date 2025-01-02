@@ -355,7 +355,7 @@ exports.renderResetPasswordForm = async (req, res) => {
   }
 };
 
-exports.resetPassword = async (req, res) => {
+exports.resetForgotPassword = async (req, res) => {
   const { password, confirmPassword } = req.body;
   if (password !== confirmPassword) {
     return res.status(400).render('reset-password', {
