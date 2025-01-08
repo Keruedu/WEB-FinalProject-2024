@@ -156,6 +156,39 @@ exports.loginUser = (req, res, next) => {
   })(req, res, next);
 };
 
+
+exports.toggleUserBan = async (req, res) => {
+  try {
+    console.log('Toggle ban request for user:', req.params.userId);
+    const userId = req.params.userId;
+    const user = await User.findById(userId);
+    
+    if (!user) {
+      console.log('User not found');
+      return res.status(404).json({ errors: [{ msg: 'User not found' }] });
+    }
+    
+    if (user.role === 'admin') {
+      console.log('Cannot ban admin');
+      return res.status(403).json({ errors: [{ msg: 'Cannot ban admin users' }] });
+    }
+    
+    user.isBanned = !user.isBanned;
+    user.bannedAt = user.isBanned ? new Date() : null;
+    await user.save();
+    
+    console.log('User ban status updated:', user.isBanned);
+    return res.status(200).json({ 
+      success: true, 
+      isBanned: user.isBanned,
+      message: `User has been ${user.isBanned ? 'banned' : 'unbanned'}`
+    });
+  } catch (error) {
+    console.error('Error in toggleUserBan:', error);
+    return res.status(500).json({ errors: [{ msg: 'Server error' }] });
+  }
+};
+
 exports.toggleFollowUser = async (req, res) => {
   try {
     const userId = req.user._id; // Giả sử req.user chứa thông tin người dùng đã đăng nhập

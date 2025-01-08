@@ -2,7 +2,7 @@ const express = require('express');
 const { check, validationResult } = require('express-validator');
 const router = express.Router();
 const userController = require('../controllers/userController');
-const { ensureAuthenticated } = require('../middlewares/auth');
+const { ensureAuthenticated, ensureAdmin } = require('../middlewares/auth');
 const passport = require('passport');
 const upload = require('../config/cloudinary');
 
@@ -37,6 +37,8 @@ router.get('/auth/google/callback',
     res.redirect('/');
   }
 );
+
+router.post('/users/:userId/toggle-ban', ensureAuthenticated, ensureAdmin, userController.toggleUserBan);
 
 router.get('/logout', (req, res) => {
   req.logout((err) => {
