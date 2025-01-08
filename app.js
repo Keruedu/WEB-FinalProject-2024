@@ -77,13 +77,11 @@ app.use('/', [adminRoutes, webRoutes, userRoutes, blogRoutes, checkoutRoutes, pa
 app.use((err, req, res, next) => {
   console.error(err.stack);
   const statusCode = err.status || 500;
-  res.status(statusCode).render('error', {
-    message: err.message || 'Something went wrong!',
-    status: statusCode,
-  });
+  res.status(statusCode).send('Something went wrong!');
 });
 
 // Start the server
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
+  console.log(`Server is running on: http://localhost:${PORT}`);
 });

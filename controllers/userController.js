@@ -116,11 +116,32 @@ exports.registerUser = async (req, res) => {
 // };
 
 exports.loginUser = (req, res, next) => {
-  passport.authenticate('local', (err, user, info) => {
+  passport.authenticate('local', async (err, user, info) => {
     if (err) {
       return res.status(500).json({ errors: [{ msg: err.message }] });
     }
+    
     if (!user) {
+      // Nếu user bị banned, tìm email admin
+      if (info.message === 'Your account has been banned.') {
+        try {
+          const adminUser = await User.findOne({ role: 'admin' });
+          const adminEmail = adminUser ? adminUser.email : 'admin@example.com'; // fallback nếu không tìm thấy admin
+
+          return res.status(403).json({ 
+            errors: [{ msg: info.message }],
+            isBanned: true,
+            adminEmail: adminEmail
+          });
+        } catch (error) {
+          console.error('Error finding admin email:', error);
+          return res.status(403).json({ 
+            errors: [{ msg: info.message }],
+            isBanned: true,
+            adminEmail: 'admin@example.com' // fallback nếu có lỗi
+          });
+        }
+      }
       return res.status(400).json({ errors: [{ msg: info.message }] });
     }
     if (user.isBanned) {
