@@ -1,17 +1,17 @@
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
+const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const bcrypt = require('bcrypt');
-const User = require('../models/user'); // Đảm bảo có model User
+const User = require('../models/user');
 
 passport.use(
   new LocalStrategy(
     {
-      usernameField: 'identifier', // Use a generic field name
+      usernameField: 'identifier',
       passwordField: 'password'
     },
     async (identifier, password, done) => {
       try {
-        // Find user by username or email
         const user = await User.findOne({
           $or: [{ username: identifier }, { email: identifier }]
         });
@@ -21,6 +21,32 @@ passport.use(
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
           return done(null, false, { message: 'Incorrect password.' });
+        }
+        return done(null, user);
+      } catch (err) {
+        return done(err);
+      }
+    }
+  )
+);
+
+passport.use(
+  new GoogleStrategy(
+    {
+      clientID: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      callbackURL: '/auth/google/callback'
+    },
+    async (token, tokenSecret, profile, done) => {
+      try {
+        let user = await User.findOne({ googleId: profile.id });
+        if (!user) {
+          user = new User({
+            googleId: profile.id,
+            username: profile.displayName,
+            email: profile.emails[0].value
+          });
+          await user.save();
         }
         return done(null, user);
       } catch (err) {

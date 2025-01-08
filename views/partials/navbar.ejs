@@ -4,7 +4,7 @@
       <div class="container">
         <div class="relative -mx-4 flex items-center justify-between">
           <div class="w-60 max-w-full px-4">
-            <a href="index" class="navbar-logo block w-full py-5">
+            <a href="#" class="navbar-logo block w-full py-5">
               <img
                 src="/images/logo/logo-white.svg"
                 alt="logo"
@@ -33,19 +33,16 @@
                 class="absolute right-4 top-full hidden w-full max-w-[250px] rounded-lg bg-white py-5 shadow-lg dark:bg-dark-2 lg:static lg:block lg:w-full lg:max-w-full lg:bg-transparent lg:px-4 lg:py-0 lg:shadow-none dark:lg:bg-transparent xl:px-6"
               >
 
-                <ul class="blcok lg:flex 2xl:ml-20">
+                <ul class="block lg:flex 2xl:ml-20">
                   <li class="group relative">
-                    <div class="flex lg:hidden">
+                    <div class="flex flex-col items-center lg:hidden">
                       <% if (user) { %>
-                        <span class="px-[22px] py-2 text-base font-medium text-white">
-                          Welcome, <%= user.username %>
-                        </span>
-                        <a
-                          href="/logout"
-                          class="loginBtn px-[22px] py-2 text-base font-medium text-white hover:opacity-70"
-                        >
-                          Logout
-                        </a>
+                        <div class="flex flex-row items-center py-2 justify-center rounded-lg shadow-lg p-4">
+                          <img src="<%= user.avatar %>" alt="User Avatar" class="w-10 h-10 rounded-full border-2 border-white shadow-sm">
+                          <span class="ml-4 text-base font-medium dark:text-white text-black">
+                            Welcome, <%= user.username %>
+                          </span>
+                        </div>
                       <% } else { %>
                         <a
                           href="/signin"
@@ -61,6 +58,17 @@
                         </a>
                       <% } %>
                     </div>
+                  </li>
+
+                  <li class="group relative flex items-center justify-center lg:hidden">
+                    <% if (user) { %>
+                      <a
+                        href="/user/<%= user.id %>"
+                        class="loginBtn w-full text-center px-[22px] py-2 text-base font-bold  items-center justify-center rounded-md dark:text-white text-black transition duration-150 ease-in-out"
+                      >
+                        Profile
+                      </a>
+                    <% } %>
                   </li>
 
                   <li class="submenu-item group relative">
@@ -117,6 +125,18 @@
                         Blog Create Page
                       </a>
                       <a
+                        href="/my-blogs"
+                        class="block rounded px-4 py-[10px] text-sm text-body-color hover:text-primary dark:text-dark-6 dark:hover:text-primary"
+                      >
+                        My Blogs
+                      </a>
+                      <a
+                        href="/bookmarked-blogs"
+                        class="block rounded px-4 py-[10px] text-sm text-body-color hover:text-primary dark:text-dark-6 dark:hover:text-primary"
+                      >
+                        Bookmarked
+                      </a>
+                      <a
                         href="signup"
                         class="block rounded px-4 py-[10px] text-sm text-body-color hover:text-primary dark:text-dark-6 dark:hover:text-primary"
                       >
@@ -145,11 +165,17 @@
                       <% } %>
                     </div>
                   </li>
-                  <li class="group relative flex items-center justify-center">
-                    <a href="/blog-create" class="group  flex h-10 w-10 items-center justify-center rounded-md bg-primary text-white shadow-md transition duration-150 ease-in-out group-hover:hover:bg-white">
-                      <svg class="h-5 w-5 text-white group-hover:text-primary fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M256 80c0-17.7-14.3-32-32-32s-32 14.3-32 32l0 144L48 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l144 0 0 144c0 17.7 14.3 32 32 32s32-14.3 32-32l0-144 144 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-144 0 0-144z"/></svg>
-                    </a>
+                  <li class="group relative flex items-center justify-center lg:hidden">
+                    <% if (user) { %>
+                      <a
+                        href="/logout"
+                        class="loginBtn w-full text-center px-[22px] py-2 text-base font-bold hover:text-primary items-center justify-center rounded-md bg-primary text-white shadow-md transition duration-150 ease-in-out group-hover:hover:bg-white"
+                      >
+                        Logout
+                      </a>
+                    <% } %>
                   </li>
+
                 </ul>
               </nav>
             </div>
@@ -218,6 +244,7 @@
                         d="M5.32501 4.125C4.98751 3.7875 4.46251 3.7875 4.12501 4.125C3.78751 4.4625 3.78751 4.9875 4.12501 5.325L5.32501 6.525C5.47501 6.675 5.70001 6.7875 5.92501 6.7875C6.15001 6.7875 6.37501 6.7125 6.52501 6.525C6.86251 6.1875 6.86251 5.6625 6.52501 5.325L5.32501 4.125Z"
                       />
                     </g>
+                    
                     <defs>
                       <clipPath id="clip0_2172_3070">
                         <rect width="24" height="24" fill="white" />
@@ -225,35 +252,77 @@
                     </defs>
                   </svg>
                 </span>
+                <div class="group relative flex items-center justify-center ml-4">
+                  <a href="/blog-create" class="group flex h-10 w-10 items-center justify-center rounded-md bg-primary text-white shadow-md transition duration-150 ease-in-out group-hover:hover:bg-white">
+                    <svg class="h-5 w-5 text-white group-hover:text-primary fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M256 80c0-17.7-14.3-32-32-32s-32 14.3-32 32l0 144L48 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l144 0 0 144c0 17.7 14.3 32 32 32s32-14.3 32-32l0-144 144 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-144 0 0-144z"/></svg>
+                  </a>
+                </div>
               </label>
-              <div class="hidden lg:flex">
-                <% if (user) { %>
-                  <span class="px-[22px] py-2 text-base font-medium text-white">
+              
+            </div>
+            <div class="hidden lg:flex lg:items-center lg:w-auto">
+              <% if (user) { %>
+                <div class="flex flex-row px-[24px] items-center py-2 justify-center">
+                  <img src="<%= user.avatar %>" alt="User Avatar" class="w-10 h-10 rounded-full border-2 border-white shadow-sm cursor-pointer" id="userAvatar">
+                  <span class="px-[10px] py-2 text-base font-medium text-white whitespace-nowrap">
                     Welcome, <%= user.username %>
                   </span>
-                  <a
-                    href="/logout"
-                    class="loginBtn px-[22px] py-2 text-base font-medium text-white hover:opacity-70"
-                  >
-                    Logout
-                  </a>
-                <% } else { %>
-                  <a
-                    href="/signin"
-                    class="loginBtn px-[22px] py-2 text-base font-medium text-white hover:opacity-70"
-                  >
-                    Sign In
-                  </a>
-                  <a
-                    href="/signup"
-                    class="signUpBtn rounded-md bg-white bg-opacity-20 px-6 py-2 text-base font-medium text-white duration-300 ease-in-out hover:bg-opacity-100 hover:text-dark"
-                  >
-                    Sign Up
-                  </a>
-                <% } %>
-              </div>
+                  <div id="userDropdown" class="hidden flex-col absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg py-2 z-20 transition transform duration-300 ease-in-out opacity-0 translate-y-4">
+                    <a href="/user/<%= user.id %>" class="block px-4 py-2 text-gray-800 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700">Profile</a>
+                    <a href="/logout" class="w-full text-center px-[22px] py-2 text-base font-bold hover:text-primary items-center justify-center rounded-md bg-primary text-white shadow-md transition duration-150 ease-in-out hover:bg-white">Logout</a>
+                  </div>
+                </div>
+              <% } else { %>
+                <a
+                  href="/signin"
+                  class="loginBtn px-[22px] py-2 text-base font-medium text-white hover:opacity-70"
+                >
+                  Sign In
+                </a>
+                <a
+                  href="/signup"
+                  class="signUpBtn rounded-md bg-white bg-opacity-20 px-6 py-2 text-base font-medium text-white duration-300 ease-in-out hover:bg-opacity-100 hover:text-dark"
+                >
+                  Sign Up
+                </a>
+              <% } %>
             </div>
           </div>
         </div>
       </div>
     </div>
+
+    <script>
+  document.getElementById('userAvatar').addEventListener('click', function() {
+    var dropdown = document.getElementById('userDropdown');
+    if (dropdown.classList.contains('hidden')) {
+      dropdown.classList.remove('hidden');
+      dropdown.classList.add('flex');
+      setTimeout(() => {
+        dropdown.classList.remove('opacity-0', 'translate-y-4');
+        dropdown.classList.add('opacity-100', 'translate-y-20');
+      }, 10);
+    } else {
+      dropdown.classList.add('opacity-0', 'translate-y-4');
+      dropdown.classList.remove('opacity-100', 'translate-y-0');
+      setTimeout(() => {
+        dropdown.classList.add('hidden');
+        dropdown.classList.remove('flex');
+      }, 300);
+    }
+  });
+
+  // Close the dropdown if the user clicks outside of it
+  window.addEventListener('click', function(event) {
+    var dropdown = document.getElementById('userDropdown');
+    if (!event.target.matches('#userAvatar')) {
+      if (!dropdown.classList.contains('hidden')) {
+        dropdown.classList.add('opacity-0', 'translate-y-4');
+        dropdown.classList.remove('opacity-100', 'translate-y-0');
+        setTimeout(() => {
+          dropdown.classList.add('hidden');
+        }, 300);
+      }
+    }
+  });
+    </script>

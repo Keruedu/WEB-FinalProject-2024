@@ -12,6 +12,7 @@ const userRoutes = require('./routes/userRoutes');
 const webRoutes = require('./routes/webRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const checkoutRoutes = require('./routes/checkoutRoutes');
+const paymentRoutes = require('./routes/paymentRoutes');
 
 
 // Import configurations
@@ -70,7 +71,7 @@ app.use(async (req, res, next) => {
 });
 
 // Routes
-app.use('/', [adminRoutes, webRoutes, userRoutes, blogRoutes, checkoutRoutes]);
+app.use('/', [adminRoutes, webRoutes, userRoutes, blogRoutes, checkoutRoutes, paymentRoutes]);
 
 // Global error handler
 app.use((err, req, res, next) => {

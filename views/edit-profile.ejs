@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contact | Play Tailwind</title>
+  <link rel="shortcut icon" href="/images/favicon.png" type="image/x-icon" />
+  <link rel="stylesheet" href="/css/animate.css" />
+  <link rel="stylesheet" href="/css/tailwind.css" />
+
+  <!-- ==== WOW JS ==== -->
+  <script src="/js/wow.min.js"></script>
+  <script>
+    new WOW().init();
+  </script>
+</head>
+
+<body>
+  <!-- ====== Navbar Section Start -->
+  <%- include('partials/navbar') %>
+  <!-- ====== Navbar Section End -->
+
+  <!-- ====== Banner Section Start -->
+  <div class="relative z-10 overflow-hidden pt-[120px] pb-[60px] md:pt-[130px] lg:pt-[160px] dark:bg-dark">
+    <div
+      class="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-stroke/0 via-stroke dark:via-dark-3 to-stroke/0">
+    </div>
+    <div class="container">
+      <div class="flex flex-wrap items-center -mx-4">
+        <div class="w-full px-4">
+          <div class="text-center">
+            <h1 class="mb-4 text-3xl font-bold text-dark dark:text-white sm:text-4xl md:text-[40px] md:leading-[1.2]">
+              Contact Page</h1>
+            <p class="mb-5 text-base text-body-color dark:text-dark-6">
+              There are many variations of passages of Lorem Ipsum available.
+            </p>
+
+            <ul class="flex items-center justify-center gap-[10px]">
+              <li>
+                <a href="../index"
+                  class="flex items-center gap-[10px] text-base font-medium text-dark dark:text-white">
+                  Home
+                </a>
+              </li>
+              <li>
+                <a href="javascript:void(0)" class="flex items-center gap-[10px] text-base font-medium text-body-color">
+                  <span class="text-body-color dark:text-dark-6"> / </span>
+                  Contact us
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- ====== Banner Section End -->
+
+  <!-- ====== Edit Profile Start ====== -->
+  <section id="contact" class="relative py-20 md:py-[120px] dark:bg-dark dark:text-white">
+    <div class="container mx-auto p-4">
+      <h1 class="text-2xl font-bold mb-4">Edit Profile</h1>
+      <form id="editProfileForm" action="/edit-profile" method="POST">
+        <div class="flex justify-center items-center gap-4 self-start">
+          <button type="button" onclick="document.getElementById('avatarInput').click()" class="px-9 py-9 rounded border dark:border-bg-white dark:border-bg-dark max-w-[250px] flex flex-row gap-1 justify-center items-center text-dark-700 dark:text-white hover:text-primary hover:border-primary transition">
+            <input type="file" id="avatarInput" name="avatar" accept="image/*" class="hidden" onchange="previewImage(event)" />
+            <svg class="w-8 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M149.1 64.8L138.7 96 64 96C28.7 96 0 124.7 0 160L0 416c0 35.3 28.7 64 64 64l384 0c35.3 0 64-28.7 64-64l0-256c0-35.3-28.7-64-64-64l-74.7 0L362.9 64.8C356.4 45.2 338.1 32 317.4 32L194.6 32c-20.7 0-39 13.2-45.5 32.8zM256 192a96 96 0 1 1 0 192 96 96 0 1 1 0-192z"/></svg>
+            <span>User Picture</span>
+          </button>
+          <div class="w-40 h-40 rounded-full overflow-hidden mb-6 shadow-lg">
+            <img id="imagePreview" src="<%= user.avatar %>" alt="image" class="w-full h-full object-cover object-center" />
+          </div>
+        </div>
+        <div class="mb-4">
+          <label for="username" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Username</label>
+          <input type="text" name="username" id="username" value="<%= user.username %>" class="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100">
+        </div>
+        <div class="mb-4">
+          <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Email</label>
+          <input type="email" name="email" id="email" value="<%= user.email %>" class="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100">
+        </div>
+        <div class="mb-4">
+          <label for="bio" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Bio</label>
+          <textarea name="description" id="description" class="mt-1 block w-full h-[100px] border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"><%= user.description %></textarea>
+        </div>
+        <div class="flex flex-row gap-[10px]">
+          <button type="submit" class="px-4 py-2 bg-blue-500 dark:bg-blue-700 text-white rounded-md hover:bg-blue-600 dark:hover:bg-blue-800 transition ease-in-out duration-150">Save Changes</button>
+          <button type="button" class="px-4 py-2 bg-red-500 dark:bg-red-700 text-white rounded-md hover:bg-red-600 dark:hover:bg-red-800 transition ease-in-out duration-150" onclick="document.getElementById('resetPasswordModal').style.display='flex'">Reset Password</button>
+        </div>
+
+      </form>
+    </div>
+
+  </section>
+
+  <!-- Reset Password Modal -->
+  <div id="resetPasswordModal" class="fixed inset-0 h-full bg-gray-600 bg-opacity-50 flex items-center justify-center" style="display: none;">
+    <div class="bg-white dark:bg-gray-800 p-6 rounded-md shadow-md">
+      <h2 class="text-xl font-bold mb-4 dark:text-white">Reset Password</h2>
+      <form id="resetPasswordForm" action="/reset-password" method="POST">
+        <div class="mb-4">
+          <label for="oldPassword" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Old Password</label>
+          <input type="password" name="oldPassword" id="oldPassword" class="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100">
+        </div>
+        <div class="mb-4">
+          <label for="newPassword" class="block text-sm font-medium text-gray-700 dark:text-gray-300">New Password</label>
+          <input type="password" name="newPassword" id="newPassword" class="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100">
+        </div>
+        <button type="submit" class="px-4 py-2 bg-red-500 dark:bg-red-700 text-white rounded-md hover:bg-red-600 dark:hover:bg-red-800 transition ease-in-out duration-150">Reset Password</button>
+        <button type="button" class="px-4 py-2 bg-gray-500 dark:bg-gray-700 text-white rounded-md hover:bg-gray-600 dark:hover:bg-gray-800 transition ease-in-out duration-150" onclick="document.getElementById('resetPasswordModal').style.display='none'">Cancel</button>
+      </form>
+    </div>
+  </div>
+  <!-- ====== Edit Profile End ====== -->
+
+  <!-- ====== Footer Section Start -->
+  <%- include('partials/footer') %>
+  <!-- ====== Footer Section End -->
+
+  <!-- ====== Back To Top Start -->
+  <a href="javascript:void(0)"
+    class="back-to-top fixed bottom-8 right-8 left-auto z-[999] hidden h-10 w-10 items-center justify-center rounded-md bg-primary text-white shadow-md transition duration-300 ease-in-out hover:bg-dark">
+    <span class="mt-[6px] h-3 w-3 rotate-45 border-t border-l border-white"></span>
+  </a>
+  <!-- ====== Back To Top End -->
+
+  <!-- ====== Made With Button Start -->
+  <a target="_blank" rel="nofollow noopener"
+    class="inline-flex items-center gap-[10px] py-2 px-[14px] rounded-lg bg-white dark:bg-dark-2 shadow-2 fixed bottom-8 left-4 sm:left-9 z-[999]"
+    href="https://tailgrids.com/">
+    <span class="text-base font-medium text-dark-3 dark:text-dark-6">
+      Made with
+    </span>
+    <span class="block w-px h-4 bg-stroke dark:bg-dark-3"></span>
+    <span class="block max-w-[88px] w-full">
+      <img src="/images/brands/tailgrids.svg" alt="tailgrids" class="dark:hidden">
+      <img src="/images/brands/tailgrids-white.svg" alt="tailgrids" class="hidden dark:block">
+    </span>
+  </a>
+  <!-- ====== Made With Button End -->
+
+  <!-- ====== All Scripts -->
+  <script src="/js/main.js"></script>
+  <!-- sweetalert2 -->
+  <!-- jquery -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> 
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> 
+  <script>
+    function previewImage(event) {
+      const input = event.target;
+      const reader = new FileReader();
+      reader.onload = function() {
+        const imagePreview = document.getElementById('imagePreview');
+        imagePreview.src = reader.result;
+      };
+      reader.readAsDataURL(input.files[0]);
+    }
+  </script>
+  <script>
+    $(document).ready(function() {
+      $('#editProfileForm').on('submit', function(event) {
+        event.preventDefault(); // Prevent the default form submission
+        const formData = new FormData(this);
+        $.ajax({
+          url: '/edit-profile',
+          method: 'POST',
+          data: formData,
+          processData: false,
+          contentType: false,
+          success: function(response) {
+            Swal.fire({
+              icon: 'success',
+              title: 'Success',
+              text: response.success_msg,
+              customClass: {
+                popup: 'bg-[#F4F7FF] dark:bg-gray-800 text-[#333] dark:text-gray-200',
+                title: 'text-[#1a202c] dark:text-gray-100',
+                confirmButton: 'bg-[#1a202c] text-white dark:bg-gray-700',
+              }
+            }).then(() => {
+              window.location.href = `/user/<%= user._id %>`;
+            });
+          },
+          error: function(xhr) {
+            const errors = xhr.responseJSON.errors;
+            let errorList = '<ul class="error-list mb-4">';
+            errors.forEach(function(error) {
+              errorList += `<li class="error-item text-red-500 dark:text-red-300">${error.msg}</li>`;
+            });
+            errorList += '</ul>';
+  
+            Swal.fire({
+              icon: 'error',
+              title: 'Oops...',
+              html: errorList,
+              customClass: {
+                popup: 'bg-[#F4F7FF] dark:bg-gray-800 text-[#333] dark:text-gray-200',
+                title: 'text-[#1a202c] dark:text-gray-100',
+              }
+            });
+          }
+        });
+      });
+  
+      $('#resetPasswordForm').on('submit', function(event) {
+        event.preventDefault(); // Prevent the default form submission
+  
+        $.ajax({
+          url: '/reset-password',
+          method: 'POST',
+          data: $(this).serialize(),
+          success: function(response) {
+            Swal.fire({
+              icon: 'success',
+              title: 'Success',
+              text: response.success_msg,
+              customClass: {
+                popup: 'bg-[#F4F7FF] dark:bg-gray-800 text-[#333] dark:text-gray-200',
+                title: 'text-[#1a202c] dark:text-gray-100',
+                confirmButton: 'bg-[#1a202c] text-white dark:bg-gray-700',
+                cancelButton: 'bg-[#e53e3e] text-white dark:bg-green-600'
+              }
+            }).then(() => {
+              document.getElementById('resetPasswordModal').style.display = 'none';
+              $('#resetPasswordForm')[0].reset();
+            });
+          },
+          error: function(xhr) {
+            const errors = xhr.responseJSON.errors;
+            let errorList = '<ul class="error-list mb-4">';
+            errors.forEach(function(error) {
+              errorList += `<li class="error-item text-red-500 dark:text-red-300">${error.msg}</li>`;
+            });
+            errorList += '</ul>';
+  
+            Swal.fire({
+              icon: 'error',
+              title: 'Oops...',
+              html: errorList,
+              customClass: {
+                popup: 'bg-[#F4F7FF] dark:bg-gray-800 text-[#333] dark:text-gray-200',
+                title: 'text-[#1a202c] dark:text-gray-100',
+                confirmButton: 'bg-[#1a202c] text-white dark:bg-gray-700',
+                cancelButton: 'bg-[#e53e3e] text-white dark:bg-red-600'
+              }
+            });
+          }
+        });
+      });
+    });
+  </script>
+</body>
+
+</html>
