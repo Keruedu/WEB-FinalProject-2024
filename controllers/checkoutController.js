@@ -1,15 +1,14 @@
 // controllers/checkoutController.js
-const SubscriptionPlan = require('../models/subscriptionPlan');
+const { getSubscriptionPlanById } = require('../service/checkoutService');
 
 exports.getCheckoutPage = async (req, res) => {
   try {
-    const plan = await SubscriptionPlan.findById(req.params.planId);
-    if (!plan) {
-      return res.status(404).send('Subscription plan not found');
-    }
+    const plan = await getSubscriptionPlanById(req.params.planId);
     res.render('checkout', { plan });
   } catch (error) {
-    console.error('Error fetching subscription plan:', error);
+    if (error.message === 'Subscription plan not found') {
+      return res.status(404).send(error.message);
+    }
     res.status(500).send('Internal Server Error');
   }
 };

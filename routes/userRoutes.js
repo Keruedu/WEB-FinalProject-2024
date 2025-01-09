@@ -50,7 +50,7 @@ router.get('/logout', (req, res) => {
 });
 
 router.get('/forgot-password', (req, res) => {
-  res.render('forgot-password', { errors: [], success_msg: '' });
+  res.render('forgot-password', { errors: [], message: '' });
 });
 
 router.post('/forgot-password', userController.forgotPassword);
