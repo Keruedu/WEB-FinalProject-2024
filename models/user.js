@@ -4,6 +4,7 @@ const userSchema = new mongoose.Schema({
   username: String,
   password: String,
   email: String,
+  fullName: String, // Added fullName field
   role: {
     type: String,
     enum: ['admin', 'client'],
@@ -43,6 +44,7 @@ const userSchema = new mongoose.Schema({
   }],
   resetPasswordToken: String,
   resetPasswordExpires: Date,
+  lastLogin: Date, // Added lastLogin field
 }, { timestamps: true });
 
 userSchema.methods.isPremiumActive = function() {

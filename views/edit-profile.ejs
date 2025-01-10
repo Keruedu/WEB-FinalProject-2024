@@ -82,6 +82,10 @@
           <input type="email" name="email" id="email" value="<%= user.email %>" class="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100">
         </div>
         <div class="mb-4">
+          <label for="fullName" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Full Name</label>
+          <input type="text" name="fullName" id="fullName" value="<%= user.fullName %>" class="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100">
+        </div>
+        <div class="mb-4">
           <label for="bio" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Bio</label>
           <textarea name="description" id="description" class="mt-1 block w-full h-[100px] border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"><%= user.description %></textarea>
         </div>

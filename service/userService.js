@@ -12,14 +12,15 @@ const crypto = require('crypto');
 const ejs = require('ejs');
 const path = require('path');
 
-const registerUser = async (username, password, email) => {
+const registerUser = async (userData) => {
+  const { username, email, password } = userData;
   const existingUser = await User.findOne({ $or: [{ username }, { email }] });
   if (existingUser) {
     throw new Error('Username or email already exists');
   }
 
   const hashedPassword = await bcrypt.hash(password, 10);
-  const user = new User({ username, password: hashedPassword, email });
+  const user = new User({ ...userData, password: hashedPassword });
   await user.save();
   return user;
 };
@@ -38,6 +39,9 @@ const loginUser = async (email, password) => {
   if (user.isBanned) {
     throw new Error('Your account has been banned');
   }
+
+  user.lastLogin = new Date();
+  await user.save();
 
   const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
   return { user, token };
@@ -178,7 +182,7 @@ const resetForgotPassword = async (token, password) => {
 };
 
 const updateProfile = async (userId, profileData, avatarPath) => {
-  const { username, email, description } = profileData;
+  const { username, email, description, fullName } = profileData; // Include fullName in the destructuring
   const user = await User.findById(userId);
 
   if (!user) {
@@ -188,6 +192,7 @@ const updateProfile = async (userId, profileData, avatarPath) => {
   user.username = username || user.username;
   user.email = email || user.email;
   user.description = description;
+  user.fullName = fullName || user.fullName; // Update fullName
 
   if (avatarPath) {
     user.avatar = avatarPath;

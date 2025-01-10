@@ -14,6 +14,7 @@ const { ITEMS_PER_PAGE } = require('../utils/constants');
 const nodemailer = require('nodemailer');
 const crypto = require('crypto');
 const userService = require('../service/userService');
+const { timeAgo } = require('../utils/dateMoment');
 
 exports.registerUser = async (req, res) => {
   const errors = validationResult(req);
@@ -21,33 +22,35 @@ exports.registerUser = async (req, res) => {
     return res.status(400).json({ errors: errors.array() });
   }
   try {
-    const { username, password, email } = req.body;
-    const user = await userService.registerUser(username, password, email);
+    const { username, password, email, fullName } = req.body;
+    const userFullName = fullName || 'Người dùng chưa đặt tên'; // Set default value if fullName is not provided
+    const userData = { username, password, email, fullName: userFullName, lastLogin: new Date() };
+    const user = await userService.registerUser(userData);
     return res.status(200).json({ success_msg: 'You are now registered and can log in' });
   } catch (error) {
     return res.status(500).json({ errors: [{ msg: error.message }] });
   }
 };
 
-exports.loginUser = (req, res, next) => {
+exports.loginUser = async (req, res, next) => {
   passport.authenticate('local', async (err, user, info) => {
     if (err) {
       return res.status(500).json({ errors: [{ msg: err.message }] });
     }
-    
+
     if (!user) {
       if (info.message === 'Your account has been banned.') {
         try {
           const adminUser = await User.findOne({ role: 'admin' });
           const adminEmail = adminUser ? adminUser.email : 'admin@example.com';
-          return res.status(403).json({ 
+          return res.status(403).json({
             errors: [{ msg: info.message }],
             isBanned: true,
             adminEmail: adminEmail
           });
         } catch (error) {
           console.error('Error finding admin email:', error);
-          return res.status(403).json({ 
+          return res.status(403).json({
             errors: [{ msg: info.message }],
             isBanned: true,
             adminEmail: 'admin@example.com'
@@ -56,14 +59,21 @@ exports.loginUser = (req, res, next) => {
       }
       return res.status(400).json({ errors: [{ msg: info.message }] });
     }
+
     if (user.isBanned) {
       return res.status(403).json({ errors: [{ msg: 'Your account has been banned.' }] });
     }
-    req.logIn(user, (err) => {
+
+    req.logIn(user, async (err) => {
       if (err) {
         return res.status(500).json({ errors: [{ msg: 'Internal server error' }] });
       }
-      return res.status(200).json({ success_msg: 'You are now logged in' });
+      try {
+        const { token } = await userService.loginUser(user.email, req.body.password);
+        return res.status(200).json({ success_msg: 'You are now logged in', token });
+      } catch (saveError) {
+        return res.status(500).json({ errors: [{ msg: saveError.message }] });
+      }
     });
   })(req, res, next);
 };
@@ -135,7 +145,8 @@ exports.getUserDetails = async (req, res) => {
         categories: result.allCategories,
         selectedTags: result.tags || [],
         selectedCategory: result.category || '',
-        timeRange: result.timeRange || ''
+        timeRange: result.timeRange || '',
+        lastLoginTimeAgo: timeAgo(result.user.lastLogin) // Add lastLoginTimeAgo
       });
     }
   } catch (error) {
@@ -234,9 +245,9 @@ exports.updateProfile = async (req, res) => {
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { username, email, description } = req.body;
+    const { username, email, description, fullName } = req.body; // Include fullName in the destructuring
     const avatarPath = req.file ? req.file.path : null;
-    const user = await userService.updateProfile(req.user._id, { username, email, description }, avatarPath);
+    const user = await userService.updateProfile(req.user._id, { username, email, description, fullName }, avatarPath); // Pass fullName to the service
     res.status(200).json({ success_msg: 'Profile updated successfully' });
   } catch (error) {
     console.error('Error updating profile:', error);
