@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <link
+  rel="shortcut icon"
+  href="/images/favicon.png"
+  type="image/x-icon"
+/>
+  <link rel="stylesheet" href="/css/animate.css" />
+  <link rel="stylesheet" href="/css/tailwind.css" />
+  <script src="/js/wow.min.js"></script>
+  <script>
+    new WOW().init();
+  </script>
+</head>
+<body>
+  <%- include('partials/navbar') %>
+
+  <section class="pt-[150px] pb-[120px]">
+    <div class="container px-4 mx-auto">
+      <div class="wow fadeInUp" data-wow-delay=".2s">
+        <!-- Back button -->
+        <div class="mb-6 flex items-center space-x-2">
+          <a href="/admin" 
+             class="inline-flex items-center p-1 hover:bg-gray-100 dark:hover:bg-dark-4 rounded-lg transition-colors">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+            </svg>
+            <span class="ml-2 text-gray-700 dark:text-gray-300 text-lg">
+              Back to Dashboard
+            </span>
+          </a>
+        </div>
+
+        <div class="-mx-4 flex flex-wrap">
+          <div class="w-full px-4">
+            <div class="mx-auto mb-12 max-w-[510px] text-center lg:mb-20">
+              <h2 class="mb-3 text-3xl font-bold leading-[1.2] text-dark dark:text-white sm:text-4xl md:text-[40px]">
+                Users Management
+              </h2>
+            </div>
+          </div>
+        </div>
+
+        <!-- Search Bar và Sort options với giao diện mới và khoảng cách nhỏ hơn -->
+        <div class="space-y-2">
+          <!-- Search Bar -->
+          <div class="flex justify-center">
+            <form action="/admin" method="GET" class="w-full md:w-4/5 lg:w-3/4">
+              <div class="flex items-center justify-center gap-4 p-4 bg-white dark:bg-dark-2 rounded-lg shadow-sm">
+                <div class="flex items-center gap-2 min-w-[300px]">
+                  <span class="text-gray-700 dark:text-gray-300 whitespace-nowrap">Filter accounts by:</span>
+                  <select 
+                    name="filterType" 
+                    class="w-[250px] px-3 py-2 bg-gray-50 dark:bg-dark-3 border border-gray-200 dark:border-dark-4 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm transition-all"
+                  >
+                    <option value="username">Username</option>
+                    <option value="email">Email</option>
+                    <option value="fullName">Full name</option>
+                  </select>
+                </div>
+                <div class="flex-1 relative min-w-[400px]">
+                  <input
+                    type="text"
+                    name="search"
+                    value="<%= searchQuery %>"
+                    placeholder="Enter search term..."
+                    class="w-full px-4 py-2 bg-gray-50 dark:bg-dark-3 border border-gray-200 dark:border-dark-4 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm transition-all"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  class="px-4 py-2 bg-primary text-white rounded-md hover:bg-opacity-90 transition-all duration-200 flex items-center gap-2 whitespace-nowrap"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                  </svg>
+                  Search
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Sort options -->
+          <div class="flex justify-center">
+            <div class="flex items-center justify-center gap-4 p-4 bg-white dark:bg-dark-2 rounded-lg shadow-sm w-full md:w-4/5 lg:w-3/4">
+              <span class="text-gray-700 dark:text-gray-300 whitespace-nowrap">Sort by:</span>
+              <select 
+                id="sortField"
+                class="w-[250px] px-3 py-2 bg-gray-50 dark:bg-dark-3 border border-gray-200 dark:border-dark-4 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm transition-all"
+              >
+                <option value="username">Name</option>
+                <option value="email">Email</option>
+                <option value="createdAt">Registration time</option>
+              </select>
+              <select 
+                id="sortOrder"
+                class="w-[250px] px-3 py-2 bg-gray-50 dark:bg-dark-3 border border-gray-200 dark:border-dark-4 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm transition-all"
+              >
+                <option value="asc">Ascending</option>
+                <option value="desc">Descending</option>
+              </select>
+              <button
+                id="resetSort"
+                class="px-4 py-2 bg-primary text-white rounded-md hover:bg-opacity-90 transition-all duration-200 flex items-center gap-2"
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                </svg>
+                Reset Sorting
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Thêm đoạn debug này ở đầu file -->
+        <% if (typeof users === 'undefined') { %>
+          <script>console.log('Users is undefined');</script>
+        <% } else { %>
+          <script>
+            const userCount = '<%= users.length %>';
+            console.log('Number of users:', userCount);
+          </script>
+        <% } %>
+
+        <!-- Users List -->
+        <div class="overflow-x-auto">
+          <table class="min-w-full bg-white dark:bg-dark-2 rounded-lg overflow-hidden">
+            <thead class="bg-gray-50 dark:bg-dark-3">
+              <tr>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Username</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Full Name</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Email</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Role</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Premium</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Registration Time</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="usersTableBody">
+              <!-- Data will be loaded here -->
+            </tbody>
+          </table>
+          <!-- Sau phần table -->
+          <div class="mt-8 flex justify-center" id="paginationContainer">
+            <nav class="inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
+              <!-- Previous page -->
+              <button id="prevPage" 
+                      class="relative inline-flex items-center rounded-l-md px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:z-20 disabled:opacity-50 disabled:hover:bg-white dark:text-gray-300 dark:hover:bg-dark-4 dark:disabled:hover:bg-dark-2">
+                <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                </svg>
+                Previous
+              </button>
+
+              <!-- Page info -->
+              <div class="relative inline-flex items-center bg-white dark:bg-dark-2 rounded-md shadow-sm">
+                <input 
+                  type="number" 
+                  id="pageInput" 
+                  class="w-12 px-2 py-1 text-center bg-transparent border-none focus:outline-none focus:ring-2 focus:ring-primary rounded-l-md text-sm font-medium"
+                  min="1"
+                  style="-moz-appearance: textfield; -webkit-inner-spin-button: none; -webkit-outer-spin-button: none;"
+                >
+                <div class="px-2 py-1 border-l border-gray-200 dark:border-dark-4 text-sm font-medium text-gray-500 dark:text-gray-400">
+                  / <span id="totalPages" class="ml-1 font-medium">2</span>
+                </div>
+              </div>
+
+              <!-- Next page -->
+              <button id="nextPage" 
+                      class="relative inline-flex items-center rounded-r-md px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:z-20 disabled:opacity-50 disabled:hover:bg-white dark:text-gray-300 dark:hover:bg-dark-4 dark:disabled:hover:bg-dark-2">
+                Next
+                <svg class="ml-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                </svg>
+              </button>
+            </nav>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script>
+  let currentUser;
+  try {
+    currentUser = JSON.parse('<%- JSON.stringify(currentUser) %>');
+  } catch (e) {
+    console.error('Error parsing currentUser:', e);
+    currentUser = null;
+  }
+
+  // Các biến quản lý trạng thái
+  let currentPage = 1;
+  let searchQuery = '';
+  let filterType = 'username';
+
+  // Hàm chính để load users
+  async function loadUsers(page = 1) {
+    try {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      
+      const sortField = document.getElementById('sortField').value;
+      const sortOrder = document.getElementById('sortOrder').value;
+      
+      const url = `/api/users?page=${page}&search=${searchQuery}&filterType=${filterType}&sortField=${sortField}&sortOrder=${sortOrder}`;
+      const response = await fetch(url);
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      
+      const data = await response.json();
+      console.log('Received data:', data); // Debug log
+      
+      if (data.users && Array.isArray(data.users)) {
+        updateTable(data.users);
+        updatePagination(data.pagination);
+      } else {
+        console.error('Invalid data format received');
+      }
+    } catch (error) {
+      console.error('Error loading users:', error);
+    }
+  }
+
+  // Cập nhật bảng users
+  function updateTable(users) {
+    const tbody = document.getElementById('usersTableBody');
+    if (!tbody) return;
+    
+    tbody.innerHTML = '';
+    
+    if (!users || users.length === 0) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="7" class="px-6 py-4 text-center">No users found</td>
+        </tr>
+      `;
+      return;
+    }
+    
+    users.forEach(user => {
+      tbody.innerHTML += `
+        <tr class="border-b dark:border-dark-3">
+          <td class="px-6 py-4 whitespace-nowrap">${user.username}</td>
+          <td class="px-6 py-4 whitespace-nowrap">${user.fullName || 'N/A'}</td>
+          <td class="px-6 py-4 whitespace-nowrap">${user.email}</td>
+          <td class="px-6 py-4 whitespace-nowrap">${user.role}</td>
+          <td class="px-6 py-4 whitespace-nowrap">${user.isPremium ? 'Yes' : 'No'}</td>
+          <td class="px-6 py-4 whitespace-nowrap">
+            <span class="${user.isBanned ? 'text-red-500' : 'text-green-500'}">
+              ${user.isBanned ? 'Banned' : 'Active'}
+            </span>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap">${formatDate(user.createdAt)}</td>
+          <td class="px-6 py-4 whitespace-nowrap">
+            ${user.role !== 'admin' ? `
+              <div class="relative inline-block text-left">
+                <button onclick="toggleDropdown('${user._id}')" 
+                        class="inline-flex items-center p-1 hover:bg-gray-100 dark:hover:bg-dark-4 rounded-lg transition-colors">
+                  <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"/>
+                  </svg>
+                </button>
+                <div id="dropdown-${user._id}" 
+                     class="hidden absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white dark:bg-dark-2 ring-1 ring-black ring-opacity-5 z-50">
+                  <div class="py-1">
+                    <button 
+                      onclick="handleBanClick('${user._id}', '${user.username}', ${user._id === currentUser._id})"
+                      class="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-dark-3"
+                    >
+                      ${user.isBanned ? 'Unban User' : 'Ban User'}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ` : ''}
+          </td>
+        </tr>
+      `;
+    });
+  }
+
+  // Cập nhật UI phân trang
+  function updatePagination(pagination) {
+    if (!pagination) return;
+    
+    currentPage = pagination.currentPage;
+    
+    const pageInput = document.getElementById('pageInput');
+    if (pageInput) {
+      pageInput.value = currentPage;
+      pageInput.max = pagination.lastPage;
+    }
+    
+    const totalPagesElement = document.getElementById('totalPages');
+    if (totalPagesElement) {
+      totalPagesElement.textContent = pagination.lastPage;
+    }
+    
+    const prevButton = document.getElementById('prevPage');
+    const nextButton = document.getElementById('nextPage');
+    
+    if (prevButton) prevButton.disabled = !pagination.hasPreviousPage;
+    if (nextButton) nextButton.disabled = !pagination.hasNextPage;
+  }
+
+  // Event Listeners
+  document.getElementById('prevPage').addEventListener('click', () => {
+    if (currentPage > 1) loadUsers(currentPage - 1);
+  });
+
+  document.getElementById('nextPage').addEventListener('click', () => {
+    const totalPages = parseInt(document.getElementById('totalPages').textContent);
+    if (currentPage < totalPages) loadUsers(currentPage + 1);
+  });
+
+  document.getElementById('pageInput').addEventListener('change', (e) => {
+    const page = parseInt(e.target.value);
+    const maxPage = parseInt(e.target.max);
+    
+    if (page < 1) {
+      e.target.value = 1;
+      loadUsers(1);
+    } else if (page > maxPage) {
+      e.target.value = maxPage;
+      loadUsers(maxPage);
+    } else {
+      loadUsers(page);
+    }
+  });
+
+  // Search form handling
+  document.querySelector('form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    searchQuery = document.querySelector('input[name="search"]').value;
+    filterType = document.querySelector('select[name="filterType"]').value;
+    loadUsers(1);
+  });
+
+  // Ban/Unban handling
+  function handleBanClick(userId, username, isSelf) {
+    if (isSelf) {
+      alert("You cannot ban yourself!");
+      return;
+    }
+    
+    if (confirm(`Are you sure you want to ${user.isBanned ? 'unban' : 'ban'} ${username}?`)) {
+      toggleBan(userId);
+    }
+  }
+
+  // Toggle dropdown
+  function toggleDropdown(userId) {
+    const dropdown = document.getElementById(`dropdown-${userId}`);
+    const allDropdowns = document.querySelectorAll('[id^="dropdown-"]');
+    
+    allDropdowns.forEach(d => {
+      if (d.id !== `dropdown-${userId}`) {
+        d.classList.add('hidden');
+      }
+    });
+    
+    dropdown.classList.toggle('hidden');
+  }
+
+  // Close dropdowns when clicking outside
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('button')) {
+      const allDropdowns = document.querySelectorAll('[id^="dropdown-"]');
+      allDropdowns.forEach(d => d.classList.add('hidden'));
+    }
+  });
+
+  // Initial load
+  document.addEventListener('DOMContentLoaded', () => {
+    loadUsers(1);
+  });
+
+  // Thêm event listeners cho sorting
+  document.getElementById('sortField').addEventListener('change', () => loadUsers(1));
+  document.getElementById('sortOrder').addEventListener('change', () => loadUsers(1));
+
+  function formatDate(dateString) {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-GB'); // format dd/mm/yyyy
+  }
+
+  // Thêm event listener cho nút reset
+  document.getElementById('resetSort').addEventListener('click', () => {
+    document.getElementById('sortField').value = 'username';
+    document.getElementById('sortOrder').value = 'asc';
+    loadUsers(1);
+  });
+  </script>
+
+  <%- include('partials/footer') %>
+</body>
+</html> 
