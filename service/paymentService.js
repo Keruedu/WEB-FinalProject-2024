@@ -38,7 +38,7 @@ const createMoMoPayment = async (amount, orderId, orderInfo) => {
   return response.data;
 };
 
-const createVNPayPayment = async (amount, orderId, orderInfo) => {
+const createVNPayPayment = async (req, amount, orderId, orderInfo) => {
   const exchangeRate = await getLatestExchangeRate();
   const amountVND = parseFloat(convertUSDtoVND(amount, exchangeRate).toFixed(0));
   const ipAddr = req.headers['x-forwarded-for'] || req.connection.remoteAddress || '127.0.0.1';

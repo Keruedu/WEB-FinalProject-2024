@@ -62,18 +62,18 @@ exports.handlePaymentNotification = (req, res) => {
 exports.createVNPayPayment = async (req, res) => {
   try {
     const { amount, orderId, orderInfo } = req.body;
-    const paymentData = await createVNPayPayment(amount, orderId, orderInfo);
-    res.json(paymentData);
+    const paymentResult = await createVNPayPayment(req, amount, orderId, orderInfo);
+    res.status(200).json(paymentResult);
   } catch (error) {
     console.error('Error creating VNPay payment:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
+    res.status(500).json({ message: 'Internal Server Error', error: error.message });
   }
 };
 
 exports.handleVNPayReturn = (req, res) => {
   try {
     const vnp_Params = req.query;
-    const secretKey = process.env.VNPAY_SECRET_KEY;
+    const secretKey = process.env.VNPAY_HASH_SECRET;
 
     if (!verifyVNPaySignature(vnp_Params, secretKey)) {
       return res.render('payment-success', { success: false, message: 'Invalid signature' });
