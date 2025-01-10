@@ -60,3 +60,28 @@ exports.getUserDetails = async (req, res) => {
     res.status(500).send('Server error');
   }
 };
+
+exports.toggleUserBan = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { isBanned } = req.body;
+    
+    const user = await User.findById(id);
+    
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    
+    if (user.role === 'admin') {
+      return res.status(403).json({ error: 'Cannot ban admin users' });
+    }
+    
+    user.isBanned = isBanned;
+    await user.save();
+    
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+};
