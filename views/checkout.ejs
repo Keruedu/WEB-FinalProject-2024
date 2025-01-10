@@ -157,16 +157,18 @@
       const amount = parseFloat(document.getElementById('totalPrice').value);
       const orderId = 'order_' + new Date().getTime();
       const orderInfo = 'Payment for order ' + orderId;
-  
+      const subscriptionPlanId = '<%= plan._id %>'; // Assuming plan ID is available in the template
+      const quantity = parseInt(document.getElementById('quantity').value, 10);
+
       try {
         const response = await fetch('/momo', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
           },
-          body: JSON.stringify({ amount, orderId, orderInfo })
+          body: JSON.stringify({ amount, orderId, orderInfo, subscriptionPlanId, quantity })
         });
-  
+
         const data = await response.json();
         if (data.payUrl) {
           window.location.href = data.payUrl;
@@ -178,22 +180,23 @@
         alert('Error creating MoMo payment');
       }
     });
-  </script>
-  <script>
+
     document.getElementById('vnpayPaymentButton').addEventListener('click', async function() {
       const amount = parseFloat(document.getElementById('totalPrice').value);
       const orderId = 'order_' + new Date().getTime();
       const orderInfo = 'Payment for order ' + orderId;
-  
+      const subscriptionPlanId = '<%= plan._id %>'; // Assuming plan ID is available in the template
+      const quantity = parseInt(document.getElementById('quantity').value, 10);
+
       try {
         const response = await fetch('/vnpay', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
           },
-          body: JSON.stringify({ amount, orderId, orderInfo })
+          body: JSON.stringify({ amount, orderId, orderInfo, subscriptionPlanId, quantity })
         });
-  
+
         const data = await response.json();
         if (data.payUrl) {
           window.location.href = data.payUrl;

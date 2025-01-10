@@ -4,6 +4,10 @@ const moment = require('moment-timezone');
 const querystring = require('qs');
 const { getLatestExchangeRate, convertUSDtoVND } = require('../utils/currencyConverter');
 const { vnp_TmnCode, vnp_HashSecret, vnp_Url, vnp_ReturnUrl, sortObject } = require('../config/vnpay');
+const User = require('../models/user');
+const Order = require('../models/order');
+const SubscriptionPlan = require('../models/subscriptionPlan');
+
 
 const createMoMoPayment = async (amount, orderId, orderInfo) => {
   const exchangeRate = await getLatestExchangeRate();
@@ -41,19 +45,19 @@ const createMoMoPayment = async (amount, orderId, orderInfo) => {
 const createVNPayPayment = async (req, amount, orderId, orderInfo) => {
   const exchangeRate = await getLatestExchangeRate();
   const amountVND = parseFloat(convertUSDtoVND(amount, exchangeRate).toFixed(0));
-  const ipAddr = req.headers['x-forwarded-for'] || req.connection.remoteAddress || '127.0.0.1';
+  const ipAddr = req.headers['x-forwarded-for'] || req.connection.remoteAddress || req.socket.remoteAddress || req.connection.socket.remoteAddress || '127.0.0.1';
 
-  const tmnCode = vnp_TmnCode;
-  const secretKey = vnp_HashSecret;
-  const vnpUrl = vnp_Url;
-  const returnUrl = vnp_ReturnUrl;
+  const tmnCode = process.env.VNPAY_TMN_CODE;
+  const secretKey = process.env.VNPAY_HASH_SECRET;
+  const vnpUrl = process.env.VNPAY_URL;
+  const returnUrl = process.env.VNPAY_RETURN_URL;
 
   const date = moment().tz('Asia/Ho_Chi_Minh');
   const createDate = date.format('YYYYMMDDHHmmss');
   const expireDate = date.add(15, 'minutes').format('YYYYMMDDHHmmss');
 
-  const orderType = 'billpayment';
-  const locale = 'vn';
+  const orderType = 'other';
+  const locale = req.body.language || 'vn';
   const currCode = 'VND';
 
   let vnp_Params = {
@@ -72,15 +76,19 @@ const createVNPayPayment = async (req, amount, orderId, orderInfo) => {
     vnp_ExpireDate: expireDate,
   };
 
+  if (req.body.bankCode) {
+    vnp_Params['vnp_BankCode'] = req.body.bankCode;
+  }
+
   vnp_Params = sortObject(vnp_Params);
 
+  const signData = querystring.stringify(vnp_Params, { encode: false });
   const key = Buffer.from(secretKey, 'utf-8');
-  const message = Buffer.from(querystring.stringify(vnp_Params), 'utf-8');
-  const secureHash = crypto.createHmac('sha512', key).update(message).digest('hex');
+  const secureHash = crypto.createHmac('sha512', key).update(signData).digest('hex');
 
   vnp_Params.vnp_SecureHash = secureHash;
 
-  const paymentUrl = `${vnpUrl}?${querystring.stringify(vnp_Params)}`;
+  const paymentUrl = `${vnpUrl}?${querystring.stringify(vnp_Params, { encode: false })}`;
   return { payUrl: paymentUrl };
 };
 
@@ -103,9 +111,43 @@ const verifyVNPaySignature = (vnp_Params, secretKey) => {
   return secureHash === checkSum;
 };
 
+const createOrder = async (userId, subscriptionPlanId, totalAmount, paymentMethod) => {
+  const order = new Order({
+    user: userId,
+    subscriptionPlan: subscriptionPlanId,
+    totalAmount,
+    paymentMethod,
+    status: 'paid'
+  });
+  await order.save();
+  return order;
+};
+
+const activateUserPremium = async (userId, subscriptionPlanId, quantity) => {
+  const user = await User.findById(userId);
+  const subscriptionPlan = await SubscriptionPlan.findById(subscriptionPlanId);
+
+  if (!user || !subscriptionPlan) {
+    throw new Error('User or Subscription Plan not found');
+  }
+
+  user.isPremium = true;
+  const currentExpiration = user.premiumExpiration && user.premiumExpiration > new Date() ? new Date(user.premiumExpiration) : new Date();
+
+  if (subscriptionPlan.billingCycle === 'Yearly') {
+    user.premiumExpiration = new Date(currentExpiration.setFullYear(currentExpiration.getFullYear() + quantity));
+  } else if (subscriptionPlan.billingCycle === 'Monthly') {
+    user.premiumExpiration = new Date(currentExpiration.setMonth(currentExpiration.getMonth() + quantity));
+  }
+
+  await user.save();
+};
+
 module.exports = {
   createMoMoPayment,
   createVNPayPayment,
   verifyMoMoSignature,
   verifyVNPaySignature,
+  createOrder,
+  activateUserPremium
 };

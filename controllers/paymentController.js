@@ -1,8 +1,10 @@
-const { createMoMoPayment, createVNPayPayment, verifyMoMoSignature, verifyVNPaySignature } = require('../service/paymentService');
+const { createMoMoPayment, createVNPayPayment, verifyMoMoSignature, verifyVNPaySignature, createOrder, activateUserPremium } = require('../service/paymentService');
 
 exports.createMoMoPayment = async (req, res) => {
   try {
-    const { amount, orderId, orderInfo } = req.body;
+    const { amount, orderId, orderInfo, subscriptionPlanId, quantity } = req.body;
+    req.session.subscriptionPlanId = subscriptionPlanId; // Lưu subscriptionPlanId trong phiên
+    req.session.quantity = quantity; // Lưu quantity trong phiên
     const paymentData = await createMoMoPayment(amount, orderId, orderInfo);
     res.json(paymentData);
   } catch (error) {
@@ -11,7 +13,7 @@ exports.createMoMoPayment = async (req, res) => {
   }
 };
 
-exports.handlePaymentSuccess = (req, res) => {
+exports.handlePaymentSuccess = async (req, res) => {
   try {
     const { partnerCode, orderId, requestId, amount, orderInfo, orderType, transId, resultCode, message, payType, responseTime, extraData, signature } = req.query;
     const secretKey = process.env.MOMO_SECRET_KEY;
@@ -22,8 +24,13 @@ exports.handlePaymentSuccess = (req, res) => {
 
     if (resultCode === '0') {
       // Payment was successful
-      // Update your order status in the database
-      // ...
+      const userId = req.user._id; // Assuming user is authenticated and user ID is available in req.user
+      const subscriptionPlanId = req.session.subscriptionPlanId; // Truy xuất subscriptionPlanId từ phiên
+      const quantity = req.session.quantity; // Truy xuất quantity từ phiên
+
+      await createOrder(userId, subscriptionPlanId, amount, 'momo');
+      await activateUserPremium(userId, subscriptionPlanId, quantity);
+
       res.render('payment-success', { success: true, message: 'Payment successful' });
     } else {
       // Payment failed
@@ -61,7 +68,9 @@ exports.handlePaymentNotification = (req, res) => {
 
 exports.createVNPayPayment = async (req, res) => {
   try {
-    const { amount, orderId, orderInfo } = req.body;
+    const { amount, orderId, orderInfo, subscriptionPlanId, quantity } = req.body;
+    req.session.subscriptionPlanId = subscriptionPlanId; // Lưu subscriptionPlanId trong phiên
+    req.session.quantity = quantity; // Lưu quantity trong phiên
     const paymentResult = await createVNPayPayment(req, amount, orderId, orderInfo);
     res.status(200).json(paymentResult);
   } catch (error) {
@@ -70,7 +79,8 @@ exports.createVNPayPayment = async (req, res) => {
   }
 };
 
-exports.handleVNPayReturn = (req, res) => {
+
+exports.handleVNPayReturn = async (req, res) => {
   try {
     const vnp_Params = req.query;
     const secretKey = process.env.VNPAY_HASH_SECRET;
@@ -80,6 +90,14 @@ exports.handleVNPayReturn = (req, res) => {
     }
 
     if (vnp_Params['vnp_ResponseCode'] === '00') {
+      // Payment was successful
+      const userId = req.user._id; // Assuming user is authenticated and user ID is available in req.user
+      const subscriptionPlanId = req.session.subscriptionPlanId; // Truy xuất subscriptionPlanId từ phiên
+      const quantity = req.session.quantity; // Truy xuất quantity từ phiên
+
+      await createOrder(userId, subscriptionPlanId, vnp_Params['vnp_Amount'] / 100, 'vnpay');
+      await activateUserPremium(userId, subscriptionPlanId, quantity);
+
       res.render('payment-success', { success: true, message: 'Payment successful' });
     } else {
       res.render('payment-success', { success: false, message: 'Payment failed' });

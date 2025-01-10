@@ -1146,18 +1146,6 @@ body {
   margin-top: auto;
 }
 
-.ml-8{
-  margin-left: 2rem;
-}
-
-.ml-10{
-  margin-left: 2.5rem;
-}
-
-.ml-12{
-  margin-left: 3rem;
-}
-
 .block{
   display: block;
 }
@@ -1372,10 +1360,6 @@ body {
 
 .w-px{
   width: 1px;
-}
-
-.w-auto{
-  width: auto;
 }
 
 .min-w-full{
@@ -2277,6 +2261,10 @@ body {
   line-height: 1;
 }
 
+.text-\[16px\]{
+  font-size: 16px;
+}
+
 .text-\[28px\]{
   font-size: 28px;
 }
@@ -2312,10 +2300,6 @@ body {
 .text-xs{
   font-size: 0.75rem;
   line-height: 1rem;
-}
-
-.text-\[16px\]{
-  font-size: 16px;
 }
 
 .font-bold{
@@ -2408,6 +2392,10 @@ body {
   color: rgb(136 153 168 / var(--tw-text-opacity));
 }
 
+.text-current{
+  color: currentColor;
+}
+
 .text-dark{
   --tw-text-opacity: 1;
   color: rgb(17 25 40 / var(--tw-text-opacity));
@@ -2481,10 +2469,6 @@ body {
   color: rgb(255 255 255 / 0.6);
 }
 
-.text-current{
-  color: currentColor;
-}
-
 .text-opacity-70{
   --tw-text-opacity: 0.7;
 }
@@ -2499,10 +2483,6 @@ body {
 
 .opacity-100{
   opacity: 1;
-}
-
-.opacity-40{
-  opacity: 0.4;
 }
 
 .opacity-25{
