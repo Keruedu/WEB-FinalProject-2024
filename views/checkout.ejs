@@ -103,8 +103,12 @@
           </a>
           <a id="vnpayPaymentButton" href="#" class="inline-block py-3 text-base font-medium text-center text-white transition rounded-md bg-primary px-7 hover:bg-blue-dark mt-auto">
             Pay with VNPay
-          </a>          
+          </a>    
+          <a id="vietqrPaymentButton" href="#" class="inline-block py-3 text-base font-medium text-center text-white transition rounded-md bg-primary px-7 hover:bg-blue-dark mt-auto">
+            Pay with VietQR
+          </a>        
         </div>
+        <div id="qrCodeContainer" class="mt-4"></div>
       </div>
     </div>
   </section>
@@ -142,7 +146,7 @@
     document.addEventListener('DOMContentLoaded', function() {
       const quantityInput = document.getElementById('quantity');
       const totalPriceInput = document.getElementById('totalPrice');
-      const planPrice = <%= plan.price %>;
+      const planPrice = plan.price;
       
       quantityInput.addEventListener('input', function() {
         const quantity = parseInt(quantityInput.value, 10) || 0;
@@ -203,6 +207,66 @@
       } catch (error) {
         console.error('Error creating VNPay payment:', error);
         alert('Error creating VNPay payment');
+      }
+    });
+  </script>
+  <script>
+    document.getElementById('vnpayPaymentButton').addEventListener('click', async function() {
+      const amount = parseFloat(document.getElementById('totalPrice').value);
+      const orderId = 'order_' + new Date().getTime();
+      const orderInfo = 'Payment for order ' + orderId;
+  
+      try {
+        const response = await fetch('/vnpay', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ amount, orderId, orderInfo })
+        });
+  
+        const data = await response.json();
+        if (data.payUrl) {
+          window.location.href = data.payUrl;
+        } else {
+          alert('Failed to create VNPay payment');
+        }
+      } catch (error) {
+        console.error('Error creating VNPay payment:', error);
+        alert('Error creating VNPay payment');
+      }
+    });
+  
+    document.getElementById('vietqrPaymentButton').addEventListener('click', async function() {
+      const amount = parseFloat(document.getElementById('totalPrice').value) * 10; // Convert to VND
+      const accountNo = '';
+      const accountName = '';
+      const acqId = '';
+      const addInfo = 'Ung Ho Quy Vac Xin';
+      const template = 'compact';
+  
+      try {
+        const response = await fetch('https://api.vietqr.io/v2/generate', {
+          method: 'POST',
+          headers: {
+            'x-client-id': '<CLIENT_ID_HERE>',
+            'x-api-key': '<API_KEY_HERE>',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ accountNo, accountName, acqId, addInfo, amount, template })
+        });
+  
+        const data = await response.json();
+        if (data.code === '00') {
+          const qrCodeImage = data.data.qrDataURL;
+          const qrCodeContainer = document.getElementById('qrCodeContainer');
+          qrCodeContainer.innerHTML = `<img src="${qrCodeImage}" alt="VietQR Code">`;
+        } else {
+          alert('Failed to generate VietQR code');
+        }
+      } catch (error) {
+        console.error('Error generating VietQR code:', error);
+        alert('Error generating VietQR code');
       }
     });
   </script>
