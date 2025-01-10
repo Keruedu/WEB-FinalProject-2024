@@ -257,28 +257,28 @@
             </span>
           </td>
           <td class="px-6 py-4 whitespace-nowrap">${formatDate(user.createdAt)}</td>
-          <td class="px-6 py-4 whitespace-nowrap">
-            ${user.role !== 'admin' ? `
-              <div class="relative inline-block text-left">
-                <button onclick="toggleDropdown('${user._id}')" 
-                        class="inline-flex items-center p-1 hover:bg-gray-100 dark:hover:bg-dark-4 rounded-lg transition-colors">
-                  <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"/>
-                  </svg>
-                </button>
-                <div id="dropdown-${user._id}" 
-                     class="hidden absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white dark:bg-dark-2 ring-1 ring-black ring-opacity-5 z-50">
-                  <div class="py-1">
-                    <button 
-                      onclick="handleBanClick('${user._id}', '${user.username}', ${user._id === currentUser._id})"
-                      class="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-dark-3"
-                    >
-                      ${user.isBanned ? 'Unban User' : 'Ban User'}
-                    </button>
-                  </div>
-                </div>
+          <td class="px-6 py-4 whitespace-nowrap text-right">
+            <div class="relative inline-block text-left">
+              <button 
+                onclick="toggleDropdown('${user._id}')"
+                class="p-2 hover:bg-gray-100 dark:hover:bg-dark-3 rounded-full"
+              >
+                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 13a1 1 0 1 1 0-2 1 1 0 0 1 0 2zm0-5a1 1 0 1 1 0-2 1 1 0 0 1 0 2zm0 10a1 1 0 1 1 0-2 1 1 0 0 1 0 2z"/>
+                </svg>
+              </button>
+              <div 
+                id="dropdown-${user._id}" 
+                class="hidden absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white dark:bg-dark-2 ring-1 ring-black ring-opacity-5 z-50"
+              >
+                <a 
+                  href="/admin/users/${user._id}" 
+                  class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-dark-3"
+                >
+                  View account details
+                </a>
               </div>
-            ` : ''}
+            </div>
           </td>
         </tr>
       `;
@@ -359,6 +359,7 @@
     const dropdown = document.getElementById(`dropdown-${userId}`);
     const allDropdowns = document.querySelectorAll('[id^="dropdown-"]');
     
+    // Đóng tất cả dropdown khác
     allDropdowns.forEach(d => {
       if (d.id !== `dropdown-${userId}`) {
         d.classList.add('hidden');
@@ -368,9 +369,9 @@
     dropdown.classList.toggle('hidden');
   }
 
-  // Close dropdowns when clicking outside
+  // Đóng dropdown khi click ra ngoài
   document.addEventListener('click', (e) => {
-    if (!e.target.closest('button')) {
+    if (!e.target.closest('.relative')) {
       const allDropdowns = document.querySelectorAll('[id^="dropdown-"]');
       allDropdowns.forEach(d => d.classList.add('hidden'));
     }

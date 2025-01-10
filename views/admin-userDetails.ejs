@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel="shortcut icon" href="/images/favicon.png" type="image/x-icon" />
+    <link rel="stylesheet" href="/css/tailwind.css" />
+    <style>
+        body {
+            background: linear-gradient(135deg, #e0eafc, #cfdef3);
+        }
+
+        .status-active {
+            background-color: #4caf50;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+
+        .status-banned {
+            background-color: #f44336;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+
+        .status-premium {
+            background-color: #ff9800;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+
+        .status-free {
+            background-color: #607d8b;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+
+        .card {
+            background: white;
+            box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+        }
+
+        .avatar-premium {
+            border: 4px solid #ff9800;
+        }
+
+        .hover-button:hover {
+            background-color: #f3f4f6;
+        }
+    </style>
+</head>
+
+<body>
+    <%- include('partials/navbar') %>
+
+    <section class="py-20">
+        <div class="container mx-auto px-6">
+            <!-- Back Button -->
+            <div class="mb-6">
+                <a href="/admin/users"
+                    class="inline-flex items-center text-gray-700 hover:text-gray-900 transition hover-button p-2 rounded-lg">
+                    <div class="flex items-center justify-between w-full gap-3">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                        </svg>
+                        <span>Back to Users List</span>
+                    </div>
+                </a>
+            </div>
+
+            <!-- User Details Card -->
+            <div class="card p-8">
+                <div class="flex items-start gap-8">
+                    <!-- Avatar -->
+                    <div>
+                        <img src="<%= user.avatar || '/images/default-avatar.png' %>" alt="Profile picture"
+                            class="w-32 h-32 rounded-full object-cover <%= user.isPremium ? 'avatar-premium' : '' %>">
+                    </div>
+
+                    <!-- User Info -->
+                    <div class="flex-1 space-y-4">
+                        <!-- Header -->
+                        <div class="flex justify-between items-center">
+                            <h1 class="text-2xl font-bold text-gray-800">
+                                <%= user.fullName || 'Unknown User' %>
+                            </h1>
+                            <span
+                                class="px-3 py-1 rounded-full text-sm font-medium <%= user.role === 'admin' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700' %>">
+                                <%= user.role ? user.role.charAt(0).toUpperCase() + user.role.slice(1) : 'User' %>
+                            </span>
+                        </div>
+
+                        <!-- User Details -->
+                        <div class="grid grid-cols-2 gap-6">
+                            <div>
+                                <p class="text-sm text-gray-500">Username</p>
+                                <p class="text-gray-800"><%= user.username || 'N/A' %></p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500">Email</p>
+                                <p class="text-gray-800"><%= user.email || 'N/A' %></p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500">Registration Date</p>
+                                <p class="text-gray-800">
+                                    <%= user.createdAt ? new Date(user.createdAt).toLocaleDateString('en-GB') : 'N/A' %>
+                                </p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500">Last Login</p>
+                                <p class="text-gray-800">
+                                    <%= user.lastLogin ? new Date(user.lastLogin).toLocaleDateString('en-GB') : 'N/A' %>
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Description -->
+                        <div>
+                            <p class="text-sm text-gray-500">Description</p>
+                            <p class="text-gray-800"><%= user.description || 'No description provided' %></p>
+                        </div>
+
+                        <!-- User Stats -->
+                        <div class="flex gap-8">
+                            <div class="text-center">
+                                <p class="text-sm text-gray-500">Followers</p>
+                                <p class="text-lg font-medium text-gray-800"><%= user.followers?.length || 0 %></p>
+                            </div>
+                            <div class="text-center">
+                                <p class="text-sm text-gray-500">Following</p>
+                                <p class="text-lg font-medium text-gray-800"><%= user.following?.length || 0 %></p>
+                            </div>
+                            <div class="text-center">
+                                <p class="text-sm text-gray-500">Bookmarks</p>
+                                <p class="text-lg font-medium text-gray-800"><%= user.bookmarks?.length || 0 %></p>
+                            </div>
+                        </div>
+
+                        <!-- Status -->
+                        <div class="flex gap-6">
+                            <span class="text-sm text-gray-500">Account Status:</span>
+                            <span class="<%= user.isBanned ? 'status-banned' : 'status-active' %>">
+                                <%= user.isBanned ? 'Banned' : 'Active' %>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</body>
+
+</html>

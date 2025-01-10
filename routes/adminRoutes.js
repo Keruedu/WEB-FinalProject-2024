@@ -5,5 +5,7 @@ const { ensureAuthenticated, ensureAdmin } = require('../middlewares/auth');
 // Admin page route
 router.get('/admin', ensureAuthenticated, ensureAdmin, adminController.getAdminPage);
 router.get('/api/users', ensureAuthenticated, ensureAdmin, adminController.getUsersList);
+// Thêm route mới cho user details
+router.get('/admin/users/:id', ensureAuthenticated, ensureAdmin, adminController.getUserDetails);
 
 module.exports = router;

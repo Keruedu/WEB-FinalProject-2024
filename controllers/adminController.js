@@ -44,3 +44,19 @@ exports.getUsersList = async (req, res) => {
     res.status(500).json({ error: 'Error loading users' });
   }
 };
+
+exports.getUserDetails = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) {
+      return res.status(404).send('User not found');
+    }
+    res.render('admin-userDetails', { 
+      user,
+      title: 'User Details - Admin Dashboard'
+    });
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).send('Server error');
+  }
+};
