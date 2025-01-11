@@ -51,7 +51,7 @@
               <ul class="flex items-center justify-center gap-[10px]">
                 <li>
                   <a
-                    href="/index"
+                    href="/"
                     class="flex items-center gap-[10px] text-base font-medium text-dark dark:text-white"
                   >
                     Home
@@ -955,7 +955,7 @@
         event.preventDefault();
         
         // Kiểm tra xem người dùng đã đăng nhập hay chưa
-        const userId = '<%= user ? user._id : '' %>';
+        const userId = '<%= user ? user._id : "" %>';
         if (userId === '') {
           Swal.fire({
             icon: 'warning',

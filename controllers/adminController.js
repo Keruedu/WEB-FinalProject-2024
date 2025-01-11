@@ -91,7 +91,7 @@ exports.toggleUserBan = async (req, res) => {
 
 exports.getCategoriesAndTags = async (req, res) => {
   try {
-    // Lấy và sắp xếp categories
+    // Categories - sắp xếp theo tên và Uncategorized xuống cuối
     const categories = await Category.aggregate([
       {
         $lookup: {
@@ -106,8 +106,8 @@ exports.getCategoriesAndTags = async (req, res) => {
           name: 1,
           blogs: 1,
           blogsCount: { $size: '$blogs' },
-          // Thêm trường để sắp xếp, Uncategorized sẽ có sortOrder = 1, các category khác = 0
-          sortOrder: {
+          sortName: { $toLower: '$name' },
+          isUncategorized: {
             $cond: { 
               if: { $eq: ['$name', 'Uncategorized'] }, 
               then: 1, 
@@ -117,15 +117,14 @@ exports.getCategoriesAndTags = async (req, res) => {
         }
       },
       {
-        $sort: {
-          sortOrder: 1,        // Sắp xếp theo sortOrder trước (Uncategorized xuống cuối)
-          blogsCount: -1,      // Sau đó sắp xếp theo số lượng blogs (giảm dần)
-          name: 1              // Cuối cùng sắp xếp theo tên
+        $sort: { 
+          isUncategorized: 1,  // Uncategorized xuống cuối
+          sortName: 1          // Sắp xếp theo tên (case-insensitive)
         }
       }
     ]);
 
-    // Cập nhật lại cách sắp xếp tags
+    // Tags - chỉ sắp xếp theo tên
     const tags = await Tag.aggregate([
       {
         $lookup: {
@@ -139,13 +138,13 @@ exports.getCategoriesAndTags = async (req, res) => {
         $project: {
           name: 1,
           blogs: 1,
-          blogsCount: { $size: '$blogs' }
+          blogsCount: { $size: '$blogs' },
+          sortName: { $toLower: '$name' }
         }
       },
       {
         $sort: { 
-          blogsCount: -1,  // Sắp xếp theo số lượng blogs (giảm dần)
-          name: 1          // Nếu cùng số lượng blogs thì sắp xếp theo tên
+          sortName: 1  // Chỉ sắp xếp theo tên (case-insensitive)
         }
       }
     ]);
