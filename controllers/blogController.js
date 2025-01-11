@@ -151,6 +151,8 @@ exports.getBlogs = async (req, res) => {
       timeRange
     } = await blogService.getBlogsHandler(req);
 
+    const oldUrl = req.originalUrl.split('?')[0] + '?';
+
     if (req.xhr) {
       const blogsHtml = await blogService.renderBlogsHtml(blogs, req.user);
       const paginationHtml = await blogService.renderPaginationHtml(page, totalBlogs, url);
@@ -171,6 +173,8 @@ exports.getBlogs = async (req, res) => {
         selectedTags: tags || [],
         selectedCategory: category || '',
         timeRange: timeRange || '',
+        action: '/blogs',
+        oldUrl: oldUrl
       });
     }
   } catch (error) {
@@ -179,10 +183,15 @@ exports.getBlogs = async (req, res) => {
   }
 };
 
-// Get user's blogs
 exports.getUserBlogs = async (req, res) => {
   try {
     const userId = req.user._id; // Assuming req.user contains the authenticated user's info
+
+    // Ensure status is 'pending' if not provided
+    if (!req.query.status) {
+      req.query.status = 'pending';
+    }
+
     const {
       blogs,
       totalBlogs,
@@ -194,7 +203,8 @@ exports.getUserBlogs = async (req, res) => {
       filter,
       tags,
       category,
-      timeRange
+      timeRange,
+      status
     } = await blogService.getBlogsHandler(req, userId);
 
     if (req.xhr) {
@@ -217,6 +227,7 @@ exports.getUserBlogs = async (req, res) => {
         selectedTags: tags || [],
         selectedCategory: category || '',
         timeRange: timeRange || '',
+        status
       });
     }
   } catch (error) {
@@ -242,6 +253,8 @@ exports.getBookmarkedBlogs = async (req, res) => {
       timeRange
     } = await blogService.getBlogsHandler(req, userId, req.user.bookmarks);
 
+    const oldUrl = req.originalUrl.split('?')[0] + '?';
+
     if (req.xhr) {
       const blogsHtml = await blogService.renderBlogsHtml(blogs, req.user);
       const paginationHtml = await blogService.renderPaginationHtml(page, totalBlogs, url);
@@ -262,6 +275,8 @@ exports.getBookmarkedBlogs = async (req, res) => {
         selectedTags: tags || [],
         selectedCategory: category || '',
         timeRange: timeRange || '',
+        action: '/bookmarked-blogs',
+        oldUrl: oldUrl
       });
     }
   } catch (error) {

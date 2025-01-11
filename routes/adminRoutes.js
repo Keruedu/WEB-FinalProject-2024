@@ -9,4 +9,8 @@ router.get('/api/users', ensureAuthenticated, ensureAdmin, adminController.getUs
 router.get('/admin/users/:id', ensureAuthenticated, ensureAdmin, adminController.getUserDetails);
 router.put('/api/users/:id/ban', ensureAuthenticated, ensureAdmin, adminController.toggleUserBan);
 
+router.get('/admin/blogs', ensureAuthenticated, ensureAdmin, adminController.getBlogs);
+router.post('/admin/blogs/change-status', ensureAuthenticated, ensureAdmin, adminController.changeStatusBlogs);
+router.put('/admin/blogs/:id/status', ensureAuthenticated, ensureAdmin, adminController.changeBlogStatus);
+
 module.exports = router;

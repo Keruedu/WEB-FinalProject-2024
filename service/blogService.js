@@ -1,6 +1,7 @@
 const Blog = require('../models/blog');
 const Tag = require('../models/tag');
 const Category = require('../models/category');
+const User = require('../models/user');
 const mongoose = require('mongoose');
 const { buildBlogQuery } = require('../utils/queryBuilder');
 const { paginateAndSortBlogs } = require('../utils/paginator');
@@ -11,14 +12,14 @@ const Comment = require('../models/comment');
 const { timeAgo } = require('../utils/dateMoment');
 
 const getBlogsHandler = async (req, userId, bookmarked) => {
-  const { search, tags, category, timeRange } = req.query;
+  const { search, tags, category, timeRange, status = 'approved' } = req.query;
   const filter = req.query.filter || 'latest';
   const url = req.url;
   const page = parseInt(req.query.page) || 1;
 
   try {
     // Build query using utility function
-    const query = await buildBlogQuery({ search, category, tags, timeRange, userId, bookmarked });
+    const query = await buildBlogQuery({ search, category, tags, timeRange, userId, bookmarked, status: status === 'All' ? undefined : status });
 
     // Determine sort order
     const sort =
@@ -46,13 +47,16 @@ const getBlogsHandler = async (req, userId, bookmarked) => {
       filter,
       tags,
       category,
-      timeRange
+      timeRange,
+      status
     };
   } catch (error) {
     console.error('Error in getBlogsHandler:', error);
     throw new Error('Internal Server Error');
   }
 };
+
+module.exports = { getBlogsHandler };
 
 const renderBlogsHtml = async (blogs, user) => {
   try {
@@ -87,7 +91,7 @@ const renderPaginationHtml = async (page, totalBlogs, url) => {
 };
 
 const createBlog = async (req, session) => {
-  const { title, content, category, tags: rawTags } = req.body;
+  const { title, content, category, tags: rawTags, isPremium } = req.body;
 
   // Validate input
   if (!title || !content || !category || !req.file) {
@@ -141,6 +145,7 @@ const createBlog = async (req, session) => {
     tags: allTagIds, // Can be empty
     author: req.user._id,
     views: 0,
+    isPremium: req.user.role === 'admin' && isPremium === 'on', // Set isPremium if user is admin
   });
 
   await newBlog.save({ session });
@@ -150,7 +155,7 @@ const createBlog = async (req, session) => {
 
 const updateBlog = async (req, session) => {
   const blogId = req.params.id;
-  const { title, content, category, tags: rawTags } = req.body;
+  const { title, content, category, tags: rawTags, isPremium } = req.body;
 
   // Validate input
   if (!title || !content || !category) {
@@ -205,7 +210,9 @@ const updateBlog = async (req, session) => {
       content,
       category,
       tags: allTagIds, // Can be empty
+      status: 'pending',
       ...(imageUrl && { imageUrl }), // Only update imageUrl if a new image is uploaded
+      ...(req.user.role === 'admin' && { isPremium: isPremium === 'on' }), // Update isPremium if user is admin
     },
     { new: true, session }
   );
@@ -213,45 +220,50 @@ const updateBlog = async (req, session) => {
   return { success_msg: 'Blog updated successfully', blog: updatedBlog };
 };
 
-const deleteBlogs = async (blogIds, session) => {
-  // Kiểm tra nếu không có blogIds hoặc blogIds không phải là một mảng
-  if (!Array.isArray(blogIds) || blogIds.length === 0) {
-    await session.endSession();
-    return { success: false, message: 'No Blog IDs provided' };
-  }
+const deleteBlogs = async (blogIds) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
 
-  // Kiểm tra tính hợp lệ của từng blogId
-  for (const blogId of blogIds) {
-    if (!mongoose.Types.ObjectId.isValid(blogId)) {
-      await session.endSession();
-      return { success: false, message: `Invalid Blog ID: ${blogId}` };
+  try {
+    // Kiểm tra nếu không có blogIds hoặc blogIds không phải là một mảng
+    if (!Array.isArray(blogIds) || blogIds.length === 0) {
+      throw new Error('No Blog IDs provided');
     }
+
+    // Kiểm tra tính hợp lệ của từng blogId
+    for (const blogId of blogIds) {
+      if (!mongoose.Types.ObjectId.isValid(blogId)) {
+        throw new Error(`Invalid Blog ID: ${blogId}`);
+      }
+    }
+
+    // Kiểm tra sự tồn tại của từng blog
+    const blogs = await Blog.find({ _id: { $in: blogIds } }).session(session);
+    if (blogs.length !== blogIds.length) {
+      throw new Error('One or more Blogs not found');
+    }
+
+    // Xóa các bình luận liên quan đến các blog
+    await Comment.deleteMany({ blog: { $in: blogIds } }).session(session);
+
+    // Cập nhật bookmark của người dùng
+    await User.updateMany(
+      { bookmarks: { $in: blogIds } },
+      { $pull: { bookmarks: { $in: blogIds } } }
+    ).session(session);
+
+    // Xóa các blog
+    await Blog.deleteMany({ _id: { $in: blogIds } }).session(session);
+
+    // Commit transaction
+    await session.commitTransaction();
+    return { success: true, message: 'Blogs and related comments deleted successfully' };
+  } catch (error) {
+    await session.abortTransaction();
+    return { success: false, message: error.message };
+  } finally {
+    session.endSession();
   }
-
-  // Kiểm tra sự tồn tại của từng blog
-  const blogs = await Blog.find({ _id: { $in: blogIds } }).session(session);
-  if (blogs.length !== blogIds.length) {
-    await session.endSession();
-    return { success: false, message: 'One or more Blogs not found' };
-  }
-
-  // Xóa các bình luận liên quan đến các blog
-  await Comment.deleteMany({ blog: { $in: blogIds } }).session(session);
-
-  // Cập nhật bookmark của người dùng
-  await User.updateMany(
-    { bookmarks: { $in: blogIds } },
-    { $pull: { bookmarks: { $in: blogIds } } }
-  ).session(session);
-
-  // Xóa các blog
-  await Blog.deleteMany({ _id: { $in: blogIds } }).session(session);
-
-  // Commit transaction
-  await session.commitTransaction();
-  session.endSession();
-
-  return { success: true, message: 'Blogs and related comments deleted successfully' };
 };
 
 const createComment = async (req) => {
@@ -309,6 +321,30 @@ const deleteComment = async (commentId) => {
   return { success: true, message: 'Comment deleted successfully' };
 };
 
+const changeStatusBlogs = async (blogIds, status) => {
+  try {
+    await Blog.updateMany(
+      { _id: { $in: blogIds } },
+      { $set: { status: status } }
+    );
+  } catch (error) {
+    console.error('Error in changeStatusBlogs:', error);
+    throw new Error('Internal Server Error');
+  }
+};
+
+const changeBlogStatus = async (blogId, status) => {
+  try {
+    const result = await Blog.findByIdAndUpdate(blogId, { status: status }, { new: true });
+    if (!result) {
+      throw new Error('Blog not found or status not updated');
+    }
+  } catch (error) {
+    console.error('Error in changeBlogStatus:', error);
+    throw new Error('Internal Server Error');
+  }
+};
+
 module.exports = {
   getBlogsHandler,
   renderBlogsHtml,
@@ -318,5 +354,7 @@ module.exports = {
   deleteBlogs,
   createComment,
   getComments,
-  deleteComment
+  deleteComment,
+  changeStatusBlogs,
+  changeBlogStatus
 };

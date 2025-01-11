@@ -103,7 +103,12 @@
           </ul>
         </div>
         <input type="hidden" name="tags" id="tagsInput" value="<%= blog.tags.map(tag => tag.name).join(',') %>" />
-  
+        <% if (user && user.role === 'admin') { %>
+          <div class="flex items-center gap-4 self-start">
+            <label for="isPremium" class="text-base font-medium text-dark dark:text-white">Premium:</label>
+            <input type="checkbox" id="isPremium" name="isPremium" <%= blog.isPremium ? 'checked' : '' %> class="w-6 h-6 text-primary border-stroke dark:border-dark-3 rounded focus:ring-primary dark:focus:ring-primary">
+          </div>
+        <% } %>
         <button type="submit" class="w-full md:w-auto px-5 py-3 text-base text-white transition duration-300 ease-in-out border rounded-md cursor-pointer border-primary bg-primary hover:bg-blue-dark">Update</button>
       </form>
     </div>
@@ -123,261 +128,11 @@
 
   <!-- ====== All Scripts -->
   <script src="/js/main.js"></script>
-
-  <!-- init CKEditor-->
+  <script src="/js/ckeditor.js"></script>
+  <script src="/js/alerts.js"></script>
   <script>
-    const {
-      ClassicEditor,
-      AutoImage,
-      Autosave,
-      BalloonToolbar,
-      BlockQuote,
-      BlockToolbar,
-      Bold,
-      CloudServices,
-      Code,
-      CodeBlock,
-      Essentials,
-      FontBackgroundColor,
-      FontColor,
-      FontFamily,
-      FontSize,
-      GeneralHtmlSupport,
-      Heading,
-      Highlight,
-      ImageBlock,
-      ImageInline,
-      ImageInsertViaUrl,
-      ImageResize,
-      ImageStyle,
-      ImageTextAlternative,
-      ImageToolbar,
-      ImageUpload,
-      Indent,
-      IndentBlock,
-      Italic,
-      Link,
-      LinkImage,
-      List,
-      ListProperties,
-      Paragraph,
-      SourceEditing,
-      Strikethrough,
-      Table,
-      TableCaption,
-      TableCellProperties,
-      TableColumnResize,
-      TableProperties,
-      TableToolbar,
-      TodoList,
-      Underline,
-      SimpleUploadAdapter
-    } = window.CKEDITOR;
-
-    const LICENSE_KEY =
-      'eyJhbGciOiJFUzI1NiJ9.eyJleHAiOjE3MzU5NDg3OTksImp0aSI6ImFmNTg1MzBjLWJkZTItNDExZS04Y2ViLWRjM2VhZDIwYTYzMyIsInVzYWdlRW5kcG9pbnQiOiJodHRwczovL3Byb3h5LWV2ZW50LmNrZWRpdG9yLmNvbSIsImRpc3RyaWJ1dGlvbkNoYW5uZWwiOlsiY2xvdWQiLCJkcnVwYWwiLCJzaCJdLCJ3aGl0ZUxhYmVsIjp0cnVlLCJsaWNlbnNlVHlwZSI6InRyaWFsIiwiZmVhdHVyZXMiOlsiKiJdLCJ2YyI6IjY0NmMxM2UyIn0.htzd4mbtVMP7hkY1yo08aCWSsBW9Chs6bAqLx4xMJzUbADGuIzZBb-3stsDoSNn83hTJbMSBCjstKQJozuzTkQ';
-
-    const editorConfig = {
-      toolbar: {
-        items: [
-          'undo',
-          'redo',
-          'sourceEditing',
-          '|',
-          'heading',
-          '|',
-          'insertImage',
-          'code',
-          '|',
-          'fontSize',
-          'fontFamily',
-          'fontColor',
-          'fontBackgroundColor',
-          '|',
-          'bold',
-          'italic',
-          'underline',
-          'strikethrough',
-          '|',
-          'link',
-          'insertTable',
-          'highlight',
-          'blockQuote',
-          'codeBlock',
-          '|',
-          'bulletedList',
-          'numberedList',
-          'todoList',
-          'outdent',
-          'indent'
-        ],
-        shouldNotGroupWhenFull: false
-      },
-
-      
-      plugins: [
-        AutoImage,
-        Autosave,
-        BalloonToolbar,
-        BlockQuote,
-        BlockToolbar,
-        Bold,
-        CloudServices,
-        Code,
-        CodeBlock,
-        Essentials,
-        FontBackgroundColor,
-        FontColor,
-        FontFamily,
-        FontSize,
-        GeneralHtmlSupport,
-        Heading,
-        Highlight,
-        ImageBlock,
-        ImageInline,
-        ImageInsertViaUrl,
-        ImageResize,
-        ImageStyle,
-        ImageTextAlternative,
-        ImageToolbar,
-        ImageUpload,
-        Indent,
-        IndentBlock,
-        Italic,
-        Link,
-        LinkImage,
-        List,
-        ListProperties,
-        Paragraph,
-        SourceEditing,
-        Strikethrough,
-        Table,
-        TableCaption,
-        TableCellProperties,
-        TableColumnResize,
-        TableProperties,
-        TableToolbar,
-        TodoList,
-        Underline,
-        SimpleUploadAdapter
-      ],
-      balloonToolbar: ['bold', 'italic', '|', 'link', 'insertImage', '|', 'bulletedList', 'numberedList'],
-      blockToolbar: ['bold', 'italic', '|', 'link', 'insertImage', 'insertTable', '|', 'bulletedList', 'numberedList', 'outdent', 'indent'],
-      fontFamily: {
-        options: [
-          'Inter, sans-serif',
-          'Arial, Helvetica, sans-serif',
-          'Courier New, Courier, monospace',
-          'Georgia, serif',
-          'Lucida Sans Unicode, Lucida Grande, sans-serif',
-          'Tahoma, Geneva, sans-serif',
-          'Times New Roman, Times, serif',
-          'Trebuchet MS, Helvetica, sans-serif',
-          'Verdana, Geneva, sans-serif'
-        ],
-        supportAllValues: true,
-        default: 'Inter, Arial, Helvetica, sans-serif'
-      },
-      fontSize: {
-        options: [10, 12, 14, 'default', 18, 20, 22],
-        supportAllValues: true
-      },
-      inlineStyles: true,
-      heading: {
-        options: [
-          {
-            model: 'paragraph',
-            title: 'Paragraph',
-            class: 'ck-heading_paragraph'
-          },
-          {
-            model: 'heading1',
-            view: 'h1',
-            title: 'Heading 1',
-            class: 'ck-heading_heading1'
-          },
-          {
-            model: 'heading2',
-            view: 'h2',
-            title: 'Heading 2',
-            class: 'ck-heading_heading2'
-          },
-          {
-            model: 'heading3',
-            view: 'h3',
-            title: 'Heading 3',
-            class: 'ck-heading_heading3'
-          },
-          {
-            model: 'heading4',
-            view: 'h4',
-            title: 'Heading 4',
-            class: 'ck-heading_heading4'
-          },
-          {
-            model: 'heading5',
-            view: 'h5',
-            title: 'Heading 5',
-            class: 'ck-heading_heading5'
-          },
-          {
-            model: 'heading6',
-            view: 'h6',
-            title: 'Heading 6',
-            class: 'ck-heading_heading6'
-          }
-        ]
-      },
-      htmlSupport: {
-        allow: [
-          {
-            name: /^.*$/,
-            styles: true,
-            attributes: true,
-            classes: true
-          }
-        ]
-      },
-      image: {
-        toolbar: ['imageTextAlternative', '|', 'imageStyle:inline', 'imageStyle:wrapText', 'imageStyle:breakText', '|', 'resizeImage']
-      },
-      simpleUpload: {
-        uploadUrl: '/upload',
-      },
-      licenseKey: LICENSE_KEY,
-      link: {
-        addTargetToExternalLinks: true,
-        defaultProtocol: 'https://',
-        decorators: {
-          toggleDownloadable: {
-            mode: 'manual',
-            label: 'Downloadable',
-            attributes: {
-              download: 'file'
-            }
-          }
-        }
-      },
-      list: {
-        properties: {
-          styles: true,
-          startIndex: true,
-          reversed: true
-        }
-      },
-      menuBar: {
-        isVisible: true
-      },
-      placeholder: 'Type or paste your content here!',
-      table: {
-        contentToolbar: ['tableColumn', 'tableRow', 'mergeTableCells', 'tableProperties', 'tableCellProperties']
-      }
-    };
-
-    ClassicEditor.create(document.querySelector('#editor'), editorConfig)
-      .catch(error => {
-        console.error(error);
-      });
+    initializeCKEditor('#editor');
+  </script>
     </script>
     <!-- Add and remove tags -->
     <script>
@@ -465,19 +220,7 @@
           processData: false,
           success: function(response) {
             // Xử lý khi thành công
-            Swal.fire({
-              icon: 'success',
-              title: 'Success',
-              text: response.success_msg,
-              customClass: {
-                popup: 'bg-[#F4F7FF] dark:bg-gray-800 text-[#333] dark:text-gray-200',
-                title: 'text-[#1a202c] dark:text-gray-100',
-                confirmButton: 'bg-[#1a202c] text-white dark:bg-gray-700',
-                cancelButton: 'bg-[#e53e3e] text-white dark:bg-green-600'
-              }
-            }).then(() => {
-              window.location.href = '/my-blogs'; // Chuyển hướng sau khi thành công
-            });
+            showSuccessAlert(response.success_msg, '/my-blogs');
           },
           error: function(xhr) {
             const errors = xhr.responseJSON.errors;
@@ -495,17 +238,7 @@
 
             errorList += '</ul>';
 
-            Swal.fire({
-              icon: 'error',
-              title: 'Oops...',
-              html: errorList,
-              customClass: {
-                popup: 'bg-[#F4F7FF] dark:bg-gray-800 text-[#333] dark:text-gray-200',
-                title: 'text-[#1a202c] dark:text-gray-100',
-                confirmButton: 'bg-[#1a202c] text-white dark:bg-gray-700',
-                cancelButton: 'bg-[#e53e3e] text-white dark:bg-red-600'
-              }
-            });
+            showErrorAlert(errorList);
           }
         });
       });

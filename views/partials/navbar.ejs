@@ -17,7 +17,7 @@
                 <path fill-rule="evenodd" clip-rule="evenodd" d="M10.5175 25.6612C8.74328 22.7044 9.0391 20.0428 11.4046 17.6774C14.9529 14.1289 18.0578 16.3467 20.2756 15.0161C21.7542 14.1289 22.3456 12.6506 22.0497 10.5806C23.8239 13.5374 23.5282 16.1989 21.1627 18.5644C17.6142 22.1128 14.5094 19.8951 12.2917 21.2257C10.813 22.1128 10.2217 23.5912 10.5175 25.6612ZM11.4046 35.4193C9.63041 32.4625 9.92614 29.801 12.2917 27.4354C15.8401 23.887 18.9449 26.1047 21.1627 24.7742C22.6413 23.887 23.2326 22.4086 22.9369 20.3387C24.711 23.2955 24.4152 25.957 22.0497 28.3225C18.5014 31.8709 15.3965 29.6532 13.1788 30.9838C11.7001 31.8709 11.1088 33.3493 11.4046 35.4193Z" fill="#3056D3"/>
                 </g>
                 <defs>
-                <clipPath id="clip0_2005_10874">
+                <clipPath class="" id="clip0_2005_10874">
                 <rect width="131.309" height="46" fill="white"/>
                 </clipPath>
                 </defs>
@@ -86,7 +86,7 @@
                   <li class="submenu-item group relative">
                     <a
                       href="javascript:void(0)"
-                      class="relative mx-8 flex items-center justify-between py-2 text-base font-medium text-dark group-hover:text-primary dark:text-white lg:ml-8 lg:mr-0 lg:inline-flex lg:py-6 lg:pl-0 lg:pr-4 lg:text-white lg:group-hover:text-white lg:group-hover:opacity-70 xl:ml-10"
+                      class="relative mx-8 flex items-center  justify-between py-2 text-base font-medium text-dark group-hover:text-primary dark:text-white lg:ml-8 lg:mr-0 lg:inline-flex lg:py-6 lg:pl-0 lg:pr-4 dark:lg:text-white lg:group-hover:text-white lg:group-hover:opacity-70 xl:ml-10"
                     >
                       Pages
 
@@ -204,7 +204,7 @@
                   id="themeSwitcher"
                   class="sr-only"
                 />
-                <span class="block text-white dark:hidden">
+                <span class="block text-dark dark:hidden">
                   <svg
                     class="fill-current"
                     width="24"
@@ -276,7 +276,7 @@
               <% if (user) { %>
                 <div class="flex flex-row px-[24px] items-center py-2 justify-center">
                   <img src="<%= user.avatar %>" alt="User Avatar" class="w-10 h-10 rounded-full border-2 border-white shadow-sm cursor-pointer" id="userAvatar">
-                  <span class="px-[10px] py-2 text-base font-medium text-white whitespace-nowrap">
+                  <span class="px-[10px] py-2 text-base font-medium dark:text-white whitespace-nowrap">
                     Welcome, <%= user.username %>
                   </span>
                   <div id="userDropdown" class="hidden flex-col absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg py-2 z-20 transition transform duration-300 ease-in-out opacity-0 translate-y-4">
