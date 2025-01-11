@@ -14,7 +14,15 @@ const path = require('path');
 
 const registerUser = async (userData) => {
   const { username, email, password } = userData;
-  const existingUser = await User.findOne({ $or: [{ username }, { email }] });
+  
+  // Check if a user with the same username or email exists and is not an OAuth account
+  const existingUser = await User.findOne({
+    $or: [
+      { username },
+      { email, isOauthAccount: false }
+    ]
+  });
+
   if (existingUser) {
     throw new Error('Username or email already exists');
   }
@@ -69,7 +77,9 @@ const toggleFollowUser = async (userId, followUserId) => {
   }
 
   const targetUser = await User.findById(followUserId);
-  if (!targetUser) {
+  const currentUser = await User.findById(userId);
+
+  if (!targetUser || !currentUser) {
     throw new Error('User not found');
   }
 
@@ -80,11 +90,18 @@ const toggleFollowUser = async (userId, followUserId) => {
   } else {
     await User.findByIdAndUpdate(userId, { $addToSet: { following: followUserId } });
     await User.findByIdAndUpdate(followUserId, { $addToSet: { followers: userId } });
+
+    // Create a notification for the followed user
+    const notification = {
+      type: 'follow',
+      message: `${currentUser.username} started following you`
+    };
+    targetUser.notifications.push(notification);
+    await targetUser.save();
   }
 
   return { success: true, message: isFollowing ? 'Unfollowed successfully' : 'Followed successfully' };
 };
-
 const getUserDetails = async (userId, query) => {
   const { search, tags, category, timeRange } = query;
   const filter = query.filter || 'latest';

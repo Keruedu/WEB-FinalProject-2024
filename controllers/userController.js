@@ -295,4 +295,13 @@ exports.removeBookmark = async (req, res) => {
   }
 };
 
-
+exports.getNotifications = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const user = await User.findById(userId).select('notifications');
+    res.status(200).json(user.notifications);
+  } catch (error) {
+    console.error('Error fetching notifications:', error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};

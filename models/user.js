@@ -42,9 +42,30 @@ const userSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Blog'
   }],
+  notifications: [{
+    type: {
+      type: String,
+      enum: ['follow', 'comment'],
+      required: true
+    },
+    message: String,
+    createdAt: {
+      type: Date,
+      default: Date.now
+    },
+    read: {
+      type: Boolean,
+      default: false
+    }
+  }],
   resetPasswordToken: String,
   resetPasswordExpires: Date,
-  lastLogin: Date, // Added lastLogin field
+  lastLogin: Date,
+  googleId: String,
+  isOauthAccount: {
+    type: Boolean,
+    default: false
+  }
 }, { timestamps: true });
 
 userSchema.methods.isPremiumActive = function() {
