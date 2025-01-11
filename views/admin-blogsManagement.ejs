@@ -12,6 +12,7 @@
 
   <!-- ==== WOW JS ==== -->
   <script src="/js/wow.min.js"></script>
+  <script src="/js/main.js"></script>
   <script>
     new WOW().init();
   </script>
@@ -86,6 +87,13 @@
           <option value="year" <%= timeRange === 'year' ? 'selected' : '' %>>Last Year</option>
         </select>
 
+        <select name="status" class="w-full md:w-auto px-5 py-3 text-base transition bg-transparent border rounded-md outline-none border-stroke dark:border-dark-3 text-body-color dark:text-dark-6 focus:border-primary dark:focus:border-primary focus-visible:shadow-none">
+          <option value="All" <%= status === 'All' ? 'selected' : '' %>>All Statuses</option>
+          <option value="approved" <%= status === 'approved' ? 'selected' : '' %>>Approved</option>
+          <option value="pending" <%= status === 'pending' ? 'selected' : '' %>>Pending</option>
+          <option value="rejected" <%= status === 'rejected' ? 'selected' : '' %>>Rejected</option>
+        </select>
+
         <div class="relative w-full md:w-auto">
           <button type="button" id="dropdownButton" class="w-full md:w-auto px-5 py-3 text-base text-white transition duration-300 ease-in-out border rounded-md cursor-pointer border-primary bg-primary hover:bg-blue-dark">Tags</button>
 
@@ -103,7 +111,14 @@
       </form>
       <div class="flex flex-wrap gap-4 pb-10">
         <button type="button" id="toggleSelectionMode" class="w-full md:w-auto px-5 py-3 text-base text-white transition duration-300 ease-in-out border rounded-md cursor-pointer border-white bg-primary hover:bg-blue-dark">Toggle Selection Mode</button>
-        <button type="button" id="changeStatusSelected" class="w-full md:w-auto px-5 py-3 text-base text-white transition duration-300 ease-in-out border rounded-md cursor-pointer border-white bg-green-600 hover:bg-green-800 hidden">Change Status of Selected</button>
+        <div id="changeStatusSelected" class="hidden">
+          <select id="bulkStatusDropdown" class="w-32 p-2 bg-white border border-gray-300 rounded-md">
+            <option value="approved">Approved</option>
+            <option value="pending">Pending</option>
+            <option value="rejected">Rejected</option>
+          </select>
+          <button type="button" id="applyStatusChange" class="w-full md:w-auto px-5 py-3 text-base text-white transition duration-300 ease-in-out border rounded-md cursor-pointer border-primary bg-primary hover:bg-blue-dark">Apply</button>
+        </div>
       </div>
       <div id="blogContainer" class="flex flex-wrap -mx-4">
         <%- include('partials/blogs', { blogs: blogs }) %>
@@ -157,41 +172,65 @@
   <script src="/js/alerts.js"></script>
   <script src="/js/blogs.js"></script>
   <script>
-    document.getElementById('dropdownButton').addEventListener('click', function () {
-      var dropdown = document.getElementById('dropdown');
-      if (dropdown.classList.contains('hidden')) {
+    document.addEventListener('DOMContentLoaded', function () {
+      const statusDropdowns = document.querySelectorAll('.status-dropdown');
+      statusDropdowns.forEach(dropdown => {
         dropdown.classList.remove('hidden');
-        dropdown.classList.add('flex');
-      } else {
-        dropdown.classList.add('hidden');
-      }
+      });
     });
-
+  
     document.getElementById('toggleSelectionMode').addEventListener('click', function () {
       const checkboxes = document.querySelectorAll('.blog-checkbox');
       const overlays = document.querySelectorAll('.overlay');
-      const button = document.querySelectorAll('.delete-blog-btn');
+      const statusDropdowns = document.querySelectorAll('.status-dropdown');
       checkboxes.forEach(checkbox => {
         checkbox.classList.toggle('hidden');
       });
       overlays.forEach(overlay => {
         overlay.classList.toggle('hidden');
       });
-      button.forEach(button => {
-        button.classList.toggle('hidden');
-      });
       document.getElementById('changeStatusSelected').classList.toggle('hidden');
     });
-
-    document.querySelectorAll('.overlay').forEach(overlay => {
-      overlay.addEventListener('click', function () {
-        const checkbox = this.previousElementSibling;
-        checkbox.checked = !checkbox.checked;
+  
+    document.querySelectorAll('.status-dropdown').forEach(dropdown => {
+      dropdown.addEventListener('change', function () {
+        const blogId = this.dataset.blogId;
+        const newStatus = this.value;
+        console.log(blogId, newStatus);
+        // Make an AJAX request to update the status of the blog
+        $.ajax({
+          url: `/admin/blogs/${blogId}/status`,
+          method: 'PUT',
+          data: { status: newStatus },
+          success: function (response) {
+            showSuccessAlert('Blog status updated successfully');
+          },
+          error: function (error) {
+            showErrorAlert('Failed to update blog status');
+          }
+        });
       });
     });
-
-    document.addEventListener('DOMContentLoaded', function() {
-      updateBlogLinksAndStatus();
+  
+    document.getElementById('applyStatusChange').addEventListener('click', function () {
+      const selectedStatus = document.getElementById('bulkStatusDropdown').value;
+      const selectedBlogs = Array.from(document.querySelectorAll('.blog-checkbox:checked')).map(checkbox => checkbox.value);
+      if (selectedBlogs.length > 0) {
+        // Make an AJAX request to update the status of selected blogs
+        $.ajax({
+          url: '/admin/blogs/change-status',
+          method: 'POST',
+          data: { blogIds: selectedBlogs, status: selectedStatus },
+          success: function (response) {
+            showSuccessAlert('Blog statuses updated successfully', window.location.href);
+          },
+          error: function (error) {
+            showErrorAlert('Failed to update blog statuses');
+          }
+        });
+      } else {
+        showErrorAlert('No blogs selected');
+      }
     });
   </script>
 </body>

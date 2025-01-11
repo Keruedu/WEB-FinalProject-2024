@@ -12,6 +12,7 @@
   <link rel="stylesheet" href="/css/animate.css" />
   <link rel="stylesheet" href="/css/tailwind.css" />
   <script src="/js/wow.min.js"></script>
+  <script src="/js/main.js"></script>
   <script>
     new WOW().init();
   </script>
@@ -19,7 +20,7 @@
 <body>
   <%- include('partials/navbar') %>
 
-  <section class="pt-[150px] pb-[120px]">
+  <section class="pt-[150px] pb-[120px] dark:bg-dark">
     <div class="container px-4 mx-auto">
       <div class="wow fadeInUp" data-wow-delay=".2s">
         <div class="-mx-4 flex flex-wrap">
@@ -49,12 +50,36 @@
               </div>
             </div>
           </a>
+
+          <!-- Approve Blog Card -->
+          <a href="/admin/blogs" class="block p-6 bg-white dark:bg-dark-2 rounded-lg shadow-md hover:shadow-lg transition-all duration-300">
+            <div class="flex items-center space-x-4">
+              <div class="p-3 rounded-lg">
+                <svg class="w-8 h-8 text-gray-700 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                        d="M5 13l4 4L19 7"/>
+                </svg>
+              </div>
+              <div>
+                <h3 class="text-xl font-semibold text-dark dark:text-white">Approve Blogs</h3>
+                <p class="mt-2 text-gray-600 dark:text-gray-400">Approve or reject pending blog posts</p>
+              </div>
+            </div>
+          </a>
         </div>
 
       </div>
     </div>
   </section>
 
+    <!-- ====== Back To Top Start -->
+    <a href="javascript:void(0)"
+    class="back-to-top fixed bottom-8 right-8 left-auto z-[999] hidden h-10 w-10 items-center justify-center rounded-md bg-primary text-white shadow-md transition duration-300 ease-in-out hover:bg-dark">
+    <span class="mt-[6px] h-3 w-3 rotate-45 border-t border-l border-white"></span>
+  </a>
+  <!-- ====== Back To Top End -->
+
   <%- include('partials/footer') %>
+  <script src="/js/main.js"></script>
 </body>
-</html> 
+</html>

@@ -11,5 +11,6 @@ router.put('/api/users/:id/ban', ensureAuthenticated, ensureAdmin, adminControll
 
 router.get('/admin/blogs', ensureAuthenticated, ensureAdmin, adminController.getBlogs);
 router.post('/admin/blogs/change-status', ensureAuthenticated, ensureAdmin, adminController.changeStatusBlogs);
+router.put('/admin/blogs/:id/status', ensureAuthenticated, ensureAdmin, adminController.changeBlogStatus);
 
 module.exports = router;

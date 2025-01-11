@@ -24,6 +24,10 @@ const blogSchema = new mongoose.Schema({
     type: String,
     enum: ['pending', 'approved', 'rejected'],
     default: 'pending'
+  },
+  isPremium: {
+    type: Boolean,
+    default: false
   }
 }, { timestamps: true });
 

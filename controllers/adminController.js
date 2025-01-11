@@ -1,6 +1,7 @@
 const User = require('../models/user');
 const PaginationService = require('../service/paginationService');
 const blogService = require('../service/blogService');
+const { ITEMS_PER_PAGE } = require('../utils/constants');
 
 // Trang admin dashboard
 exports.getAdminPage = async (req, res) => {
@@ -86,10 +87,15 @@ exports.toggleUserBan = async (req, res) => {
     res.status(500).json({ error: 'Server error' });
   }
 };
-const ITEMS_PER_PAGE = 9
-// Get admin blogs management page
+
+
 exports.getBlogs = async (req, res) => {
   try {
+    // Ensure status is 'pending' if not provided
+    if (!req.query.status) {
+      req.query.status = 'pending';
+    }
+
     const {
       blogs,
       totalBlogs,
@@ -101,7 +107,8 @@ exports.getBlogs = async (req, res) => {
       filter,
       tags,
       category,
-      timeRange
+      timeRange,
+      status
     } = await blogService.getBlogsHandler(req);
 
     if (req.xhr) {
@@ -124,6 +131,7 @@ exports.getBlogs = async (req, res) => {
         selectedTags: tags || [],
         selectedCategory: category || '',
         timeRange: timeRange || '',
+        status // Include status in the rendering context
       });
     }
   } catch (error) {
@@ -135,8 +143,21 @@ exports.getBlogs = async (req, res) => {
 // Change status of selected blogs
 exports.changeStatusBlogs = async (req, res) => {
   try {
-    const { blogIds } = req.body;
-    await blogService.changeStatusBlogs(blogIds);
+    const { blogIds, status } = req.body;
+    await blogService.changeStatusBlogs(blogIds, status);
+    res.status(200).json({ success_msg: 'Blog statuses updated successfully' });
+  } catch (error) {
+    console.error('Error changing blog statuses:', error);
+    res.status(500).json({ message: 'Internal Server Error', error: error.message });
+  }
+};
+
+// Change status of a single blog
+exports.changeBlogStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+    await blogService.changeBlogStatus(id, status);
     res.status(200).json({ success_msg: 'Blog status updated successfully' });
   } catch (error) {
     console.error('Error changing blog status:', error);

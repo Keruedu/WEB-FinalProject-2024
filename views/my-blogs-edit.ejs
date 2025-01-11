@@ -103,7 +103,12 @@
           </ul>
         </div>
         <input type="hidden" name="tags" id="tagsInput" value="<%= blog.tags.map(tag => tag.name).join(',') %>" />
-  
+        <% if (user && user.role === 'admin') { %>
+          <div class="flex items-center gap-4 self-start">
+            <label for="isPremium" class="text-base font-medium text-dark dark:text-white">Premium:</label>
+            <input type="checkbox" id="isPremium" name="isPremium" <%= blog.isPremium ? 'checked' : '' %> class="w-6 h-6 text-primary border-stroke dark:border-dark-3 rounded focus:ring-primary dark:focus:ring-primary">
+          </div>
+        <% } %>
         <button type="submit" class="w-full md:w-auto px-5 py-3 text-base text-white transition duration-300 ease-in-out border rounded-md cursor-pointer border-primary bg-primary hover:bg-blue-dark">Update</button>
       </form>
     </div>

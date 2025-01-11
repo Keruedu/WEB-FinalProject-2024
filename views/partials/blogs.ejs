@@ -3,33 +3,49 @@
     <div class="w-full px-4 md:w-1/2 lg:w-1/3">
       <div class="mb-10 wow fadeInUp group relative" data-wow-delay=".1s">
         <div class="flex flex-row gap-3 items-center justify-center absolute top-2 right-2 z-30">
+          <span 
+          class="blog-status hidden px-4 py-0.5 text-xs font-medium leading-loose text-center text-white rounded-[5px] 
+            <%= blog.status === 'pending' ? 'bg-primary' : 
+                blog.status === 'approved' ? 'bg-secondary' : 
+                blog.status === 'rejected' ? 'bg-orange-600' : 'bg-gray-500' %> 
+            transition duration-500 ease-in-out transform hover:scale-110">
+          <%= blog.status || 'No Status' %>
+        </span>
           <button type="button" class="delete-blog-btn hidden p-2 bg-orange-600 text-white rounded hover:bg-orange-800" data-blog-id="<%= blog._id %>">Delete</button>
-          <input type="checkbox" class="blog-checkbox w-10 h-10 hidden text-blue-600 bg-gray-100 border-gray-300 rounded-[5px] focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" value="<%= blog._id %>">  
+          <select class="status-dropdown hidden w-32 p-2 bg-white border border-gray-300 rounded-md" data-blog-id="<%= blog._id %>">
+            <option value="approved" <%= blog.status === 'approved' ? 'selected' : '' %>>Approved</option>
+            <option value="pending" <%= blog.status === 'pending' ? 'selected' : '' %>>Pending</option>
+            <option value="rejected" <%= blog.status === 'rejected' ? 'selected' : '' %>>Rejected</option>
+          </select>
+          <input type="checkbox" class="blog-checkbox w-10 h-10 hidden text-blue-600 bg-gray-100 border-gray-300 rounded-[5px] focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" value="<%= blog._id %>">
+
         </div>
 
         <div class="overlay rounded hidden absolute inset-0 bg-black bg-opacity-50 cursor-pointer z-20"></div>
-        <div class="mb-8 overflow-hidden rounded-[5px] w-full relative">
-          <a href="javascript:void(0)" class="dynamic-link block h-60" data-blog-id="<%= blog._id %>">
-            <img src="<%= blog.imageUrl || '/path/to/default-image.jpg' %>" alt="image"
-              class="w-full h-full transition group-hover:rotate-6 group-hover:scale-125 object-cover" />
-              <span 
-              class="blog-status hidden absolute top-2 right-2 px-4 py-0.5 text-xs font-medium leading-loose text-center text-white rounded-[5px] 
-                <%= blog.status === 'pending' ? 'bg-gray-600' : 
-                    blog.status === 'approved' ? 'bg-primary' : 
-                    blog.status === 'rejected' ? 'bg-orange-600' : 'bg-gray-500' %>">
-              <%= blog.status || 'No Status' %>
-            </span>
-          </a>
-        </div>
+          <div class="mb-8 overflow-hidden rounded-[5px] w-full relative">
+            <a href="javascript:void(0)" class="dynamic-link block h-60" data-blog-id="<%= blog._id %>">
+              <img src="<%= blog.imageUrl || '/path/to/default-image.jpg' %>" alt="image"
+                class="w-full h-full transition group-hover:rotate-6 group-hover:scale-125 object-cover" />
+                <% if (blog.isPremium) { %>
+                  <div class="absolute top-0 right-0 m-2 flex justify-center gap-1 text-white items-center self-start p-[2px] rounded-md bg-primary transition-transform duration-300 transform group-hover:scale-110">
+                    <svg class="fill-current h-2 w-2" data-name="Layer 1" id="Layer_1" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M29.51068,15.41064C19.78412,13.544,18.456,12.21582,16.58929,2.48926a.60015.60015,0,0,0-1.17871,0C13.54437,12.21582,12.21625,13.544,2.4892,15.41064a.60016.60016,0,0,0,0,1.17872c9.72705,1.86669,11.05517,3.19482,12.92138,12.92138a.60027.60027,0,0,0,1.17871,0c1.8667-9.72656,3.19483-11.05469,12.92139-12.92138a.60016.60016,0,0,0,0-1.17872Z"/>
+                    </svg>
+                    <p class="font-bold text-xs">Premium</p>
+                  </div>
+                <% } %>
+            </a>
+          </div>
         <div>
           <div class="flex flex-row justify-between mb-6">
             <span
-            class="inline-block px-4 py-0.5 text-xs font-medium leading-loose text-center text-white rounded-[5px] bg-primary">
-            <%= blog.createdAt ? blog.createdAt.toDateString() : 'Unknown Date' %>
+            class="px-4 flex justify-center items-center text-xs font-medium leading-loose text-center text-white rounded-[5px] bg-primary">
+            <%= blog.createdAt ? blog.createdAt.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: '2-digit' }) : 'Unknown Date' %>
+            </span>
             </span>
             <div class="flex flex-row gap-5">
               <!-- view -->
-              <p class="flex items-center text-sm font-medium text-dark dark:text-white">
+              <p class="flex items-center justify-center text-sm font-medium text-dark dark:text-white">
                 <span class="mr-3">
                   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" class="fill-current">
                     <path d="M7.9998 5.92505C6.8498 5.92505 5.9248 6.85005 5.9248 8.00005C5.9248 9.15005 6.8498 10.075 7.9998 10.075C9.1498 10.075 10.0748 9.15005 10.0748 8.00005C10.0748 6.85005 9.1498 5.92505 7.9998 5.92505ZM7.9998 8.95005C7.4748 8.95005 7.0498 8.52505 7.0498 8.00005C7.0498 7.47505 7.4748 7.05005 7.9998 7.05005C8.5248 7.05005 8.9498 7.47505 8.9498 8.00005C8.9498 8.52505 8.5248 8.95005 7.9998 8.95005Z"></path>
@@ -40,7 +56,7 @@
               </p>
               <!--Category-->
               <span
-              class="inline-block px-4 py-0.5 text-xs font-medium leading-loose text-center text-white rounded-[5px] bg-secondary">
+              class="flex justify-center items-center px-4 py-0.5 text-xs font-medium leading-loose text-center text-white rounded-[5px] bg-secondary">
                 <%= blog.category?.name || 'No Category' %>
               </span>
               <% if (user) { %>

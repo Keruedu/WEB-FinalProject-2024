@@ -1,4 +1,8 @@
 // public/js/blogs.js
+document.addEventListener('DOMContentLoaded', function() {
+  attachBookmarkEvents();
+  updateBlogLinksAndStatus();
+});
 
 
 function updateBlogLinksAndStatus() {
@@ -10,17 +14,26 @@ function updateBlogLinksAndStatus() {
       
       if (currentPath.includes('user')) {
         currentPath = currentPath.split('user')[0] + 'blogs';
+      } else if (currentPath.includes('admin')) {
+        currentPath = currentPath.split('admin')[0] + 'my-blogs';
+      } else if (currentPath.includes('blogs')) {
+        currentPath = currentPath.split('blogs')[0] + 'blogs';
       }
       
       const newPath = `${currentPath}/${blogId}`;
       link.href = newPath;
     });
   
-    // Show status if the path includes 'my-blogs' or 'admin'
     const blogStatuses = document.querySelectorAll('.blog-status');
-    if (window.location.pathname.includes('my-blogs') || window.location.pathname.includes('admin')) {
+    const statusDropdowns = document.querySelectorAll('.status-dropdown');
+    
+    if (window.location.pathname.includes('my-blogs')) {
       blogStatuses.forEach(status => {
         status.classList.remove('hidden');
+      });
+    } else if (window.location.pathname.includes('admin')) {
+      statusDropdowns.forEach(dropdown => {
+        dropdown.classList.remove('hidden');
       });
     }
   }
@@ -232,6 +245,7 @@ function updateBlogLinksAndStatus() {
   }
   
   $(document).ready(function () {
+
     // Xử lý submit form tìm kiếm
     $('#searchForm').on('submit', handleSearchFormSubmit);
   
