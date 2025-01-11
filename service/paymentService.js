@@ -19,8 +19,9 @@ const createMoMoPayment = async (amount, orderId, orderInfo) => {
   const redirectUrl = "http://localhost:3000/payment-success";
   const ipnUrl = "http://localhost:3000/payment-notification";
   const requestType = "captureWallet";
+  const extraData = '';
 
-  const rawSignature = `accessKey=${accessKey}&amount=${amountVND}&extraData=&ipnUrl=${ipnUrl}&orderId=${orderId}&orderInfo=${orderInfo}&partnerCode=${partnerCode}&redirectUrl=${redirectUrl}&requestId=${orderId}&requestType=${requestType}`;
+  const rawSignature = `accessKey=${accessKey}&amount=${amountVND}&extraData=${extraData}&ipnUrl=${ipnUrl}&orderId=${orderId}&orderInfo=${orderInfo}&partnerCode=${partnerCode}&redirectUrl=${redirectUrl}&requestId=${orderId}&requestType=${requestType}`;
   const signature = crypto.createHmac('sha256', secretKey).update(rawSignature).digest('hex');
 
   const requestBody = {
@@ -32,7 +33,7 @@ const createMoMoPayment = async (amount, orderId, orderInfo) => {
     orderInfo,
     redirectUrl,
     ipnUrl,
-    extraData: '',
+    extraData,
     requestType,
     signature,
     lang: 'en'
@@ -93,9 +94,10 @@ const createVNPayPayment = async (req, amount, orderId, orderInfo) => {
 };
 
 const verifyMoMoSignature = (params, secretKey) => {
-  const { partnerCode, orderId, requestId, amount, orderInfo, orderType, transId, resultCode, message, payType, responseTime, extraData, signature } = params;
-  const rawSignature = `partnerCode=${partnerCode}&orderId=${orderId}&requestId=${requestId}&amount=${amount}&orderInfo=${orderInfo}&orderType=${orderType}&transId=${transId}&resultCode=${resultCode}&message=${message}&payType=${payType}&responseTime=${responseTime}&extraData=${extraData}`;
+  const { accessKey, amount, extraData, ipnUrl, orderId, orderInfo, partnerCode, redirectUrl, requestId, requestType, signature } = params;
+  const rawSignature = `accessKey=${accessKey}&amount=${amount}&extraData=${extraData}&ipnUrl=${ipnUrl}&orderId=${orderId}&orderInfo=${orderInfo}&partnerCode=${partnerCode}&redirectUrl=${redirectUrl}&requestId=${requestId}&requestType=${requestType}`;
   const expectedSignature = crypto.createHmac('sha256', secretKey).update(rawSignature).digest('hex');
+
   return signature === expectedSignature;
 };
 

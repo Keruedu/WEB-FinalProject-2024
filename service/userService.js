@@ -43,8 +43,7 @@ const loginUser = async (email, password) => {
   user.lastLogin = new Date();
   await user.save();
 
-  const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
-  return { user, token };
+  return { user };
 };
 
 const toggleUserBan = async (userId) => {

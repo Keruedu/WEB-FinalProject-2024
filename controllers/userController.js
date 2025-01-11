@@ -69,8 +69,8 @@ exports.loginUser = async (req, res, next) => {
         return res.status(500).json({ errors: [{ msg: 'Internal server error' }] });
       }
       try {
-        const { token } = await userService.loginUser(user.email, req.body.password);
-        return res.status(200).json({ success_msg: 'You are now logged in', token });
+        const { user: loggedInUser } = await userService.loginUser(user.email, req.body.password);
+        return res.status(200).json({ success_msg: 'You are now logged in', user: loggedInUser });
       } catch (saveError) {
         return res.status(500).json({ errors: [{ msg: saveError.message }] });
       }
