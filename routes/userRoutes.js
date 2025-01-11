@@ -5,6 +5,7 @@ const userController = require('../controllers/userController');
 const { ensureAuthenticated, ensureAdmin } = require('../middlewares/auth');
 const passport = require('passport');
 const upload = require('../config/cloudinary');
+const adminController = require('../controllers/adminController');
 
 router.get('/signup', (req, res) => {
   res.render('signup', { errors: [], username: '', email: '' });
@@ -87,5 +88,8 @@ router.post(
 router.post('/bookmark/:id', ensureAuthenticated, userController.addBookmark);
 router.delete('/bookmark/:id', ensureAuthenticated, userController.removeBookmark);
 
+router.get('/admin', ensureAuthenticated, ensureAdmin, adminController.getAdminPage);
+
+router.get('/admin/users', ensureAuthenticated, ensureAdmin, adminController.getUsersManagementPage);
 
 module.exports = router;
