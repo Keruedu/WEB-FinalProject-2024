@@ -77,7 +77,7 @@
         <div class="flex flex-wrap -mx-4">
           <div class="flex flex-col justify-center items-center p-5 m-auto">
             <div class="w-40 h-40 rounded-full overflow-hidden mb-6 shadow-lg">
-              <img src="<%= user.avatar %>" alt="image" class="w-full h-full object-cover object-center" />
+              <img src="<%= userDetails.avatar %>" alt="image" class="w-full h-full object-cover object-center" />
             </div>
               <div class="flex flex-col items-center flex-wrap gap-2">
               
@@ -255,7 +255,7 @@
       document.addEventListener('DOMContentLoaded', function () {
         const followButton = document.getElementById('followButton');
         const editProfileButton = document.getElementById('editProfileButton');
-        const userId = '<%= user ? user._id : '' %>';
+        const userId = "<%= user ? user._id : '' %>";
         const followUserId = '<%= userDetails._id %>';
 
         if (userId === followUserId) {
@@ -267,7 +267,7 @@
 
       document.getElementById('followButton').addEventListener('click', function () {
         const followButton = this;
-        const userId = '<%= user ? user._id : '' %>';
+        const userId = "<%= user ? user._id : '' %>";
         const followUserId = '<%= userDetails._id %>';
 
         if (userId === '') {

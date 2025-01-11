@@ -94,7 +94,9 @@ const toggleFollowUser = async (userId, followUserId) => {
     // Create a notification for the followed user
     const notification = {
       type: 'follow',
-      message: `${currentUser.username} started following you`
+      message: `${currentUser.username} started following you`,
+      url: `/user/${currentUser._id}`,
+      createdAt: new Date()
     };
     targetUser.notifications.push(notification);
     await targetUser.save();
@@ -102,6 +104,7 @@ const toggleFollowUser = async (userId, followUserId) => {
 
   return { success: true, message: isFollowing ? 'Unfollowed successfully' : 'Followed successfully' };
 };
+
 const getUserDetails = async (userId, query) => {
   const { search, tags, category, timeRange } = query;
   const filter = query.filter || 'latest';

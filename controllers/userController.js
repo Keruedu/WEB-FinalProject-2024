@@ -305,3 +305,17 @@ exports.getNotifications = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
+exports.markNotificationsAsRead = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    await User.updateMany(
+      { _id: userId, 'notifications.read': false },
+      { $set: { 'notifications.$[].read': true } }
+    );
+    res.status(200).json({ success: true });
+  } catch (error) {
+    console.error('Error marking notifications as read:', error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};

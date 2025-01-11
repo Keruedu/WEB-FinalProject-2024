@@ -49,6 +49,11 @@ const userSchema = new mongoose.Schema({
       required: true
     },
     message: String,
+    url: String, 
+    createdAt: {
+      type: Date,
+      default: Date.now
+    },
     createdAt: {
       type: Date,
       default: Date.now

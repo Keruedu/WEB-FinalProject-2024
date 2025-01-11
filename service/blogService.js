@@ -270,6 +270,18 @@ const createComment = async (req) => {
 
   await newComment.save();
   await newComment.populate('author', 'username avatar');
+
+  // Create a notification for the blog author
+  const blog = await Blog.findById(blogId).populate('author');
+  const notification = {
+    type: 'comment',
+    message: `${newComment.author.username} commented on your post`,
+    url: `/blogs/${blogId}`,
+    createdAt: new Date()
+  };
+  blog.author.notifications.push(notification);
+  await blog.author.save();
+
   const timeRange = timeAgo(newComment.createdAt);
 
   return { success: true, comment: newComment, timeRange };

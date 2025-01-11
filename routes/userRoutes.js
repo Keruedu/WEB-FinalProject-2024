@@ -60,7 +60,7 @@ router.get('/reset-password/:token', userController.renderResetPasswordForm);
 router.post('/reset-password/:token', userController.resetForgotPassword);
 
 router.get('/user/:userId', userController.getUserDetails);
-router.patch('/follow/:id', ensureAuthenticated, userController.toggleFollowUser);
+router.patch('/follow/:id',   ensureAuthenticated, userController.toggleFollowUser);
 
 router.get('/edit-profile', ensureAuthenticated, userController.renderEditProfilePage);
 router.post(
@@ -88,5 +88,6 @@ router.post('/bookmark/:id', ensureAuthenticated, userController.addBookmark);
 router.delete('/bookmark/:id', ensureAuthenticated, userController.removeBookmark);
 
 router.get('/notifications', ensureAuthenticated, userController.getNotifications);
+router.post('/notifications/mark-read', ensureAuthenticated, userController.markNotificationsAsRead);
 
 module.exports = router;
