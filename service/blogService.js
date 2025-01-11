@@ -1,6 +1,7 @@
 const Blog = require('../models/blog');
 const Tag = require('../models/tag');
 const Category = require('../models/category');
+const User = require('../models/user');
 const mongoose = require('mongoose');
 const { buildBlogQuery } = require('../utils/queryBuilder');
 const { paginateAndSortBlogs } = require('../utils/paginator');
@@ -213,45 +214,50 @@ const updateBlog = async (req, session) => {
   return { success_msg: 'Blog updated successfully', blog: updatedBlog };
 };
 
-const deleteBlogs = async (blogIds, session) => {
-  // Kiểm tra nếu không có blogIds hoặc blogIds không phải là một mảng
-  if (!Array.isArray(blogIds) || blogIds.length === 0) {
-    await session.endSession();
-    return { success: false, message: 'No Blog IDs provided' };
-  }
+const deleteBlogs = async (blogIds) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
 
-  // Kiểm tra tính hợp lệ của từng blogId
-  for (const blogId of blogIds) {
-    if (!mongoose.Types.ObjectId.isValid(blogId)) {
-      await session.endSession();
-      return { success: false, message: `Invalid Blog ID: ${blogId}` };
+  try {
+    // Kiểm tra nếu không có blogIds hoặc blogIds không phải là một mảng
+    if (!Array.isArray(blogIds) || blogIds.length === 0) {
+      throw new Error('No Blog IDs provided');
     }
+
+    // Kiểm tra tính hợp lệ của từng blogId
+    for (const blogId of blogIds) {
+      if (!mongoose.Types.ObjectId.isValid(blogId)) {
+        throw new Error(`Invalid Blog ID: ${blogId}`);
+      }
+    }
+
+    // Kiểm tra sự tồn tại của từng blog
+    const blogs = await Blog.find({ _id: { $in: blogIds } }).session(session);
+    if (blogs.length !== blogIds.length) {
+      throw new Error('One or more Blogs not found');
+    }
+
+    // Xóa các bình luận liên quan đến các blog
+    await Comment.deleteMany({ blog: { $in: blogIds } }).session(session);
+
+    // Cập nhật bookmark của người dùng
+    await User.updateMany(
+      { bookmarks: { $in: blogIds } },
+      { $pull: { bookmarks: { $in: blogIds } } }
+    ).session(session);
+
+    // Xóa các blog
+    await Blog.deleteMany({ _id: { $in: blogIds } }).session(session);
+
+    // Commit transaction
+    await session.commitTransaction();
+    return { success: true, message: 'Blogs and related comments deleted successfully' };
+  } catch (error) {
+    await session.abortTransaction();
+    return { success: false, message: error.message };
+  } finally {
+    session.endSession();
   }
-
-  // Kiểm tra sự tồn tại của từng blog
-  const blogs = await Blog.find({ _id: { $in: blogIds } }).session(session);
-  if (blogs.length !== blogIds.length) {
-    await session.endSession();
-    return { success: false, message: 'One or more Blogs not found' };
-  }
-
-  // Xóa các bình luận liên quan đến các blog
-  await Comment.deleteMany({ blog: { $in: blogIds } }).session(session);
-
-  // Cập nhật bookmark của người dùng
-  await User.updateMany(
-    { bookmarks: { $in: blogIds } },
-    { $pull: { bookmarks: { $in: blogIds } } }
-  ).session(session);
-
-  // Xóa các blog
-  await Blog.deleteMany({ _id: { $in: blogIds } }).session(session);
-
-  // Commit transaction
-  await session.commitTransaction();
-  session.endSession();
-
-  return { success: true, message: 'Blogs and related comments deleted successfully' };
 };
 
 const createComment = async (req) => {

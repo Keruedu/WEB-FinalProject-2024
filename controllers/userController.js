@@ -7,6 +7,8 @@ const Blog = require('../models/blog');
 const Tag = require('../models/tag');
 const Category = require('../models/category');
 const fs = require('fs');
+const ejs = require('ejs');
+const path = require('path');
 const { validationResult } = require('express-validator');
 const { buildBlogQuery } = require('../utils/queryBuilder');
 const { paginateAndSortBlogs } = require('../utils/paginator');
@@ -14,7 +16,9 @@ const { ITEMS_PER_PAGE } = require('../utils/constants');
 const nodemailer = require('nodemailer');
 const crypto = require('crypto');
 const userService = require('../service/userService');
+const blogService = require('../service/blogService');
 const { timeAgo } = require('../utils/dateMoment');
+const user = require('../models/user');
 
 exports.registerUser = async (req, res) => {
   const errors = validationResult(req);
@@ -106,47 +110,61 @@ exports.toggleFollowUser = async (req, res) => {
 };
 
 exports.getUserDetails = async (req, res) => {
-  const { search, tags, category, timeRange } = req.query;
-  const filter = req.query.filter || 'latest';
-  const url = req.url;
-  const page = parseInt(req.query.page) || 1;
   const userId = req.params.userId;
   try {
-    const result = await userService.getUserDetails(userId, req.query);
+    const {
+      user,
+      blogs,
+      userBlogCount,
+      totalUserViews,
+      followers,
+      isFollowing,
+      allCategories,
+      allTags,
+      totalBlogs,
+      page,
+      search,
+      filter,
+      tags,
+      category,
+      timeRange
+    } = await userService.getUserDetails(userId, req.query);
+
     if (req.xhr) {
-      const blogsHtml = await ejs.renderFile(path.join(__dirname, '../views/partials/blogs.ejs'), { blogs: result.blogs });
+      const blogsHtml = await ejs.renderFile(path.join(__dirname, '../views/partials/blogs.ejs'), { blogs, user: req.user });
       const paginationHtml = await ejs.renderFile(path.join(__dirname, '../views/partials/pagination.ejs'), {
-        currentPage: result.page,
-        hasNextPage: ITEMS_PER_PAGE * result.page < result.totalBlogs,
-        hasPreviousPage: result.page > 1,
-        nextPage: result.page + 1,
-        previousPage: result.page - 1,
-        lastPage: Math.ceil(result.totalBlogs / ITEMS_PER_PAGE),
-        oldUrl: url
+        currentPage: page,
+        hasNextPage: ITEMS_PER_PAGE * page < totalBlogs,
+        hasPreviousPage: page > 1,
+        nextPage: page + 1,
+        previousPage: page - 1,
+        lastPage: Math.ceil(totalBlogs / ITEMS_PER_PAGE),
+        oldUrl: req.url,
+        user: req.user
       });
       return res.status(200).json({ blogsHtml, paginationHtml });
     } else {
       res.render('user-details', {
-        userDetails: result.user,
-        blogs: result.blogs,
-        userBlogCount: result.userBlogCount,
-        totalUserViews: result.totalUserViews,
-        followers: result.user.followers,
-        isFollowing: result.isFollowing,
-        currentPage: result.page,
-        hasNextPage: ITEMS_PER_PAGE * result.page < result.totalBlogs,
-        hasPreviousPage: result.page > 1,
-        nextPage: result.page + 1,
-        previousPage: result.page - 1,
-        lastPage: Math.ceil(result.totalBlogs / ITEMS_PER_PAGE),
+        userDetails: user,
+        blogs,
+        userBlogCount,
+        totalUserViews,
+        followers,
+        isFollowing,
+        currentPage: page,
+        hasNextPage: ITEMS_PER_PAGE * page < totalBlogs,
+        hasPreviousPage: page > 1,
+        nextPage: page + 1,
+        previousPage: page - 1,
+        lastPage: Math.ceil(totalBlogs / ITEMS_PER_PAGE),
         search,
         filter,
-        tags: result.allTags,
-        categories: result.allCategories,
-        selectedTags: result.tags || [],
-        selectedCategory: result.category || '',
-        timeRange: result.timeRange || '',
-        lastLoginTimeAgo: timeAgo(result.user.lastLogin) // Add lastLoginTimeAgo
+        tags: allTags,
+        categories: allCategories,
+        selectedTags: tags || [],
+        selectedCategory: category || '',
+        timeRange: timeRange || '',
+        lastLoginTimeAgo: timeAgo(user.lastLogin)
       });
     }
   } catch (error) {

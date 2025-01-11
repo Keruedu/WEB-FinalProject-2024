@@ -19,7 +19,12 @@ const blogSchema = new mongoose.Schema({
   tags: [{ 
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Tag'
-  }]
+  }],
+  status: {
+    type: String,
+    enum: ['pending', 'approved', 'rejected'],
+    default: 'pending'
+  }
 }, { timestamps: true });
 
 module.exports = mongoose.model('Blog', blogSchema);

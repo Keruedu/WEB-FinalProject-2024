@@ -1,5 +1,6 @@
 const User = require('../models/user');
 const PaginationService = require('../service/paginationService');
+const blogService = require('../service/blogService');
 
 // Trang admin dashboard
 exports.getAdminPage = async (req, res) => {
@@ -83,5 +84,62 @@ exports.toggleUserBan = async (req, res) => {
   } catch (error) {
     console.error('Error:', error);
     res.status(500).json({ error: 'Server error' });
+  }
+};
+const ITEMS_PER_PAGE = 9
+// Get admin blogs management page
+exports.getBlogs = async (req, res) => {
+  try {
+    const {
+      blogs,
+      totalBlogs,
+      allCategories,
+      allTags,
+      page,
+      url,
+      search,
+      filter,
+      tags,
+      category,
+      timeRange
+    } = await blogService.getBlogsHandler(req);
+
+    if (req.xhr) {
+      const blogsHtml = await blogService.renderBlogsHtml(blogs, req.user);
+      const paginationHtml = await blogService.renderPaginationHtml(page, totalBlogs, url);
+      return res.status(200).json({ blogsHtml, paginationHtml });
+    } else {
+      res.render('admin-blogsManagement', {
+        blogs,
+        currentPage: page,
+        hasNextPage: ITEMS_PER_PAGE * page < totalBlogs,
+        hasPreviousPage: page > 1,
+        nextPage: page + 1,
+        previousPage: page - 1,
+        lastPage: Math.ceil(totalBlogs / ITEMS_PER_PAGE),
+        search,
+        filter,
+        tags: allTags,
+        categories: allCategories,
+        selectedTags: tags || [],
+        selectedCategory: category || '',
+        timeRange: timeRange || '',
+      });
+    }
+  } catch (error) {
+    console.error('Error in getBlogs:', error);
+    res.status(500).json({ message: 'Internal Server Error', error: error.message });
+  }
+};
+
+// Change status of selected blogs
+exports.changeStatusBlogs = async (req, res) => {
+  try {
+    const { blogIds } = req.body;
+    await blogService.changeStatusBlogs(blogIds);
+    res.status(200).json({ success_msg: 'Blog status updated successfully' });
+  } catch (error) {
+    console.error('Error changing blog status:', error);
+    res.status(500).json({ message: 'Internal Server Error', error: error.message });
   }
 };

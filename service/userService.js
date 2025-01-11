@@ -89,7 +89,7 @@ const getUserDetails = async (userId, query) => {
   const filter = query.filter || 'latest';
   const page = parseInt(query.page) || 1;
 
-  const user = await User.findById(userId);
+  const user = await User.findById(userId).populate('followers');
   if (!user) {
     throw new Error('User not found');
   }
@@ -112,7 +112,7 @@ const getUserDetails = async (userId, query) => {
   ]);
 
   const totalUserViews = totalViews.length > 0 ? totalViews[0].totalViews : 0;
-  const isFollowing = user.followers.includes(userId);
+  const isFollowing = user.followers.some(follower => follower.equals(userId));
 
   return {
     user,
@@ -127,7 +127,8 @@ const getUserDetails = async (userId, query) => {
     tags,
     category,
     timeRange,
-    isFollowing
+    isFollowing,
+    followers: user.followers
   };
 };
 
