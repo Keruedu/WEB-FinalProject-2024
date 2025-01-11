@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <link rel="shortcut icon" href="/images/favicon.png" type="image/x-icon"/>
+  <link rel="stylesheet" href="/css/animate.css" />
+  <link rel="stylesheet" href="/css/tailwind.css" />
+  <script src="/js/wow.min.js"></script>
+  <script>
+    new WOW().init();
+  </script>
+</head>
+<body>
+  <%- include('partials/navbar') %>
+
+  <!-- Modal Input -->
+  <div id="inputModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white dark:bg-dark-2 rounded-lg shadow-xl p-6 w-96">
+      <div class="mb-4">
+        <h3 id="modalTitle" class="text-xl font-semibold text-dark dark:text-white"></h3>
+      </div>
+      <input 
+        type="text" 
+        id="modalInput"
+        class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary dark:bg-dark-3 dark:border-dark-3 dark:text-white"
+        placeholder="Enter name..."
+      >
+      <div class="flex justify-end gap-3 mt-4">
+        <button 
+          onclick="closeModal()"
+          class="px-4 py-2 text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-dark-3 rounded-lg transition-colors"
+        >
+          Cancel
+        </button>
+        <button 
+          onclick="submitModal()"
+          class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors"
+        >
+          Add
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete Confirmation Modal -->
+  <div id="deleteModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white dark:bg-dark-2 rounded-lg shadow-xl p-6 w-96">
+      <h3 class="text-xl font-semibold text-dark dark:text-white mb-4">Confirm Delete</h3>
+      <p class="text-gray-600 dark:text-gray-400 mb-6">
+        Are you sure you want to delete "<span id="deleteItemName" class="font-medium"></span>"?
+      </p>
+      <div class="flex justify-end gap-3">
+        <button onclick="closeDeleteModal()" 
+                class="px-4 py-2 text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-dark-3 rounded-lg transition-colors">
+          Cancel
+        </button>
+        <button onclick="confirmDelete()" 
+                class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors">
+          Delete
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <section class="pt-[150px] pb-[120px]">
+    <div class="container px-4 mx-auto">
+      <div class="wow fadeInUp" data-wow-delay=".2s">
+        <!-- Header -->
+        <div class="mb-12 text-center">
+          <h2 class="text-3xl font-bold text-dark dark:text-white sm:text-4xl md:text-[40px]">
+            Categories & Tags Management
+          </h2>
+        </div>
+
+        <!-- Categories Section -->
+        <div class="mb-12 bg-white dark:bg-dark-2 rounded-lg shadow-md border-2 border-gray-200 dark:border-dark-3">
+          <div class="flex justify-between items-center p-6 cursor-pointer" onclick="toggleSection('categories')">
+            <div class="flex items-center space-x-4">
+              <div class="flex items-center">
+                <h3 class="text-2xl font-semibold text-dark dark:text-white">Categories</h3>
+                <span class="ml-3 text-sm text-gray-500">(<%= categoriesCount %> total)</span>
+              </div>
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path id="categories-icon" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+              </svg>
+            </div>
+            <button onclick="event.stopPropagation(); showModal('category')" 
+                    class="inline-flex items-center justify-center hover:bg-gray-100 dark:hover:bg-dark-3 p-2 rounded-lg">
+              <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+              </svg>
+            </button>
+          </div>
+          
+          <div id="categories-section" class="hidden px-6 pb-8">
+            <div class="grid grid-cols-1 gap-4 mb-4">
+              <% categories.forEach(category => { %>
+                <div onclick="togglePostsList('category-<%= category._id %>')"
+                     class="border-2 border-gray-200 dark:border-dark-3 rounded-lg p-4 hover:border-primary dark:hover:border-primary transition-colors cursor-pointer
+                            <%= category.name === 'Uncategorized' ? 'mb-6' : '' %>">
+                  <div class="flex justify-between items-center">
+                    <div class="flex-grow">
+                      <h4 class="font-medium text-dark dark:text-white"><%= category.name %></h4>
+                      <span class="text-sm text-gray-500"><%= category.blogsCount %> blogs</span>
+                    </div>
+                    <% if (category.name !== 'Uncategorized') { %>
+                      <button onclick="event.stopPropagation(); deleteCategory('<%= category._id %>', '<%= category.name %>')" 
+                              class="text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 p-1 rounded ml-4">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/>
+                        </svg>
+                      </button>
+                    <% } %>
+                  </div>
+                  <div id="category-<%= category._id %>" class="hidden mt-4 pl-4 border-l-2 border-gray-200 dark:border-dark-3">
+                    <% category.blogs.forEach(blog => { %>
+                      <a href="/blogs/<%= blog._id %>" 
+                         onclick="event.stopPropagation()"
+                         class="block py-1 text-sm text-gray-600 dark:text-gray-400 hover:text-primary">
+                        <%= blog.title %>
+                      </a>
+                    <% }) %>
+                  </div>
+                </div>
+              <% }) %>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tags Section -->
+        <div class="mb-12 bg-white dark:bg-dark-2 rounded-lg shadow-md border-2 border-gray-200 dark:border-dark-3">
+          <div class="flex justify-between items-center p-6 cursor-pointer" onclick="toggleSection('tags')">
+            <div class="flex items-center space-x-4">
+              <div class="flex items-center">
+                <h3 class="text-2xl font-semibold text-dark dark:text-white">Tags</h3>
+                <span class="ml-3 text-sm text-gray-500">(<%= tagsCount %> total)</span>
+              </div>
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path id="tags-icon" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+              </svg>
+            </div>
+            <button onclick="event.stopPropagation(); showModal('tag')" 
+                    class="inline-flex items-center justify-center hover:bg-gray-100 dark:hover:bg-dark-3 p-2 rounded-lg">
+              <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+              </svg>
+            </button>
+          </div>
+          
+          <div id="tags-section" class="hidden px-6 pb-8">
+            <div class="grid grid-cols-1 gap-4 mb-4">
+              <% tags.forEach((tag, index) => { %>
+                <div onclick="togglePostsList('tag-<%= tag._id %>')"
+                     class="border-2 border-gray-200 dark:border-dark-3 rounded-lg p-4 hover:border-primary dark:hover:border-primary transition-colors cursor-pointer
+                            <%= index < tags.length - 1 ? 'mb-2' : '' %>">
+                  <div class="flex justify-between items-center">
+                    <div class="flex-grow">
+                      <h4 class="font-medium text-dark dark:text-white"><%= tag.name %></h4>
+                      <span class="text-sm text-gray-500"><%= tag.blogsCount %> blogs</span>
+                    </div>
+                    <button onclick="event.stopPropagation(); deleteTag('<%= tag._id %>', '<%= tag.name %>')" 
+                            class="text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 p-1 rounded ml-4">
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/>
+                      </svg>
+                    </button>
+                  </div>
+                  <!-- Danh sách blogs -->
+                  <div id="tag-<%= tag._id %>" class="hidden mt-4 pl-4 border-l-2 border-gray-200 dark:border-dark-3">
+                    <% tag.blogs.forEach(blog => { %>
+                      <a href="/blogs/<%= blog._id %>" 
+                         onclick="event.stopPropagation()"
+                         class="block py-1 text-sm text-gray-600 dark:text-gray-400 hover:text-primary">
+                        <%= blog.title %>
+                      </a>
+                    <% }) %>
+                  </div>
+                </div>
+              <% }) %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    let currentModalType = '';
+    let deleteItemId = '';
+    let deleteItemType = '';
+    let deleteItemName = '';
+
+    function showModal(type) {
+      currentModalType = type;
+      const modal = document.getElementById('inputModal');
+      const title = document.getElementById('modalTitle');
+      const input = document.getElementById('modalInput');
+      
+      title.textContent = `Add New ${type.charAt(0).toUpperCase() + type.slice(1)}`;
+      input.value = '';
+      modal.classList.remove('hidden');
+      input.focus();
+    }
+
+    function closeModal() {
+      document.getElementById('inputModal').classList.add('hidden');
+      currentModalType = '';
+    }
+
+    async function submitModal() {
+      const input = document.getElementById('modalInput');
+      const name = input.value.trim();
+      
+      if (!name) return;
+
+      try {
+        const endpoint = currentModalType === 'category' ? 'categories' : 'tags';
+        const response = await fetch(`/api/${endpoint}`, {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify({ name })
+        });
+
+        // Log response để debug
+        const responseText = await response.text();
+        console.log('Response:', responseText);
+
+        // Thử parse JSON chỉ khi response không phải HTML
+        let data;
+        try {
+          data = JSON.parse(responseText);
+        } catch (e) {
+          throw new Error('Invalid server response');
+        }
+
+        if (!response.ok) {
+          throw new Error(data.error || 'Failed to create');
+        }
+
+        closeModal();
+        location.reload();
+      } catch (error) {
+        console.error('Full error:', error);
+        const input = document.getElementById('modalInput');
+        input.classList.add('border-red-500');
+        const oldError = input.nextElementSibling;
+        if (oldError && oldError.classList.contains('text-red-500')) {
+          oldError.remove();
+        }
+        input.insertAdjacentHTML('afterend', 
+          `<p class="text-red-500 text-sm mt-1">${error.message}</p>`
+        );
+      }
+    }
+
+    // Thêm event listener cho phím Enter
+    document.getElementById('modalInput').addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        submitModal();
+      }
+    });
+
+    function togglePostsList(id) {
+      const element = document.getElementById(id);
+      element.classList.toggle('hidden');
+    }
+
+    function toggleSection(section) {
+      const content = document.getElementById(`${section}-section`);
+      const icon = document.getElementById(`${section}-icon`);
+      content.classList.toggle('hidden');
+      icon.setAttribute('d', content.classList.contains('hidden') 
+        ? 'M9 5l7 7-7 7'
+        : 'M19 9l-7 7-7-7'
+      );
+    }
+
+    function showDeleteModal(type, id, name) {
+      deleteItemId = id;
+      deleteItemType = type;
+      deleteItemName = name;
+      document.getElementById('deleteItemName').textContent = name;
+      document.getElementById('deleteModal').classList.remove('hidden');
+    }
+
+    function closeDeleteModal() {
+      document.getElementById('deleteModal').classList.add('hidden');
+    }
+
+    async function confirmDelete() {
+      try {
+        const response = await fetch(`/api/${deleteItemType}s/${deleteItemId}`, {
+          method: 'DELETE'
+        });
+
+        if (!response.ok) throw new Error('Failed to delete');
+
+        location.reload();
+      } catch (error) {
+        console.error('Error:', error);
+        // Có thể thêm thông báo lỗi ở đây nếu cần
+      }
+    }
+
+    function deleteCategory(id, name) {
+      event.stopPropagation();
+      showDeleteModal('category', id, name);
+    }
+
+    function deleteTag(id, name) {
+      event.stopPropagation();
+      showDeleteModal('tag', id, name);
+    }
+  </script>
+</body>
+</html> </html> 
