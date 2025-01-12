@@ -5,6 +5,7 @@ const { ITEMS_PER_PAGE } = require('../utils/constants');
 const Category = require('../models/category');
 const Tag = require('../models/tag');
 const Blog = require('../models/blog');
+const Order = require('../models/order'); 
 
 // Trang admin dashboard
 exports.getAdminPage = async (req, res) => {
@@ -356,5 +357,207 @@ exports.createTag = async (req, res) => {
   } catch (error) {
     console.error('Create tag error:', error);
     return res.status(500).json({ error: 'Failed to create tag' });
+  }
+};
+
+exports.getBlogCreationData = async (req, res) => {
+  try {
+    const { timeRange } = req.query;
+    let startDate, endDate = new Date();
+
+    switch (timeRange) {
+      case 'today':
+        startDate = new Date();
+        startDate.setHours(0, 0, 0, 0);
+        break;
+      case 'yesterday':
+        startDate = new Date();
+        startDate.setDate(startDate.getDate() - 1);
+        startDate.setHours(0, 0, 0, 0);
+        endDate = new Date(startDate);
+        endDate.setHours(23, 59, 59, 999);
+        break;
+      case 'last7days':
+        startDate = new Date();
+        startDate.setDate(startDate.getDate() - 7);
+        break;
+      case 'last30days':
+        startDate = new Date();
+        startDate.setDate(startDate.getDate() - 30);
+        break;
+      default:
+        startDate = new Date();
+        startDate.setHours(0, 0, 0, 0);
+    }
+
+    const blogs = await Blog.aggregate([
+      {
+        $match: {
+          createdAt: {
+            $gte: startDate,
+            $lte: endDate
+          }
+        }
+      },
+      {
+        $group: {
+          _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+          count: { $sum: 1 }
+        }
+      },
+      {
+        $sort: { _id: 1 }
+      }
+    ]);
+
+    res.status(200).json(blogs);
+  } catch (error) {
+    console.error('Error fetching blog creation data:', error);
+    res.status(500).json({ message: 'Internal Server Error', error: error.message });
+  }
+};
+
+exports.getRevenueData = async (req, res) => {
+  try {
+    const { timeRange } = req.query;
+    let startDate, endDate = new Date();
+
+    switch (timeRange) {
+      case 'daily':
+        startDate = new Date();
+        startDate.setDate(startDate.getDate() - 30);
+        break;
+      case 'weekly':
+        startDate = new Date();
+        startDate.setDate(startDate.getDate() - 210); // 30 weeks
+        break;
+      case 'monthly':
+        startDate = new Date();
+        startDate.setMonth(startDate.getMonth() - 12); // 12 months
+        break;
+      default:
+        startDate = new Date();
+        startDate.setDate(startDate.getDate() - 30);
+    }
+
+    const orders = await Order.aggregate([
+      {
+        $match: {
+          createdAt: {
+            $gte: startDate,
+            $lte: endDate
+          },
+          status: 'paid'
+        }
+      },
+      {
+        $group: {
+          _id: {
+            $switch: {
+              branches: [
+                { case: { $eq: [timeRange, 'daily'] }, then: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } } },
+                { case: { $eq: [timeRange, 'weekly'] }, then: { $dateToString: { format: "%Y-%U", date: "$createdAt" } } },
+                { case: { $eq: [timeRange, 'monthly'] }, then: { $dateToString: { format: "%Y-%m", date: "$createdAt" } } }
+              ],
+              default: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } }
+            }
+          },
+          totalRevenue: { $sum: "$totalAmount" },
+          totalSales: { $sum: 1 }
+        }
+      },
+      {
+        $sort: { _id: 1 }
+      }
+    ]);
+
+    res.status(200).json(orders);
+  } catch (error) {
+    console.error('Error fetching revenue data:', error);
+    res.status(500).json({ message: 'Internal Server Error', error: error.message });
+  }
+};
+
+exports.getTopRevenueData = async (req, res) => {
+  try {
+    const { timeRange } = req.query;
+    let startDate, endDate = new Date();
+
+    switch (timeRange) {
+      case 'daily':
+        startDate = new Date();
+        startDate.setDate(startDate.getDate() - 1);
+        break;
+      case 'weekly':
+        startDate = new Date();
+        startDate.setDate(startDate.getDate() - 7);
+        break;
+      case 'monthly':
+        startDate = new Date();
+        startDate.setMonth(startDate.getMonth() - 1);
+        break;
+      default:
+        startDate = new Date();
+        startDate.setDate(startDate.getDate() - 1);
+    }
+
+    const topRevenueUsers = await Order.aggregate([
+      {
+        $match: {
+          createdAt: {
+            $gte: startDate,
+            $lte: endDate
+          },
+          status: 'paid'
+        }
+      },
+      {
+        $lookup: {
+          from: 'subscriptionplans',
+          localField: 'subscriptionPlan',
+          foreignField: '_id',
+          as: 'subscriptionPlan'
+        }
+      },
+      {
+        $unwind: '$subscriptionPlan'
+      },
+      {
+        $group: {
+          _id: '$user',
+          totalSales: { $sum: '$totalAmount' },
+          totalRevenue: { $sum: { $multiply: ['$totalAmount', '$subscriptionPlan.price'] } }
+        }
+      },
+      {
+        $sort: { totalRevenue: -1 }
+      },
+      {
+        $limit: 10
+      },
+      {
+        $lookup: {
+          from: 'users',
+          localField: '_id',
+          foreignField: '_id',
+          as: 'user'
+        }
+      },
+      {
+        $unwind: '$user'
+      },
+      {
+        $project: {
+          username: '$user.username',
+          totalRevenue: 1,
+          totalSales: 1
+        }
+      }
+    ]);
+
+    res.status(200).json(topRevenueUsers);
+  } catch (error) {
+    console.error('Error fetching top revenue data:', error);
+    res.status(500).json({ message: 'Internal Server Error', error: error.message });
   }
 };

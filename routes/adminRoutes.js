@@ -18,5 +18,11 @@ router.post('/api/tags', ensureAuthenticated, ensureAdmin, adminController.creat
 router.get('/admin/blogs', ensureAuthenticated, ensureAdmin, adminController.getBlogs);
 router.post('/admin/blogs/change-status', ensureAuthenticated, ensureAdmin, adminController.changeStatusBlogs);
 router.put('/admin/blogs/:id/status', ensureAuthenticated, ensureAdmin, adminController.changeBlogStatus);
+router.get('/admin/analytics', ensureAuthenticated, (req, res) => {
+    res.render('admin-analytics', { title: 'Admin Analytics' });
+  });
+router.get('/admin/blog-creation-data', ensureAuthenticated, adminController.getBlogCreationData);
+router.get('/admin/revenue-data', ensureAuthenticated, adminController.getRevenueData);
+router.get('/admin/top-revenue-data', ensureAuthenticated, adminController.getTopRevenueData);
 
 module.exports = router;

@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Analytics</title>
+  <link rel="shortcut icon" href="/images/favicon.png" type="image/x-icon" />
+  <link rel="stylesheet" href="/css/animate.css" />
+  <link rel="stylesheet" href="/css/tailwind.css" />
+
+  <!-- ==== WOW JS ==== -->
+  <script src="/js/wow.min.js"></script>
+  <script src="/js/main.js"></script>
+  <script>
+    new WOW().init();
+  </script>
+  <!-- Include ApexCharts -->
+  <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+</head>
+
+<body>
+  <!-- ====== Navbar Section Start -->
+  <%- include('partials/navbar') %>
+  <!-- ====== Navbar Section End -->
+
+  <!-- ====== Banner Section Start -->
+  <div class="relative z-10 overflow-hidden pt-[120px] pb-[60px] md:pt-[130px] lg:pt-[160px] dark:bg-dark">
+    <div class="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-stroke/0 via-stroke dark:via-dark-3 to-stroke/0"></div>
+    <div class="container">
+      <div class="flex flex-wrap items-center -mx-4">
+        <div class="w-full px-4">
+          <div class="text-center">
+            <h1 class="mb-4 text-3xl font-bold text-dark dark:text-white sm:text-4xl md:text-[40px] md:leading-[1.2]">
+              Admin Analytics
+            </h1>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- ====== Banner Section End -->
+
+  <!-- ====== Blog Section Start -->
+  <section class="pt-20 pb-10 lg:pt-[80px] lg:pb-20 dark:bg-dark">
+    <div class="container">
+      <div class="mb-4">
+        <select id="timeRange" class="px-4 py-2 border rounded-md bg-primary text-dark dark:text-white">
+          <option value="today">Today</option>
+          <option value="yesterday">Yesterday</option>
+          <option value="last7days">Last 7 Days</option>
+          <option value="last30days">Last 30 Days</option>
+        </select>
+      </div>
+      <div id="blogCreationChart"></div>
+    </div>
+    <div class="container mt-8">
+      <div class="flex justify-start mb-4">
+        <button id="dailyButton" class="px-4 py-2 mx-2 bg-primary text-dark dark:text-white rounded-md">Daily</button>
+        <button id="weeklyButton" class="px-4 py-2 mx-2  text-dark dark:text-white rounded-md">Weekly</button>
+        <button id="monthlyButton" class="px-4 py-2 mx-2   text-dark dark:text-white rounded-md">Monthly</button>
+      </div>
+      <div id="revenueChart"></div>
+    </div>
+    <div class="container mt-8">
+      <div class="flex justify-start mb-4">
+        <button id="dailyRevenueButton" class="px-4 py-2 mx-2 bg-primary text-dark dark:text-white rounded-md">Daily</button>
+        <button id="weeklyRevenueButton" class="px-4 py-2 mx-2  text-dark dark:text-white rounded-md">Weekly</button>
+        <button id="monthlyRevenueButton" class="px-4 py-2 mx-2   text-dark dark:text-white rounded-md">Monthly</button>
+      </div>
+      <div id="topRevenueGrid"></div>
+    </div>
+  </section>
+  <!-- ====== Blog Section End -->
+
+  <!-- ====== Back To Top Start -->
+  <a href="javascript:void(0)"
+    class="back-to-top fixed bottom-8 right-8 left-auto z-[999] hidden h-10 w-10 items-center justify-center rounded-md bg-primary text-white shadow-md transition duration-300 ease-in-out hover:bg-dark">
+    <span class="mt-[6px] h-3 w-3 rotate-45 border-t border-l border-white"></span>
+  </a>
+  <!-- ====== Back To Top End -->
+
+  <%- include('partials/footer') %>
+  <script src="/js/main.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async function() {
+      const timeRangeSelect = document.getElementById('timeRange');
+      const blogChartContainer = document.getElementById('blogCreationChart');
+      const revenueChartContainer = document.getElementById('revenueChart');
+      const topRevenueGridContainer = document.getElementById('topRevenueGrid');
+      const dailyButton = document.getElementById('dailyButton');
+      const weeklyButton = document.getElementById('weeklyButton');
+      const monthlyButton = document.getElementById('monthlyButton');
+      const dailyRevenueButton = document.getElementById('dailyRevenueButton');
+      const weeklyRevenueButton = document.getElementById('weeklyRevenueButton');
+      const monthlyRevenueButton = document.getElementById('monthlyRevenueButton');
+      let blogChart;
+      let revenueChart;
+
+      async function fetchData(url) {
+        const response = await fetch(url);
+        const data = await response.json();
+        return data;
+      }
+
+      async function renderBlogChart(timeRange) {
+        const data = await fetchData(`/admin/blog-creation-data?timeRange=${timeRange}`);
+
+        const labels = data.map(item => item._id);
+        const counts = data.map(item => item.count);
+
+        const isDarkMode = document.documentElement.classList.contains('dark');
+
+        const options = {
+          chart: {
+            type: 'area',
+            height: 350,
+            toolbar: {
+              show: true
+            },
+            zoom: {
+              enabled: true
+            }
+          },
+          colors: ['#1E90FF'],
+          dataLabels: {
+            enabled: false
+          },
+          stroke: {
+            curve: 'smooth'
+          },
+          series: [{
+            name: 'Number of Blogs Created',
+            data: counts
+          }],
+          xaxis: {
+            categories: labels,
+            title: {
+              text: 'Date',
+              style: {
+                color: isDarkMode ? '#FFFFFF' : '#333'
+              }
+            },
+            labels: {
+              style: {
+                colors: isDarkMode ? '#FFFFFF' : '#333'
+              }
+            }
+          },
+          yaxis: {
+            title: {
+              text: 'Number of Blogs',
+              style: {
+                color: isDarkMode ? '#FFFFFF' : '#333'
+              }
+            },
+            labels: {
+              style: {
+                colors: isDarkMode ? '#FFFFFF' : '#333'
+              }
+            }
+          },
+          grid: {
+            borderColor: isDarkMode ? '#444' : '#e7e7e7',
+            row: {
+              colors: isDarkMode ? ['#333', 'transparent'] : ['#f3f3f3', 'transparent'],
+              opacity: 0.5
+            }
+          },
+          title: {
+            text: 'Blog Creation Over Time',
+            align: 'center',
+            style: {
+              fontSize: '20px',
+              color: isDarkMode ? '#FFFFFF' : '#333'
+            }
+          },
+          tooltip: {
+            x: {
+              format: 'dd MMM yyyy'
+            }
+          }
+        };
+
+        if (blogChart) {
+          blogChart.destroy();
+        }
+
+        blogChart = new ApexCharts(blogChartContainer, options);
+        blogChart.render();
+      }
+
+      async function renderRevenueChart(timeRange) {
+        const data = await fetchData(`/admin/revenue-data?timeRange=${timeRange}`);
+
+        const labels = data.map(item => item._id);
+        const totalRevenue = data.map(item => item.totalRevenue);
+        const totalSales = data.map(item => item.totalSales);
+
+        const isDarkMode = document.documentElement.classList.contains('dark');
+
+        const options = {
+          chart: {
+            type: 'area',
+            height: 350,
+            toolbar: {
+              show: true
+            },
+            zoom: {
+              enabled: true
+            }
+          },
+          colors: ['#1E90FF', '#FF6347'],
+          dataLabels: {
+            enabled: false
+          },
+          stroke: {
+            curve: 'smooth'
+          },
+          series: [
+            {
+              name: 'Total Revenue',
+              data: totalRevenue
+            },
+            {
+              name: 'Total Sales',
+              data: totalSales
+            }
+          ],
+          xaxis: {
+            categories: labels,
+            title: {
+              text: 'Date',
+              style: {
+                color: isDarkMode ? '#FFFFFF' : '#333'
+              }
+            },
+            labels: {
+              style: {
+                colors: isDarkMode ? '#FFFFFF' : '#333'
+              }
+            }
+          },
+          yaxis: {
+            title: {
+              text: 'Amount',
+              style: {
+                color: isDarkMode ? '#FFFFFF' : '#333'
+              }
+            },
+            labels: {
+              style: {
+                colors: isDarkMode ? '#FFFFFF' : '#333'
+              }
+            }
+          },
+          grid: {
+            borderColor: isDarkMode ? '#444' : '#e7e7e7',
+            row: {
+              colors: isDarkMode ? ['#333', 'transparent'] : ['#f3f3f3', 'transparent'],
+              opacity: 0.5
+            }
+          },
+          title: {
+            text: 'Revenue and Sales Over Time',
+            align: 'center',
+            style: {
+              fontSize: '20px',
+              color: isDarkMode ? '#FFFFFF' : '#333'
+            }
+          },
+          tooltip: {
+            x: {
+              format: 'dd MMM yyyy'
+            }
+          }
+        };
+
+        if (revenueChart) {
+          revenueChart.destroy();
+        }
+
+        revenueChart = new ApexCharts(revenueChartContainer, options);
+        revenueChart.render();
+      }
+
+      async function renderTopRevenueGrid(timeRange) {
+        const data = await fetchData(`/admin/top-revenue-data?timeRange=${timeRange}`);
+        console.log(data);
+        const isDarkMode = document.documentElement.classList.contains('dark');
+
+        let gridHtml = `
+          <div class="overflow-x-auto">
+            <table class="min-w-full bg-white dark:bg-dark-2 rounded-lg overflow-hidden">
+              <thead class="bg-gray-50 dark:bg-dark-3">
+                <tr>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">User</th>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Total Revenue</th>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Total Sales</th>
+                </tr>
+              </thead>
+              <tbody>
+        `;
+
+        data.forEach(user => {
+          gridHtml += `
+            <tr class="border-b dark:border-dark-3 dark:text-white">
+              <td class="px-6 py-4 whitespace-nowrap">${user.username}</td>
+              <td class="px-6 py-4 whitespace-nowrap">${user.totalRevenue.toFixed(2)}</td>
+              <td class="px-6 py-4 whitespace-nowrap">${user.totalSales}</td>
+            </tr>
+          `;
+        });
+
+        gridHtml += `
+              </tbody>
+            </table>
+          </div>
+        `;
+
+        topRevenueGridContainer.innerHTML = gridHtml;
+      }
+
+      timeRangeSelect.addEventListener('change', function() {
+        renderBlogChart(this.value);
+      });
+
+      dailyButton.addEventListener('click', function() {
+        renderRevenueChart('daily');
+        dailyButton.classList.add('bg-primary', 'text-white');
+        weeklyButton.classList.remove('bg-primary', 'text-white');
+        monthlyButton.classList.remove('bg-primary', 'text-white');
+      });
+
+      weeklyButton.addEventListener('click', function() {
+        renderRevenueChart('weekly');
+        dailyButton.classList.remove('bg-primary', 'text-white');
+        weeklyButton.classList.add('bg-primary', 'text-white');
+        monthlyButton.classList.remove('bg-primary', 'text-white');
+      });
+
+      monthlyButton.addEventListener('click', function() {
+        renderRevenueChart('monthly');
+        dailyButton.classList.remove('bg-primary', 'text-white');
+        weeklyButton.classList.remove('bg-primary', 'text-white');
+        monthlyButton.classList.add('bg-primary', 'text-white');
+      });
+
+      dailyRevenueButton.addEventListener('click', function() {
+        renderTopRevenueGrid('daily');
+        dailyRevenueButton.classList.add('bg-primary', 'text-white');
+        weeklyRevenueButton.classList.remove('bg-primary', 'text-white');
+        monthlyRevenueButton.classList.remove('bg-primary', 'text-white');
+      });
+
+      weeklyRevenueButton.addEventListener('click', function() {
+        renderTopRevenueGrid('weekly');
+        dailyRevenueButton.classList.remove('bg-primary', 'text-white');
+        weeklyRevenueButton.classList.add('bg-primary', 'text-white');
+        monthlyRevenueButton.classList.remove('bg-primary', 'text-white');
+      });
+
+      monthlyRevenueButton.addEventListener('click', function() {
+        renderTopRevenueGrid('monthly');
+        dailyRevenueButton.classList.remove('bg-primary', 'text-white');
+        weeklyRevenueButton.classList.remove('bg-primary', 'text-white');
+        monthlyRevenueButton.classList.add('bg-primary', 'text-white');
+      });
+
+      // Initial render
+      renderBlogChart(timeRangeSelect.value);
+      renderRevenueChart('daily');
+      renderTopRevenueGrid('daily');
+    });
+  </script>
+</body>
+
+</html>
