@@ -161,20 +161,31 @@ document.addEventListener('DOMContentLoaded', function() {
   const urlParams = new URLSearchParams(window.location.search);
   const notification = urlParams.get('notification');
   if (notification) {
-    Swal.fire({
-      icon: 'warning',
-      title: 'Authentication Required',
-      text: 'You need to sign in to access this page.',
-      customClass: {
-        popup: 'bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-200',
-        title: 'text-gray-900 dark:text-gray-100',
-        confirmButton: 'bg-[#1a202c] text-white dark:bg-gray-700',
-      }
-    }).then(() => {
-      //replace the url without the notification
-      urlParams.delete('?notification');
-      const newUrl = window.location.pathname;
-      window.history.replaceState({}, document.title, newUrl);
-    });
+    let title, text;
+    if (notification === 'signin') {
+      title = 'Authentication Required';
+      text = 'You need to sign in to access this page.';
+    } else if (notification === 'premium') {
+      title = 'Premium Membership Required';
+      text = 'You need a premium membership to access this page.';
+    }
+
+    if (title && text) {
+      Swal.fire({ 
+        icon: 'warning',
+        title: title,
+        text: text,
+        customClass: {
+          popup: 'bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-200',
+          title: 'text-gray-900 dark:text-gray-100',
+          confirmButton: 'bg-[#1a202c] text-white dark:bg-gray-700',
+        }
+      }).then(() => {
+        // Replace the URL without the notification parameter
+        urlParams.delete('notification');
+        const newUrl = window.location.pathname + '?' + urlParams.toString();
+        window.history.replaceState({}, document.title, newUrl);
+      });
+    }
   }
 });

@@ -303,7 +303,7 @@ exports.addBookmark = async (req, res) => {
 
 exports.removeBookmark = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.user._id;
     const blogId = req.params.id;
     const result = await userService.removeBookmark(userId, blogId);
     res.status(200).json(result);

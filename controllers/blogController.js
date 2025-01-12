@@ -40,21 +40,12 @@ exports.getAllBlogs = async (req, res) => {
 exports.getBlogById = async (req, res) => {
   try {
     const blogId = req.params.id;
-
-    await Blog.findByIdAndUpdate(blogId, { $inc: { views: 1 } });
-    const blog = await Blog.findById(blogId)
-      .populate('author')
-      .populate('category')
-      .populate('tags');
-
-    const relatedBlogs = await Blog.find({
-      tags: { $in: blog.tags },
-      _id: { $ne: blogId }
-    }).limit(3).populate('category');
+    const { blog, relatedBlogs, commentCount } = await blogService.getBlogById(blogId);
 
     res.render('blog-details', { 
       blog, 
       relatedBlogs,
+      commentCount,
     });
 
   } catch (error) {

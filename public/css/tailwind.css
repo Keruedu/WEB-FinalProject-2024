@@ -2167,6 +2167,18 @@ body {
   padding: 2px;
 }
 
+.p-\[10px\]{
+  padding: 10px;
+}
+
+.p-\[4px\]{
+  padding: 4px;
+}
+
+.p-\[5px\]{
+  padding: 5px;
+}
+
 .px-0{
   padding-left: 0px;
   padding-right: 0px;
@@ -3425,6 +3437,11 @@ body {
   background-color: rgb(255 255 255 / var(--tw-bg-opacity));
 }
 
+:is(.dark .dark\:bg-primary){
+  --tw-bg-opacity: 1;
+  background-color: rgb(55 88 249 / var(--tw-bg-opacity));
+}
+
 :is(.dark .dark\:via-dark-3){
   --tw-gradient-to: rgb(55 65 81 / 0)  var(--tw-gradient-to-position);
   --tw-gradient-stops: var(--tw-gradient-from), #374151 var(--tw-gradient-via-position), var(--tw-gradient-to);
@@ -3538,6 +3555,11 @@ body {
   background-color: rgb(127 29 29 / 0.2);
 }
 
+:is(.dark .dark\:hover\:bg-white:hover){
+  --tw-bg-opacity: 1;
+  background-color: rgb(255 255 255 / var(--tw-bg-opacity));
+}
+
 :is(.dark .dark\:hover\:text-primary:hover){
   --tw-text-opacity: 1;
   color: rgb(55 88 249 / var(--tw-text-opacity));
@@ -3546,6 +3568,11 @@ body {
 :is(.dark .dark\:hover\:text-white:hover){
   --tw-text-opacity: 1;
   color: rgb(255 255 255 / var(--tw-text-opacity));
+}
+
+:is(.dark .dark\:hover\:text-dark:hover){
+  --tw-text-opacity: 1;
+  color: rgb(17 25 40 / var(--tw-text-opacity));
 }
 
 :is(.dark .dark\:focus\:border-primary:focus){
