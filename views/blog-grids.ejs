@@ -60,51 +60,92 @@
 
   <!-- ====== Blog Section Start -->
   <section class="pt-20 pb-10 lg:pt-[80px] lg:pb-20 dark:bg-dark">
-    <div class="container">
+    <div class="container flex flex-col">
 
-      <form id="searchForm" action="<%= action %>" method="GET" class="flex flex-wrap items-center justify-center gap-4 pb-20 w-full md:w-[80%] mx-auto">
-        <input type="text" name="search" placeholder="Search blogs..." value="<%= search %>"
-          class="w-full md:w-auto px-5 py-3 text-base transition bg-transparent border rounded-md outline-none border-stroke dark:border-dark-3 text-body-color dark:text-dark-6 placeholder:text-dark-6 focus:border-primary dark:focus:border-primary focus-visible:shadow-none" />
-        <select name="filter" class="w-full md:w-auto px-5 py-3 text-base transition bg-transparent border rounded-md outline-none border-stroke dark:border-dark-3 text-body-color dark:text-dark-6 focus:border-primary dark:focus:border-primary focus-visible:shadow-none">
-          <option value="" <%= filter === '' ? 'selected' : '' %>>All</option>
-          <option value="latest" <%= filter === 'latest' ? 'selected' : '' %>>Latest</option>
-          <option value="oldest" <%= filter === 'oldest' ? 'selected' : '' %>>Oldest</option>
-          <option value="popular" <%= filter === 'popular' ? 'selected' : '' %>>Most Popular</option>
-        </select>
+      <button id="dropdownSearchButton" data-dropdown-toggle="dropdownSearch" data-dropdown-placement="bottom" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 self-end mb-5"  type="button">
+        Dropdown search
+        <svg class="w-2.5 h-2.5 ms-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
+          <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4" />
+        </svg>
+      </button>
+      
+      <div class="flex lg:flex-row flex-col justify-between w-full gap-4">
+
+        <!-- Dropdown menu -->
+        <div id="dropdownSearch" class="lg:order-last z-10 lg:min-w-[200px] h-fit hidden bg-white rounded-lg shadow lg:w-80 w-full dark:bg-gray-700 lg:self-start">
+          <form id="searchForm" action="<%= action %>" method="GET" class="p-4">
+            <!-- Input search -->
+            <div class="mb-3">
+              <label for="input-group-search" class="sr-only">Search</label>
+              <div class="relative">
+                <input type="text" name="search" id="input-group-search" placeholder="Search blogs..." value="<%= search %>" class="block w-full p-2 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" />
+              </div>
+            </div>
         
-        <select name="category" class="w-full md:w-auto px-5 py-3 text-base transition bg-transparent border rounded-md outline-none border-stroke dark:border-dark-3 text-body-color dark:text-dark-6 focus:border-primary dark:focus:border-primary focus-visible:shadow-none">
-          <option value="">All Categories</option>
-          <% categories.forEach(category => { %>
-            <option value="<%= category._id %>" <%= selectedCategory === category._id.toString() ? 'selected' : '' %>><%= category.name %></option>
-          <% }); %>
-        </select>
+            <!-- Dropdown filters -->
+            <div class="flex flex-col gap-3">
+              <select name="filter" class="w-full px-4 py-2 text-sm border rounded-md dark:border-dark-3 dark:bg-gray-600 dark:text-dark-6 focus:border-blue-500 dark:focus:border-blue-500">
+                <option value="" <%= filter === '' ? 'selected' : '' %>>All</option>
+                <option value="latest" <%= filter === 'latest' ? 'selected' : '' %>>Latest</option>
+                <option value="oldest" <%= filter === 'oldest' ? 'selected' : '' %>>Oldest</option>
+                <option value="popular" <%= filter === 'popular' ? 'selected' : '' %>>Most Popular</option>
+              </select>
+        
+              <select name="category" class="w-full px-4 py-2 text-sm border rounded-md dark:border-dark-3 dark:bg-gray-600 dark:text-dark-6 focus:border-blue-500 dark:focus:border-blue-500">
+                <option value="">All Categories</option>
+                <% categories.forEach(category => { %>
+                  <option value="<%= category._id %>" <%= selectedCategory === category._id.toString() ? 'selected' : '' %>><%= category.name %></option>
+                <% }); %>
+              </select>
+        
+              <select name="timeRange" class="w-full px-4 py-2 text-sm border rounded-md dark:border-dark-3 dark:bg-gray-600 dark:text-dark-6 focus:border-blue-500 dark:focus:border-blue-500">
+                <option value="">All Time</option>
+                <option value="24h" <%= timeRange === '24h' ? 'selected' : '' %>>Last 24 Hours</option>
+                <option value="week" <%= timeRange === 'week' ? 'selected' : '' %>>Last Week</option>
+                <option value="month" <%= timeRange === 'month' ? 'selected' : '' %>>Last Month</option>
+                <option value="year" <%= timeRange === 'year' ? 'selected' : '' %>>Last Year</option>
+              </select>
 
-        <select name="timeRange" class="w-full md:w-auto px-5 py-3 text-base transition bg-transparent border rounded-md outline-none border-stroke dark:border-dark-3 text-body-color dark:text-dark-6 focus:border-primary dark:focus:border-primary focus-visible:shadow-none">
-          <option value="">All Time</option>
-          <option value="24h" <%= timeRange === '24h' ? 'selected' : '' %>>Last 24 Hours</option>
-          <option value="week" <%= timeRange === 'week' ? 'selected' : '' %>>Last Week</option>
-          <option value="month" <%= timeRange === 'month' ? 'selected' : '' %>>Last Month</option>
-          <option value="year" <%= timeRange === 'year' ? 'selected' : '' %>>Last Year</option>
-        </select>
-
-        <div class="relative w-full md:w-auto">
-          <button type="button" id="dropdownButton" class="w-full md:w-auto px-5 py-3 text-base text-white transition duration-300 ease-in-out border rounded-md cursor-pointer border-primary bg-primary hover:bg-blue-dark">Tags</button>
-      
-          <div id="dropdown" class="hidden h-[160px] overflow-auto flex-col gap-2 mt-4 absolute z-10 p-2 bg-white border border-stroke rounded-md shadow-lg scrollbar-hide">
-            <% tags.forEach(tag => { %>
-              <label class="flex items-center">
-                <input type="checkbox" name="tags" value="<%= tag._id %>" <%= selectedTags.includes(tag._id.toString()) ? 'checked' : '' %> />
-                <span class="ml-2"><%= tag.name %></span>
-              </label>
-            <% }); %>
-          </div>
+              <div class="relative w-full">
+                <button
+                  type="button"
+                  id="dropdownButton"
+                  data-dropdown-toggle="dropdown"
+                  class="w-full px-[16px] py-[8px] text-[14px] text-white transition duration-300 ease-in-out border rounded-md cursor-pointer border-primary bg-primary hover:bg-primary-dark">
+                  Tags
+                </button>
+              
+                <div
+                  id="dropdown"
+                  class="hidden h-[160px] overflow-auto flex-col gap-2 mt-4 absolute z-10 p-2 bg-white border border-gray-300 rounded-md shadow-lg dark:bg-gray-700 dark:border-gray-600">
+                  <% tags.forEach(tag => { %>
+                    <label class="flex items-center">
+                      <input
+                        type="checkbox"
+                        name="tags"
+                        value="<%= tag._id %>"
+                        class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500"
+                        <%= selectedTags.includes(tag._id.toString()) ? 'checked' : '' %> />
+                      <span class="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">
+                        <%= tag.name %>
+                      </span>
+                    </label>
+                  <% }); %>
+                </div>
+              </div>
+            </div>  
+        
+            <!-- Submit button -->
+            <div class="mt-4">
+              <button type="submit" class="w-full px-5 py-2 text-white bg-blue-700 hover:bg-blue-800 rounded-lg text-sm focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700">Search</button>
+            </div>
+          </form>
         </div>
-      
-        <button type="submit" class="w-full md:w-auto px-5 py-3 text-base text-white transition duration-300 ease-in-out border rounded-md cursor-pointer border-primary bg-primary hover:bg-blue-dark">Apply</button>
-      </form>
 
-      <div id="blogContainer" class="flex flex-wrap -mx-4">
-        <%- include('partials/blogs', { blogs: blogs }) %>
+        <div id="blogContainer" class="flex flex-wrap -mx-4">
+          <%- include('partials/blogs', { blogs: blogs }) %>
+        </div>
+
       </div>
     </div>
 
@@ -139,6 +180,11 @@
   <script src="/js/main.js"></script>
   <script src="/js/blogs.js"></script>
   <script>
+    document.getElementById('dropdownSearchButton').addEventListener('click', function () {
+    const dropdown = document.getElementById('dropdownSearch');
+    dropdown.classList.toggle('hidden');
+  });
+
     document.getElementById('toggleSelectionMode').addEventListener('click', function() {
       const checkboxes = document.querySelectorAll('.blog-checkbox');
       const overlays = document.querySelectorAll('.overlay');

@@ -310,17 +310,24 @@
 </script>
 <script>
   document.addEventListener('DOMContentLoaded', async function() {
-    try {
-      const response = await fetch('/notifications');
-      const notifications = await response.json();
-      const unreadNotifications = notifications.filter(notification => !notification.read);
+    const fetchNotifications = async () => {
+      try {
+        const response = await fetch('/notifications');
+        const notifications = await response.json();
+        const unreadNotifications = notifications.filter(notification => !notification.read);
 
-      if (unreadNotifications.length > 0) {
-        document.getElementById('notificationDot').classList.remove('hidden');
+        if (unreadNotifications.length > 0) {
+          document.getElementById('notificationDot').classList.remove('hidden');
+        } else {
+          document.getElementById('notificationDot').classList.add('hidden');
+        }
+      } catch (error) {
+        console.error('Error fetching notifications:', error);
       }
-    } catch (error) {
-      console.error('Error fetching notifications:', error);
-    }
+    };
+    fetchNotifications();
+
+    setInterval(fetchNotifications, 10000);
   });
 
   document.getElementById('notificationButton').addEventListener('click', async function() {
