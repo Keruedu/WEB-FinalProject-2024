@@ -41,11 +41,11 @@ app.use(
     secret: process.env.SESSION_SECRET || 'default_secret_key',
     resave: false,
     saveUninitialized: false,
-    cookie: { maxAge: 3600000 },
+    cookie: { maxAge: 6 * 60 * 60 * 1000 }, // 6 hours
   })
 );
 app.use(passport.initialize());
-app.use(passport.session());
+app.use(passport.session());  
 app.use(flash());
 
 app.use(async (req, res, next) => {

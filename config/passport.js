@@ -22,7 +22,7 @@ passport.use(
         if (!isMatch) {
           return done(null, false, { message: 'Incorrect password.' });
         }
-        // Kiểm tra user có bị banned không
+        // Check if user is banned
         if (user.isBanned) {
           return done(null, false, { message: 'Your account has been banned.' });
         }
@@ -45,13 +45,23 @@ passport.use(
       try {
         let user = await User.findOne({ googleId: profile.id });
         if (!user) {
-          user = new User({
-            googleId: profile.id,
-            username: profile.displayName,
-            fullName: profile.displayName,
-            email: profile.emails[0].value
-          });
-          await user.save();
+          // Check if a user with the same email already exists and is an OAuth account
+          user = await User.findOne({ email: profile.emails[0].value, isOauthAccount: true });
+          if (user) {
+            // Link the Google account to the existing user
+            user.googleId = profile.id;
+            await user.save();
+          } else {
+            // Create a new user if no existing user is found
+            user = new User({
+              googleId: profile.id,
+              username: profile.displayName,
+              fullName: profile.displayName,
+              email: profile.emails[0].value,
+              isOauthAccount: true
+            });
+            await user.save();
+          }
         }
         return done(null, user);
       } catch (err) {

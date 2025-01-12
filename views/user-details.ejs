@@ -256,7 +256,7 @@
       document.addEventListener('DOMContentLoaded', function () {
         const followButton = document.getElementById('followButton');
         const editProfileButton = document.getElementById('editProfileButton');
-        const userId = '<%= user ? user._id : '' %>';
+        const userId = "<%= user ? user._id : '' %>";
         const followUserId = '<%= userDetails._id %>';
 
         if (userId === followUserId) {
@@ -268,7 +268,7 @@
 
       document.getElementById('followButton').addEventListener('click', function () {
         const followButton = this;
-        const userId = '<%= user ? user._id : '' %>';
+        const userId = "<%= user ? user._id : '' %>";
         const followUserId = '<%= userDetails._id %>';
 
         if (userId === '') {
