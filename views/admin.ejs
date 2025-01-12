@@ -12,7 +12,6 @@
   <link rel="stylesheet" href="/css/animate.css" />
   <link rel="stylesheet" href="/css/tailwind.css" />
   <script src="/js/wow.min.js"></script>
-  <script src="/js/main.js"></script>
   <script>
     new WOW().init();
   </script>
@@ -20,7 +19,7 @@
 <body>
   <%- include('partials/navbar') %>
 
-  <section class="pt-[150px] pb-[120px] dark:bg-dark">
+  <section class="pt-[150px] pb-[120px]">
     <div class="container px-4 mx-auto">
       <div class="wow fadeInUp" data-wow-delay=".2s">
         <div class="-mx-4 flex flex-wrap">
@@ -51,18 +50,33 @@
             </div>
           </a>
 
-          <!-- Approve Blog Card -->
           <a href="/admin/blogs" class="block p-6 bg-white dark:bg-dark-2 rounded-lg shadow-md hover:shadow-lg transition-all duration-300">
             <div class="flex items-center space-x-4">
               <div class="p-3 rounded-lg">
-                <svg class="w-8 h-8 text-gray-700 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                        d="M5 13l4 4L19 7"/>
+                <svg class="w-8 h-10 text-gray-700 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" 
+                  d="M18.303,4.742l-1.454-1.455c-0.171-0.171-0.475-0.171-0.646,0l-3.061,3.064H2.019c-0.251,0-0.457,0.205-0.457,0.456v9.578c0,0.251,0.206,0.456,0.457,0.456h13.683c0.252,0,0.457-0.205,0.457-0.456V7.533l2.144-2.146C18.481,5.208,18.483,4.917,18.303,4.742 M15.258,15.929H2.476V7.263h9.754L9.695,9.792c-0.057,0.057-0.101,0.13-0.119,0.212L9.18,11.36h-3.98c-0.251,0-0.457,0.205-0.457,0.456c0,0.253,0.205,0.456,0.457,0.456h4.336c0.023,0,0.899,0.02,1.498-0.127c0.312-0.077,0.55-0.137,0.55-0.137c0.08-0.018,0.155-0.059,0.212-0.118l3.463-3.443V15.929z M11.241,11.156l-1.078,0.267l0.267-1.076l6.097-6.091l0.808,0.808L11.241,11.156z"/>
                 </svg>
               </div>
               <div>
                 <h3 class="text-xl font-semibold text-dark dark:text-white">Approve Blogs</h3>
                 <p class="mt-2 text-gray-600 dark:text-gray-400">Approve or reject pending blog posts</p>
+              </div>
+            </div>
+          </a>
+
+          <!-- Categories & Tags Management Card -->
+          <a href="/admin/categories-tags" class="block p-6 bg-white dark:bg-dark-2 rounded-lg shadow-md hover:shadow-lg transition-all duration-300">
+            <div class="flex items-center space-x-4">
+              <div class="p-3 rounded-lg">
+                <svg class="w-8 h-8 text-gray-700 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                        d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A2 2 0 013 12V7a4 4 0 014-4z"/>
+                </svg>
+              </div>
+              <div>
+                <h3 class="text-xl font-semibold text-dark dark:text-white">Categories & Tags</h3>
+                <p class="mt-2 text-gray-600 dark:text-gray-400">Manage post categories and tags</p>
               </div>
             </div>
           </a>
@@ -72,14 +86,6 @@
     </div>
   </section>
 
-    <!-- ====== Back To Top Start -->
-    <a href="javascript:void(0)"
-    class="back-to-top fixed bottom-8 right-8 left-auto z-[999] hidden h-10 w-10 items-center justify-center rounded-md bg-primary text-white shadow-md transition duration-300 ease-in-out hover:bg-dark">
-    <span class="mt-[6px] h-3 w-3 rotate-45 border-t border-l border-white"></span>
-  </a>
-  <!-- ====== Back To Top End -->
-
   <%- include('partials/footer') %>
-  <script src="/js/main.js"></script>
 </body>
-</html>
+</html> 

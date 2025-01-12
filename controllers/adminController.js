@@ -2,6 +2,9 @@ const User = require('../models/user');
 const PaginationService = require('../service/paginationService');
 const blogService = require('../service/blogService');
 const { ITEMS_PER_PAGE } = require('../utils/constants');
+const Category = require('../models/category');
+const Tag = require('../models/tag');
+const Blog = require('../models/blog');
 
 // Trang admin dashboard
 exports.getAdminPage = async (req, res) => {
@@ -162,5 +165,196 @@ exports.changeBlogStatus = async (req, res) => {
   } catch (error) {
     console.error('Error changing blog status:', error);
     res.status(500).json({ message: 'Internal Server Error', error: error.message });
+  }
+}
+
+exports.getCategoriesAndTags = async (req, res) => {
+  try {
+    // Categories - sắp xếp theo tên và Uncategorized xuống cuối
+    const categories = await Category.aggregate([
+      {
+        $lookup: {
+          from: 'blogs',
+          localField: '_id',
+          foreignField: 'category',
+          as: 'blogs'
+        }
+      },
+      {
+        $project: {
+          name: 1,
+          blogs: 1,
+          blogsCount: { $size: '$blogs' },
+          sortName: { $toLower: '$name' },
+          isUncategorized: {
+            $cond: { 
+              if: { $eq: ['$name', 'Uncategorized'] }, 
+              then: 1, 
+              else: 0 
+            }
+          }
+        }
+      },
+      {
+        $sort: { 
+          isUncategorized: 1,  // Uncategorized xuống cuối
+          sortName: 1          // Sắp xếp theo tên (case-insensitive)
+        }
+      }
+    ]);
+
+    // Tags - chỉ sắp xếp theo tên
+    const tags = await Tag.aggregate([
+      {
+        $lookup: {
+          from: 'blogs',
+          localField: '_id',
+          foreignField: 'tags',
+          as: 'blogs'
+        }
+      },
+      {
+        $project: {
+          name: 1,
+          blogs: 1,
+          blogsCount: { $size: '$blogs' },
+          sortName: { $toLower: '$name' }
+        }
+      },
+      {
+        $sort: { 
+          sortName: 1  // Chỉ sắp xếp theo tên (case-insensitive)
+        }
+      }
+    ]);
+
+    res.render('admin-categoriesTags', {
+      title: 'Categories & Tags Management',
+      categories,
+      tags,
+      categoriesCount: categories.length,
+      tagsCount: tags.length
+    });
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).send('Server error');
+  }
+};
+
+exports.deleteCategory = async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    // Tìm hoặc tạo category Uncategorized
+    let uncategorized = await Category.findOne({ name: 'Uncategorized' });
+    if (!uncategorized) {
+      uncategorized = await Category.create({ name: 'Uncategorized' });
+    }
+
+    // Cập nhật tất cả blogs từ category bị xóa sang Uncategorized
+    await Blog.updateMany(
+      { category: id },
+      { category: uncategorized._id }
+    );
+
+    // Xóa category
+    await Category.findByIdAndDelete(id);
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+};
+
+exports.deleteTag = async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    // Xóa tag khỏi tất cả blogs
+    await Blog.updateMany(
+      { tags: id },
+      { $pull: { tags: id } }
+    );
+
+    // Xóa tag
+    await Tag.findByIdAndDelete(id);
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+};
+
+exports.createCategory = async (req, res) => {
+  try {
+    const { name } = req.body;
+
+    // Kiểm tra tên category
+    if (!name || name.trim().length === 0) {
+      return res.status(400).json({ error: 'Category name is required' });
+    }
+
+    // Kiểm tra category đã tồn tại
+    const existingCategory = await Category.findOne({ 
+      name: { $regex: new RegExp(`^${name.trim()}$`, 'i') }  // Case insensitive
+    });
+    
+    if (existingCategory) {
+      return res.status(400).json({ error: 'Category already exists' });
+    }
+
+    // Tạo category mới
+    const category = await Category.create({ name: name.trim() });
+    
+    // Đảm bảo trả về JSON
+    return res.json({ 
+      success: true,
+      category: {
+        id: category._id,
+        name: category.name
+      }
+    });
+
+  } catch (error) {
+    console.error('Create category error:', error);
+    return res.status(500).json({ error: 'Failed to create category' });
+  }
+};
+
+exports.createTag = async (req, res) => {
+  try {
+    const { name } = req.body;
+
+    // Kiểm tra tên tag
+    if (!name || name.trim().length === 0) {
+      return res.status(400).json({ error: 'Tag name is required' });
+    }
+
+    // Kiểm tra tag đã tồn tại
+    const existingTag = await Tag.findOne({ 
+      name: { $regex: new RegExp(`^${name.trim()}$`, 'i') }  // Case insensitive
+    });
+    
+    if (existingTag) {
+      return res.status(400).json({ error: 'Tag already exists' });
+    }
+
+    // Tạo tag mới
+    const tag = await Tag.create({ name: name.trim() });
+    
+    // Đảm bảo trả về JSON
+    return res.json({ 
+      success: true,
+      tag: {
+        id: tag._id,
+        name: tag.name
+      }
+    });
+
+  } catch (error) {
+    console.error('Create tag error:', error);
+    return res.status(500).json({ error: 'Failed to create tag' });
   }
 };

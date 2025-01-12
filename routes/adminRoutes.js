@@ -8,6 +8,12 @@ router.get('/api/users', ensureAuthenticated, ensureAdmin, adminController.getUs
 // Thêm route mới cho user details
 router.get('/admin/users/:id', ensureAuthenticated, ensureAdmin, adminController.getUserDetails);
 router.put('/api/users/:id/ban', ensureAuthenticated, ensureAdmin, adminController.toggleUserBan);
+// Categories & Tags routes
+router.get('/admin/categories-tags', ensureAuthenticated, ensureAdmin, adminController.getCategoriesAndTags);
+router.delete('/api/categories/:id', ensureAuthenticated, ensureAdmin, adminController.deleteCategory);
+router.delete('/api/tags/:id', ensureAuthenticated, ensureAdmin, adminController.deleteTag);
+router.post('/api/categories', ensureAuthenticated, ensureAdmin, adminController.createCategory);
+router.post('/api/tags', ensureAuthenticated, ensureAdmin, adminController.createTag);
 
 router.get('/admin/blogs', ensureAuthenticated, ensureAdmin, adminController.getBlogs);
 router.post('/admin/blogs/change-status', ensureAuthenticated, ensureAdmin, adminController.changeStatusBlogs);
