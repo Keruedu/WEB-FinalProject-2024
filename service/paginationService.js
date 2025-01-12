@@ -7,23 +7,41 @@ class PaginationService {
       filterField = 'username',
       selectFields = '',
       sortField = 'username',
-      sortOrder = 'asc'  // 'asc' hoặc 'desc'
+      sortOrder = 'asc',
+      query = {},
+      populate = null
     } = options;
 
     try {
-      let query = {};
+      let baseQuery = model.find(query);
+
       if (searchQuery && filterField) {
-        query[filterField] = { $regex: searchQuery, $options: 'i' };
+        const searchCondition = {};
+        searchCondition[filterField] = { $regex: searchQuery, $options: 'i' };
+        baseQuery = baseQuery.find(searchCondition);
       }
 
-      const sortBy = {};
-      sortBy[sortField] = sortOrder === 'asc' ? 1 : -1;
+      if (selectFields) {
+        baseQuery = baseQuery.select(selectFields);
+      }
+
+      if (populate) {
+        if (Array.isArray(populate)) {
+          populate.forEach(p => {
+            baseQuery = baseQuery.populate(p);
+          });
+        } else {
+          baseQuery = baseQuery.populate(populate);
+        }
+      }
 
       const totalItems = await model.countDocuments(query);
       const lastPage = Math.ceil(totalItems / perPage);
       
-      const items = await model.find(query)
-        .select(selectFields)
+      const sortBy = {};
+      sortBy[sortField] = sortOrder === 'asc' ? 1 : -1;
+
+      const items = await baseQuery
         .sort(sortBy)
         .skip((page - 1) * perPage)
         .limit(perPage);

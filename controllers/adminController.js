@@ -3,6 +3,8 @@ const PaginationService = require('../service/paginationService');
 const Category = require('../models/category');
 const Tag = require('../models/tag');
 const Blog = require('../models/blog');
+const Order = require('../models/order');
+const SubscriptionPlan = require('../models/subscriptionPlan');
 
 // Trang admin dashboard
 exports.getAdminPage = async (req, res) => {
@@ -30,7 +32,7 @@ exports.getUsersList = async (req, res) => {
   try {
     const result = await PaginationService.paginate(User, {
       page: parseInt(req.query.page) || 1,
-      perPage: 3,
+      perPage: 10,
       searchQuery: req.query.search || '',
       filterField: req.query.filterType || 'username',
       selectFields: 'username email fullName role isPremium isBanned createdAt',
@@ -277,5 +279,137 @@ exports.createTag = async (req, res) => {
   } catch (error) {
     console.error('Create tag error:', error);
     return res.status(500).json({ error: 'Failed to create tag' });
+  }
+};
+
+exports.getOrdersManagement = (req, res) => {
+  res.render('admin-ordersManagement', {
+    title: 'Premium Orders Management'
+  });
+};
+
+exports.getOrders = async (req, res) => {
+  try {
+    const { 
+      page = 1, 
+      perPage = 10, 
+      sortOrder = 'desc', 
+      planType = '' 
+    } = req.query;
+    
+    let query = {};
+    
+    if (planType) {
+      const subscriptionPlans = await SubscriptionPlan.find({ 
+        billingCycle: { $regex: new RegExp(planType, 'i') } 
+      });
+      
+      query.subscriptionPlan = { 
+        $in: subscriptionPlans.map(plan => plan._id) 
+      };
+    }
+
+    const result = await PaginationService.paginate(Order, {
+      page: parseInt(page),
+      perPage: parseInt(perPage),
+      query: query,
+      sortField: 'createdAt',
+      sortOrder: sortOrder,
+      populate: [
+        { path: 'user', select: 'fullName email' },
+        { path: 'subscriptionPlan', select: 'name price billingCycle' }
+      ]
+    });
+
+    res.json({
+      success: true,
+      orders: result.items,
+      pagination: result.pagination
+    });
+  } catch (error) {
+    console.error('Error in getOrders:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+};
+
+exports.getOrderDetails = async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.orderId)
+      .populate('user', 'fullName email')
+      .populate('subscriptionPlan', 'name price billingCycle features');
+      
+    if (!order) {
+      return res.status(404).send('Order not found');
+    }
+
+    res.render('admin-orderDetails', {
+      title: 'Order Details',
+      order: {
+        id: order._id,
+        createdAt: order.createdAt,
+        status: order.status,
+        paymentMethod: order.paymentMethod,
+        amount: order.totalAmount,
+        note: order.note,
+        user: {
+          name: order.user.fullName,
+          email: order.user.email
+        },
+        plan: {
+          name: order.subscriptionPlan.name,
+          type: order.subscriptionPlan.billingCycle,
+          price: order.subscriptionPlan.price,
+          features: order.subscriptionPlan.features
+        }
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching order details:', error);
+    res.status(500).send('Error fetching order details');
+  }
+};
+
+exports.addOrderNote = async (req, res) => {
+  try {
+    const { orderId } = req.params;
+    const { note } = req.body;
+
+    const updatedOrder = await Order.findByIdAndUpdate(
+      orderId,
+      { $set: { note: note } },
+      { new: true }
+    ).populate('user', 'username email fullName')
+     .populate('subscriptionPlan', 'name price billingCycle');
+
+    if (!updatedOrder) {
+      return res.status(404).json({ success: false, message: 'Order not found' });
+    }
+
+    res.json({ success: true, order: updatedOrder });
+  } catch (error) {
+    console.error('Error adding note:', error);
+    res.status(500).json({ success: false, message: 'Failed to add note' });
+  }
+};
+
+exports.updateOrderNote = async (req, res) => {
+  try {
+    const { orderId } = req.params;
+    const { note } = req.body;
+
+    const updatedOrder = await Order.findByIdAndUpdate(
+      orderId,
+      { note: note },
+      { new: true }
+    );
+
+    if (!updatedOrder) {
+      return res.status(404).json({ success: false, error: 'Order not found' });
+    }
+
+    res.json({ success: true, order: updatedOrder });
+  } catch (error) {
+    console.error('Error updating note:', error);
+    res.status(500).json({ success: false, error: error.message });
   }
 };

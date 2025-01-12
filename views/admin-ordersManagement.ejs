@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <link
+    rel="shortcut icon"
+    href="/images/favicon.png"
+    type="image/x-icon"
+  />
+  <link rel="stylesheet" href="/css/animate.css" />
+  <link rel="stylesheet" href="/css/tailwind.css" />
+  <script src="/js/wow.min.js"></script>
+  <script>
+    new WOW().init();
+  </script>
+</head>
+<body>
+  <%- include('partials/navbar') %>
+
+  <!-- Rest of your content -->
+  <section class="pt-[150px] pb-[120px]">
+    <div class="container px-4 mx-auto">
+      <div class="wow fadeInUp" data-wow-delay=".2s">
+        <!-- Back button -->
+        <div class="mb-6 flex items-center space-x-2">
+          <a href="/admin" 
+             class="inline-flex items-center p-1 hover:bg-gray-100 dark:hover:bg-dark-4 rounded-lg transition-colors">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+            </svg>
+            <span class="ml-2 text-gray-700 dark:text-gray-300 text-lg">
+              Back to Dashboard
+            </span>
+          </a>
+        </div>
+
+        <!-- Title and Filters Container -->
+        <div class="container mx-auto px-4 py-8 max-w-[1400px]">
+          <!-- Title -->
+          <div class="-mx-4 flex flex-wrap">
+            <div class="w-full px-4">
+              <div class="mx-auto mb-12 max-w-[600px] text-center lg:mb-20">
+                <h2 class="text-3xl font-bold leading-[1.2] text-dark dark:text-white sm:text-4xl md:text-[40px]">
+                  Premium Orders Management
+                </h2>
+              </div>
+            </div>
+          </div>
+
+          <!-- Filter Section -->
+          <div class="flex flex-wrap items-center justify-center gap-8 mb-6">
+            <!-- Sort by Date -->
+            <div class="flex items-center gap-4">
+              <label class="text-gray-600 dark:text-gray-400 min-w-[100px]">Sort by Date:</label>
+              <select id="dateSort" 
+                      onchange="applyFilters()"
+                      class="border rounded-lg pl-4 pr-8 py-2 dark:bg-dark-2 dark:border-dark-3 min-w-[250px] text-left">
+                <option value="desc">Newest First</option>
+                <option value="asc">Oldest First</option>
+              </select>
+            </div>
+
+            <!-- Plan Type Filter -->
+            <div class="flex items-center gap-4">
+              <label class="text-gray-600 dark:text-gray-400 min-w-[100px]">Plan Type:</label>
+              <select id="planFilter" 
+                      class="border rounded-lg pl-4 pr-8 py-2 dark:bg-dark-2 dark:border-dark-3 min-w-[250px] text-left">
+                <option value="">All Plans</option>
+                <option value="monthly">Monthly</option>
+                <option value="yearly">Yearly</option>
+              </select>
+            </div>
+
+            <!-- Clear Filters Button -->
+            <button onclick="clearFilters()"
+                    type="button"
+                    class="bg-primary text-white px-6 py-2 rounded-lg hover:bg-primary-dark transition-colors">
+              Clear Filters
+            </button>
+          </div>
+        </div>
+
+        <!-- Note Modal -->
+        <div id="noteModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+          <div class="bg-white dark:bg-dark-2 rounded-lg p-6 w-96">
+            <h3 class="text-lg font-semibold mb-4 dark:text-white">Add Note</h3>
+            <textarea 
+              id="noteInput"
+              class="w-full p-2 border rounded-lg mb-4 dark:bg-dark-3 dark:border-dark-4 dark:text-white" 
+              rows="4"
+              placeholder="Enter your note..."></textarea>
+            <div class="flex justify-end space-x-3">
+              <button 
+                onclick="closeNoteModal()"
+                class="px-4 py-2 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 dark:text-gray-300 dark:bg-dark-3 dark:hover:bg-dark-4">
+                Cancel
+              </button>
+              <button 
+                onclick="saveNote()"
+                class="px-4 py-2 text-white rounded-lg hover:opacity-90"
+                style="background-color: #2563eb;">
+                Save Note
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Orders Table -->
+        <div class="overflow-x-auto">
+          <table id="ordersTable" class="w-full text-left">
+            <thead>
+              <tr class="bg-gray-100 dark:bg-dark-2">
+                <th class="px-4 py-3">User</th>
+                <th class="px-4 py-3">Plan Type</th>
+                <th class="px-4 py-3">Amount</th>
+                <th class="px-4 py-3">Status</th>
+                <th class="px-4 py-3">Payment Method</th>
+                <th class="px-4 py-3">Payment Time</th>
+                <th class="px-4 py-3">Note</th>
+                <th class="px-4 py-3">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white dark:bg-dark-2">
+              <!-- Orders will be rendered here -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Empty space container -->
+        <div class="h-10"></div>
+
+        <!-- Pagination Section -->
+        <div class="flex justify-center">
+          <div class="wow fadeInUp" data-wow-delay=".2s">
+            <nav class="flex items-center">
+              <!-- Previous Button -->
+              <button 
+                onclick="changePage(currentPage - 1)"
+                class="flex items-center px-2 py-1 text-gray-600 dark:text-gray-300 hover:text-primary mr-20">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                </svg>
+                <span>Previous</span>
+              </button>
+
+              <!-- Page Info -->
+              <div class="flex items-center space-x-1">
+                <input 
+                  type="text" 
+                  id="currentPageInput"
+                  class="w-12 px-2 py-1 text-center border border-red-500 rounded-md dark:bg-dark-2"
+                  onkeydown="return event.key === 'Enter' ? handlePageInput(this.value) : !isNaN(Number(event.key)) || event.key === 'Backspace' || event.key === 'Delete'"
+                />
+                <span class="text-gray-600 dark:text-gray-300">/ <span id="totalPages">3</span></span>
+              </div>
+
+              <!-- Next Button -->
+              <button 
+                onclick="changePage(currentPage + 1)"
+                class="flex items-center px-2 py-1 text-gray-600 dark:text-gray-300 hover:text-primary ml-20">
+                <span>Next</span>
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                </svg>
+              </button>
+            </nav>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <%- include('partials/footer') %>
+
+  <script>
+    // Định nghĩa các biến global
+    const itemsPerPage = 10;
+    let currentPage = 1;
+    const defaultSort = 'desc';
+    let filters = {
+      sortOrder: 'desc',
+      planType: ''
+    };
+
+    // Thêm biến để lưu thông tin phân trang
+    let lastPage = 1;
+
+    // Hàm render orders
+    function renderOrders(ordersList) {
+      orders = ordersList; // Lưu lại danh sách orders để sử dụng sau này
+      
+      const tableBody = document.getElementById('ordersTable').getElementsByTagName('tbody')[0];
+      if (!tableBody) return;
+      
+      tableBody.innerHTML = '';
+      
+      if (!orders || orders.length === 0) {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td colspan="7" class="px-4 py-3 text-center text-gray-500 dark:text-gray-400">No orders found</td>
+        `;
+        tableBody.appendChild(row);
+        return;
+      }
+      
+      orders.forEach(order => {
+        const row = document.createElement('tr');
+        row.className = "border-b dark:border-dark-3 hover:bg-gray-50 dark:hover:bg-dark-3";
+        
+        const paymentDate = new Date(order.createdAt);
+        const formattedDate = paymentDate.toLocaleString('en-GB', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+          hour12: false
+        }).replace(',', '');
+
+        // Xử lý hiển thị note
+        const noteText = order.note ? 
+          (order.note.length > 20 ? order.note.substring(0, 20) + '...' : order.note) : 
+          '<i class="text-gray-500">empty</i>';
+
+        row.innerHTML = `
+          <td class="px-4 py-3">
+            <div class="text-sm font-medium">${order.user.fullName}</div>
+            <div class="text-xs text-gray-500">${order.user.email}</div>
+          </td>
+          <td class="px-4 py-3 text-sm">
+            <span class="px-2 py-1 text-xs font-semibold rounded-full 
+              ${order.subscriptionPlan?.billingCycle === 'Monthly' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'}">
+              ${order.subscriptionPlan ? order.subscriptionPlan.billingCycle : 'N/A'}
+            </span>
+          </td>
+          <td class="px-4 py-3 text-sm">$${order.totalAmount}</td>
+          <td class="px-4 py-3 text-sm">
+            <span class="px-2 py-1 text-xs font-semibold rounded-full 
+              ${order.status === 'paid' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
+              ${order.status}
+            </span>
+          </td>
+          <td class="px-4 py-3 text-sm capitalize">${order.paymentMethod}</td>
+          <td class="px-4 py-3 text-sm">${formattedDate}</td>
+          <td class="px-4 py-3 text-sm">
+            <div class="max-w-[200px]" title="${order.note || ''}">
+              ${noteText}
+            </div>
+          </td>
+          <td class="px-4 py-3 text-sm relative">
+            <div class="dropdown inline-block relative">
+              <button type="button"
+                      class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200" 
+                      onclick="toggleDropdown('${order._id}')">
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
+                </svg>
+              </button>
+              <div id="dropdown-${order._id}" 
+                   class="dropdown-menu hidden absolute right-0 mt-2 py-2 w-48 bg-white rounded-lg shadow-xl z-20 dark:bg-dark-2">
+                <a href="/admin/orders/${order._id}"
+                   class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-dark-3">
+                  View Details
+                </a>
+                <a href="#" 
+                   onclick="openNoteModal('${order._id}')" 
+                   class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-dark-3">
+                  Add Note
+                </a>
+              </div>
+            </div>
+          </td>
+        `;
+        tableBody.appendChild(row);
+      });
+    }
+
+    // 1. Đảm bảo event listeners chỉ được đăng ký một lần
+    document.addEventListener('DOMContentLoaded', () => {
+      // Chỉ gọi một lần khi trang load
+      applyFilters();
+      
+      // Đăng ký các event listeners
+      const dateSort = document.getElementById('dateSort');
+      const planFilter = document.getElementById('planFilter');
+      
+      // Xóa event listeners cũ (nếu có) trước khi thêm mới
+      dateSort.removeEventListener('change', applyFilters);
+      planFilter.removeEventListener('change', applyFilters);
+      
+      // Thêm event listeners mới
+      dateSort.addEventListener('change', applyFilters);
+      planFilter.addEventListener('change', applyFilters);
+    });
+
+    // 2. Thêm flag để tránh gọi nhiều lần
+    let isProcessing = false;
+
+    async function applyFilters() {
+      if (isProcessing) return;
+      isProcessing = true;
+      
+      const dateSort = document.getElementById('dateSort').value;
+      const planType = document.getElementById('planFilter').value;
+      
+      try {
+        const response = await fetch(
+          `/api/admin/orders?page=${currentPage}&perPage=${itemsPerPage}&sortOrder=${dateSort}&planType=${planType}`
+        );
+        const data = await response.json();
+        
+        if (data.success) {
+          renderOrders(data.orders);
+          if (data.pagination) {
+            lastPage = data.pagination.lastPage;
+            renderPagination({
+              currentPage: parseInt(data.pagination.currentPage) || 1,
+              lastPage: parseInt(data.pagination.lastPage) || 1,
+              hasNextPage: data.pagination.hasNextPage,
+              hasPreviousPage: data.pagination.hasPreviousPage
+            });
+          }
+        } else {
+          console.error('Failed to fetch orders:', data);
+        }
+      } catch (error) {
+        console.error('Error applying filters:', error);
+      } finally {
+        isProcessing = false;
+      }
+    }
+
+    // Hàm clear filters
+    function clearFilters() {
+      document.getElementById('dateSort').value = 'desc';
+      document.getElementById('planFilter').value = '';
+      applyFilters();
+    }
+
+    // Toggle dropdown
+    function toggleDropdown(orderId) {
+      event.stopPropagation(); // Ngăn event bubble lên parent elements
+      console.log('Toggling dropdown for order:', orderId);
+      
+      const dropdown = document.getElementById(`dropdown-${orderId}`);
+      if (!dropdown) {
+        console.error('Dropdown not found for order:', orderId);
+        return;
+      }
+      
+      // Đóng tất cả các dropdown khác
+      document.querySelectorAll('.dropdown-menu').forEach(menu => {
+        if (menu.id !== `dropdown-${orderId}`) {
+          menu.classList.add('hidden');
+        }
+      });
+      
+      // Toggle dropdown hiện tại
+      dropdown.classList.toggle('hidden');
+    }
+
+    // Đóng dropdown khi click ra ngoài
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.dropdown')) {
+        document.querySelectorAll('.dropdown-menu').forEach(menu => {
+          menu.classList.add('hidden');
+        });
+      }
+    });
+
+    // Note modal functions
+    let currentOrderId = null;
+
+    // Hàm mở modal
+    async function openNoteModal(orderId) {
+      event.preventDefault();
+      event.stopPropagation();
+      
+      currentOrderId = orderId;
+      const modal = document.getElementById('noteModal');
+      const noteInput = document.getElementById('noteInput');
+      
+      // Tìm order hiện tại để lấy note
+      const currentOrder = orders.find(order => order._id === orderId);
+      if (currentOrder) {
+        noteInput.value = currentOrder.note || '';
+      }
+      
+      // Hiển thị modal
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      
+      // Focus vào textarea
+      noteInput.focus();
+      
+      // Đóng dropdown
+      document.querySelectorAll('.dropdown-menu').forEach(menu => {
+        menu.classList.add('hidden');
+      });
+    }
+
+    // Hàm đóng modal
+    function closeNoteModal() {
+      const modal = document.getElementById('noteModal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+      currentOrderId = null;
+    }
+
+    // Hàm lưu note
+    async function saveNote() {
+      if (!currentOrderId) return;
+      
+      const noteInput = document.getElementById('noteInput');
+      const note = noteInput.value.trim();
+      
+      if (!note) return;
+      
+      try {
+        const response = await fetch(`/api/admin/orders/${currentOrderId}/note`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ note })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          closeNoteModal();
+          // Reload dữ liệu
+          await applyFilters();
+        } else {
+          throw new Error(data.error || 'Failed to save note');
+        }
+      } catch (error) {
+        console.error('Error saving note:', error);
+        alert('Failed to save note: ' + error.message);
+      }
+    }
+
+    // Thêm event listeners khi document load
+    document.addEventListener('DOMContentLoaded', function() {
+      // Lắng nghe sự kiện click nút Save Note
+      document.getElementById('saveNoteBtn').addEventListener('click', saveNote);
+      
+      // Đóng modal khi click ra ngoài
+      document.getElementById('noteModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+          closeNoteModal();
+        }
+      });
+    });
+
+    function changePage(page) {
+      // Kiểm tra giới hạn trang
+      if (page < 1 || page > lastPage) return;
+      
+      currentPage = page;
+      applyFilters();
+    }
+
+    function renderPagination(pagination) {
+      console.log('Rendering pagination with data:', pagination); // Debug
+      
+      const currentPageInput = document.getElementById('currentPageInput');
+      const totalPages = document.getElementById('totalPages');
+      
+      if (!currentPageInput || !totalPages) {
+        console.error('Pagination elements not found'); // Debug
+        return;
+      }
+      
+      // Đảm bảo các giá trị là số hợp lệ
+      const currentPage = parseInt(pagination.currentPage) || 1;
+      const lastPageNum = parseInt(pagination.lastPage) || 1;
+      
+      console.log('Setting values:', { currentPage, lastPageNum }); // Debug
+      
+      currentPageInput.value = currentPage;
+      totalPages.textContent = lastPageNum;
+      
+      // Cập nhật min/max
+      currentPageInput.min = 1;
+      currentPageInput.max = lastPageNum;
+      
+      const prevBtn = document.querySelector('nav button:first-child');
+      const nextBtn = document.querySelector('nav button:last-child');
+      
+      if (prevBtn && nextBtn) {
+        prevBtn.disabled = !pagination.hasPreviousPage;
+        nextBtn.disabled = !pagination.hasNextPage;
+        
+        [prevBtn, nextBtn].forEach(btn => {
+          btn.classList.toggle('opacity-50', btn.disabled);
+          btn.classList.toggle('cursor-not-allowed', btn.disabled);
+        });
+      }
+    }
+
+    // Xử lý input trang thủ công
+    document.getElementById('currentPageInput').addEventListener('change', function(e) {
+      const page = parseInt(e.target.value);
+      if (page >= 1 && page <= lastPage && page !== currentPage) {
+        changePage(page);
+      } else {
+        e.target.value = currentPage; // Reset về trang hiện tại nếu input không hợp lệ
+      }
+    });
+
+    // Xử lý khi thay đổi sort
+    document.getElementById('dateSort').addEventListener('change', function() {
+      currentPage = 1; // Reset về trang 1
+      const planType = document.getElementById('planFilter').value;
+      //loadOrders(currentPage, this.value, planType);
+    });
+
+    // Xử lý khi thay đổi plan type
+    document.getElementById('planFilter').addEventListener('change', function() {
+      console.log('Plan type changed to:', this.value);
+      applyFilters();
+    });
+
+    // Giữ nguyên hàm updateNote
+    async function updateNote(orderId, note) {
+      try {
+        const response = await fetch(`/api/admin/orders/${orderId}/note`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ note })
+        });
+        
+        if (!response.ok) {
+          throw new Error('Failed to update note');
+        }
+        
+        const data = await response.json();
+        if (data.success) {
+          // Có thể thêm thông báo success nếu cần
+          console.log('Note updated successfully');
+        }
+      } catch (error) {
+        console.error('Error updating note:', error);
+        // Có thể thêm thông báo error nếu cần
+      }
+    }
+
+    // View order details
+    function viewOrderDetails(orderId) {
+      event.preventDefault();
+      event.stopPropagation();
+      // Sửa lại URL để match với route
+      window.location.href = `/admin/orders/${orderId}`;
+    }
+
+    // Close dropdowns when clicking outside
+    document.addEventListener('click', function(event) {
+      if (!event.target.closest('.dropdown')) {
+        document.querySelectorAll('.dropdown-menu').forEach(menu => {
+          menu.classList.add('hidden');
+        });
+      }
+    });
+
+    // Thêm styles cho dropdown
+    const style = document.createElement('style');
+    style.textContent = `
+      .dropdown-menu {
+        min-width: 120px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        z-index: 1000;
+      }
+      
+      .dropdown {
+        position: relative;
+      }
+    `;
+    document.head.appendChild(style);
+  </script>
+
+  <style>
+    .dropdown-menu {
+      min-width: 120px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+  </style>
+</body>
+</html> 

@@ -24,6 +24,10 @@ const orderSchema = new mongoose.Schema({
       type: String,
       enum: ['momo', 'vnpay'],
       required: true
+    },
+    note: {
+      type: String,
+      default: ''
     }
   }, { timestamps: true });
 
