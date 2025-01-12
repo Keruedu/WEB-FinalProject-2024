@@ -74,7 +74,7 @@
 
               <li class="submenu-item group relative">
                 <a href="javascript:void(0)"
-                  class="relative mx-8 flex items-center justify-between py-2 text-base font-medium text-dark group-hover:text-primary dark:text-white lg:ml-8 lg:mr-0 lg:inline-flex lg:py-6 lg:pl-0 lg:pr-4 lg:text-white lg:group-hover:text-white lg:group-hover:opacity-70 xl:ml-10">
+                  class="relative mx-8 flex items-center justify-between py-2 text-base font-medium text-dark group-hover:text-primary dark:text-white lg:ml-8 lg:mr-0 lg:inline-flex lg:py-6 lg:pl-0 lg:pr-4 lg:group-hover:text-white lg:group-hover:opacity-70 xl:ml-10">
                   Pages
 
                   <svg class="ml-2 fill-current" width="16" height="20" viewBox="0 0 16 20" fill="none"
@@ -150,7 +150,7 @@
           <label for="themeSwitcher" class="inline-flex cursor-pointer items-center" aria-label="themeSwitcher"
             name="themeSwitcher">
             <input type="checkbox" name="themeSwitcher" id="themeSwitcher" class="sr-only" />
-            <span class="block text-white dark:hidden">
+            <span class="block dark:text-white dark:hidden">
               <svg class="fill-current" width="24" height="24" viewBox="0 0 24 24" fill="none"
                 xmlns="http://www.w3.org/2000/svg">
                 <path
@@ -256,15 +256,15 @@
                 <a href="/user/<%= user.id %>"
                   class="block px-4 py-2 text-gray-800 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700">Profile</a>
                 <a href="/logout"
-                  class="w-full text-center px-[22px] py-2 text-base font-bold hover:text-primary items-center justify-center rounded-md bg-primary text-white shadow-md transition duration-150 ease-in-out hover:bg-white">Logout</a>
+                  class="w-full text-center px-[22px] py-2 text-base font-bold hover:text-primary items-center justify-center rounded-md bg-primary text-white shadow-md transition duration-150 ease-in-out dark:hover:bg-white">Logout</a>
               </div>
             </div>
             <% } else { %>
-              <a href="/signin" class="loginBtn px-[22px] py-2 text-base font-medium text-white hover:opacity-70">
+              <a href="/signin" class="loginBtn px-[22px] py-2 text-base font-medium dark:text-white hover:opacity-70">
                 Sign In
               </a>
               <a href="/signup"
-                class="signUpBtn rounded-md bg-white bg-opacity-20 px-6 py-2 text-base font-medium text-white duration-300 ease-in-out hover:bg-opacity-100 hover:text-dark">
+                class="signUpBtn rounded-md bg-white bg-opacity-20 px-6 py-2 text-base font-medium dark:text-white duration-300 ease-in-out hover:bg-opacity-100 dark:hover:text-dark">
                 Sign Up
               </a>
               <% } %>

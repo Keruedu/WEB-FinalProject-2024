@@ -22,10 +22,16 @@ const getBlogsHandler = async (req, userId, bookmarked) => {
     const query = await buildBlogQuery({ search, category, tags, timeRange, userId, bookmarked, status: status === 'All' ? undefined : status });
 
     // Determine sort order
-    const sort =
-      filter === 'latest' ? { createdAt: -1 } :
+    let sort = {};
+    if (req.user && req.user.isPremiumActive()) {
+      sort = { isPremium: -1 }; // Ưu tiên bài viết premium lên đầu
+    }
+    sort = {
+      ...sort,
+      ...(filter === 'latest' ? { createdAt: -1 } :
       filter === 'oldest' ? { createdAt: 1 } :
-      filter === 'popular' ? { views: -1 } : {};
+      filter === 'popular' ? { views: -1 } : {})
+    };
 
     // Fetch paginated and sorted blogs
     const { blogs, totalBlogs } = await paginateAndSortBlogs(query, page, sort, ITEMS_PER_PAGE);
@@ -88,6 +94,23 @@ const renderPaginationHtml = async (page, totalBlogs, url) => {
     console.error('Error rendering paginationHtml:', err);
     throw err;
   }
+};
+
+const getBlogById = async (blogId) => {
+  await Blog.findByIdAndUpdate(blogId, { $inc: { views: 1 } });
+  const blog = await Blog.findById(blogId)
+    .populate('author')
+    .populate('category')
+    .populate('tags');
+
+  const relatedBlogs = await Blog.find({
+    tags: { $in: blog.tags },
+    _id: { $ne: blogId }
+  }).limit(3).populate('category');
+
+  const commentCount = await Comment.countDocuments({ blog: blogId });
+
+  return { blog, relatedBlogs, commentCount };
 };
 
 const createBlog = async (req, session) => {
@@ -361,6 +384,7 @@ module.exports = {
   getBlogsHandler,
   renderBlogsHtml,
   renderPaginationHtml,
+  getBlogById,
   createBlog,
   updateBlog,
   deleteBlogs,

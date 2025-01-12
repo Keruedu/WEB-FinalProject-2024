@@ -38,57 +38,60 @@ function updateBlogLinksAndStatus() {
     }
   }
   
-  function attachBookmarkEvents() {
-    const bookmarkButtons = document.querySelectorAll('.bookmarkButton');
-  
-    bookmarkButtons.forEach(button => {
-      button.addEventListener('click', function() {
-        const blogId = this.getAttribute('data-blog-id');
-        const isBookmarked = this.classList.contains('bg-primary');
-        const url = isBookmarked ? `/bookmark/${blogId}` : `/bookmark/${blogId}`;
-        const method = isBookmarked ? 'DELETE' : 'POST';
-  
-        $.ajax({
-          url: url,
-          method: method,
-          success: function(response) {
-            if (response.success) {
-              if (isBookmarked) {
-                button.classList.remove('bg-primary');
-              } else {
-                button.classList.add('bg-primary');
-              }
-            } else {
-              Swal.fire({
-                icon: 'error',
-                title: 'Oops...',
-                text: response.message,
-                customClass: {
-                  popup: 'bg-[#F4F7FF] dark:bg-gray-800 text-[#333] dark:text-gray-200',
-                  title: 'text-[#1a202c] dark:text-gray-100',
-                  confirmButton: 'bg-[#1a202c] text-white dark:bg-gray-700',
-                  cancelButton: 'bg-[#e53e3e] text-white dark:bg-red-600'
-                }
-              });
-            }
-          },
-          error: function(xhr) {
-            Swal.fire({
-              icon: 'error',
-              title: 'Oops...',
-              text: xhr.responseJSON.message,
-              customClass: {
-                popup: 'bg-[#F4F7FF] dark:bg-gray-800 text-[#333] dark:text-gray-200',
-                title: 'text-[#1a202c] dark:text-gray-100',
-                confirmButton: 'bg-[#1a202c] text-white dark:bg-gray-700',
-                cancelButton: 'bg-[#e53e3e] text-white dark:bg-red-600'
-              }
-            });
+function attachBookmarkEvents() {
+  const bookmarkButtons = document.querySelectorAll('.bookmarkButton');
+
+  bookmarkButtons.forEach(button => {
+    button.removeEventListener('click', bookmarkEventHandler); // Remove existing event listener
+    button.addEventListener('click', bookmarkEventHandler); // Add new event listener
+  });
+}
+
+function bookmarkEventHandler() {
+  const blogId = this.getAttribute('data-blog-id');
+  const isBookmarked = this.classList.contains('bg-primary');
+  const url = isBookmarked ? `/bookmark/${blogId}` : `/bookmark/${blogId}`;
+  const method = isBookmarked ? 'DELETE' : 'POST';
+
+  $.ajax({
+    url: url,
+    method: method,
+    success: function(response) {
+      if (response.success) {
+        if (isBookmarked) {
+          this.classList.remove('bg-primary');
+        } else {
+          this.classList.add('bg-primary');
+        }
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Oops...',
+          text: response.message,
+          customClass: {
+            popup: 'bg-[#F4F7FF] dark:bg-gray-800 text-[#333] dark:text-gray-200',
+            title: 'text-[#1a202c] dark:text-gray-100',
+            confirmButton: 'bg-[#1a202c] text-white dark:bg-gray-700',
+            cancelButton: 'bg-[#e53e3e] text-white dark:bg-red-600'
           }
         });
+      }
+    }.bind(this), // Bind 'this' to the success callback
+    error: function(xhr) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Oops...',
+        text: xhr.responseJSON.message,
+        customClass: {
+          popup: 'bg-[#F4F7FF] dark:bg-gray-800 text-[#333] dark:text-gray-200',
+          title: 'text-[#1a202c] dark:text-gray-100',
+          confirmButton: 'bg-[#1a202c] text-white dark:bg-gray-700',
+          cancelButton: 'bg-[#e53e3e] text-white dark:bg-red-600'
+        }
       });
-    });
-  }
+    }
+  });
+}
   
   function handleSearchFormSubmit(event) {
     event.preventDefault(); // Ngăn hành vi mặc định của form
