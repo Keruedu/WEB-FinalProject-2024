@@ -25,7 +25,7 @@
         <!-- Back button -->
         <div class="mb-6 flex items-center space-x-2">
           <a href="/admin/orders" 
-             class="inline-flex items-center p-1 hover:bg-gray-100 dark:hover:bg-dark-4 rounded-lg transition-colors">
+             class="inline-flex items-center p-2 hover:bg-gray-100 dark:hover:bg-dark-4 rounded-lg transition-colors">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
             </svg>
@@ -35,86 +35,122 @@
           </a>
         </div>
 
-        <!-- Order Details -->
-        <div class="bg-white dark:bg-dark-2 rounded-lg shadow-md p-6">
-          <h1 class="text-2xl font-bold text-dark dark:text-white mb-6">Order Details</h1>
+        <!-- Order Details Card -->
+        <div class="max-w-5xl mx-auto bg-white dark:bg-dark-2 rounded-xl shadow-lg overflow-hidden">
+          <!-- Header -->
+          <div class="px-8 py-6 bg-gray-50 dark:bg-dark-3 border-b border-gray-200 dark:border-dark-4">
+            <div class="flex justify-between items-center">
+              <h1 class="text-2xl font-bold text-gray-800 dark:text-white">Order Details</h1>
+              <span class="px-4 py-2 rounded-full text-sm font-semibold
+                <%= order.status === 'paid' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 
+                   order.status === 'pending' ? 'bg-yellow-100 dark:text-yellow-200' : 
+                   'bg-red-100 dark:text-red-200' %>">
+                <%= order.status.toUpperCase() %>
+              </span>
+            </div>
+          </div>
           
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <!-- Order Info -->
-            <div>
-              <h2 class="text-lg font-semibold text-dark dark:text-white mb-4">Order Information</h2>
-              <div class="space-y-3">
-                <p class="text-gray-600 dark:text-gray-400">
-                  <span class="font-medium">Order ID:</span> <%= order.id %>
-                </p>
-                <p class="text-gray-600 dark:text-gray-400">
-                  <span class="font-medium">Date:</span> 
-                  <%= new Date(order.createdAt).toLocaleString('vi-VN') %>
-                </p>
-                <p class="text-gray-600 dark:text-gray-400">
-                  <span class="font-medium">Status:</span>
-                  <span class="px-2 ml-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                    <%= order.status === 'paid' ? 'bg-green-100 text-green-800' : 
-                       order.status === 'pending' ? 'bg-yellow-100 text-yellow-800' : 
-                       'bg-red-100 text-red-800' %>">
-                    <%= order.status.toUpperCase() %>
-                  </span>
-                </p>
-                <p class="text-gray-600 dark:text-gray-400">
-                  <span class="font-medium">Payment Method:</span> 
-                  <%= order.paymentMethod.toUpperCase() %>
-                </p>
-                <p class="text-gray-600 dark:text-gray-400">
-                  <span class="font-medium">Amount:</span> 
-                  <%= order.amount.toLocaleString('en-US') %> USD
-                </p>
-              </div>
-            </div>
+          <div class="p-8">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <!-- Left Column -->
+              <div class="space-y-8">
+                <!-- Order Info -->
+                <div class="bg-gray-50 dark:bg-dark-3 rounded-lg p-6">
+                  <h2 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">
+                    Order Information
+                  </h2>
+                  <div class="space-y-4">
+                    <div class="flex justify-between items-center">
+                      <span class="text-gray-600 dark:text-gray-400">Order ID</span>
+                      <span class="font-medium text-gray-800 dark:text-white"><%= order.id %></span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                      <span class="text-gray-600 dark:text-gray-400">Date</span>
+                      <span class="font-medium text-gray-800 dark:text-white">
+                        <%= new Date(order.createdAt).toLocaleString('vi-VN') %>
+                      </span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                      <span class="text-gray-600 dark:text-gray-400">Payment Method</span>
+                      <span class="font-medium text-gray-800 dark:text-white">
+                        <%= order.paymentMethod.toUpperCase() %>
+                      </span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                      <span class="text-gray-600 dark:text-gray-400">Amount</span>
+                      <span class="font-medium text-primary dark:text-primary-light">
+                        <%= order.amount.toLocaleString('en-US') %> USD
+                      </span>
+                    </div>
+                  </div>
+                </div>
 
-            <!-- Customer Info -->
-            <div>
-              <h2 class="text-lg font-semibold text-dark dark:text-white mb-4">Customer Information</h2>
-              <div class="space-y-3">
-                <p class="text-gray-600 dark:text-gray-400">
-                  <span class="font-medium">Name:</span> <%= order.user.name %>
-                </p>
-                <p class="text-gray-600 dark:text-gray-400">
-                  <span class="font-medium">Email:</span> <%= order.user.email %>
-                </p>
-              </div>
-            </div>
-
-            <!-- Plan Info -->
-            <div class="md:col-span-2">
-              <h2 class="text-lg font-semibold text-dark dark:text-white mb-4">Subscription Plan</h2>
-              <div class="space-y-3">
-                <p class="text-gray-600 dark:text-gray-400">
-                  <span class="font-medium">Plan Name:</span> <%= order.plan.name %>
-                </p>
-                <p class="text-gray-600 dark:text-gray-400">
-                  <span class="font-medium">Billing Cycle:</span> <%= order.plan.type %>
-                </p>
-                <p class="text-gray-600 dark:text-gray-400">
-                  <span class="font-medium">Price:</span> 
-                  <%= order.plan.price.toLocaleString('en-US') %> USD
-                </p>
-                <div class="text-gray-600 dark:text-gray-400">
-                  <span class="font-medium">Features:</span>
-                  <ul class="list-disc list-inside mt-2 ml-4">
-                    <% order.plan.features.forEach(feature => { %>
-                      <li><%= feature %></li>
-                    <% }); %>
-                  </ul>
+                <!-- Customer Info -->
+                <div class="bg-gray-50 dark:bg-dark-3 rounded-lg p-6">
+                  <h2 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">
+                    Customer Information
+                  </h2>
+                  <div class="space-y-4">
+                    <div class="flex justify-between items-center">
+                      <span class="text-gray-600 dark:text-gray-400">Name</span>
+                      <span class="font-medium text-gray-800 dark:text-white"><%= order.user.name %></span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                      <span class="text-gray-600 dark:text-gray-400">Email</span>
+                      <span class="font-medium text-gray-800 dark:text-white"><%= order.user.email %></span>
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <!-- Note -->
-            <div class="md:col-span-2">
-              <h2 class="text-lg font-semibold text-dark dark:text-white mb-4">Note</h2>
-              <p class="text-gray-600 dark:text-gray-400">
-                <%= order.note || 'No note added' %>
-              </p>
+              <!-- Right Column -->
+              <div class="space-y-8">
+                <!-- Plan Info -->
+                <div class="bg-gray-50 dark:bg-dark-3 rounded-lg p-6">
+                  <h2 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">
+                    Subscription Plan
+                  </h2>
+                  <div class="space-y-4">
+                    <div class="flex justify-between items-center">
+                      <span class="text-gray-600 dark:text-gray-400">Plan Name</span>
+                      <span class="font-medium text-gray-800 dark:text-white"><%= order.plan.name %></span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                      <span class="text-gray-600 dark:text-gray-400">Billing Cycle</span>
+                      <span class="font-medium text-gray-800 dark:text-white"><%= order.plan.type %></span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                      <span class="text-gray-600 dark:text-gray-400">Price</span>
+                      <span class="font-medium text-primary dark:text-primary-light">
+                        <%= order.plan.price.toLocaleString('en-US') %> USD
+                      </span>
+                    </div>
+                  </div>
+
+                  <!-- Features -->
+                  <div class="mt-6">
+                    <h3 class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-3">Features</h3>
+                    <ul class="space-y-2">
+                      <% order.plan.features.forEach(feature => { %>
+                        <li class="flex items-center text-sm text-gray-800 dark:text-gray-200">
+                          <svg class="w-4 h-4 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                          </svg>
+                          <%= feature %>
+                        </li>
+                      <% }); %>
+                    </ul>
+                  </div>
+                </div>
+
+                <!-- Note Section -->
+                <div class="bg-gray-50 dark:bg-dark-3 rounded-lg p-6">
+                  <h2 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">Note</h2>
+                  <p class="text-gray-600 dark:text-gray-400">
+                    <%= order.note || 'No note added' %>
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         </div>

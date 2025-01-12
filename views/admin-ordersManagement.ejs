@@ -107,19 +107,19 @@
           </div>
         </div>
 
-        <!-- Orders Table -->
-        <div class="overflow-x-auto">
+        <!-- Orders Table Container -->
+        <div class="w-full overflow-x-auto relative shadow-md sm:rounded-lg">
           <table id="ordersTable" class="w-full text-left">
-            <thead>
-              <tr class="bg-gray-100 dark:bg-dark-2">
-                <th class="px-4 py-3">User</th>
-                <th class="px-4 py-3">Plan Type</th>
-                <th class="px-4 py-3">Amount</th>
-                <th class="px-4 py-3">Status</th>
-                <th class="px-4 py-3">Payment Method</th>
-                <th class="px-4 py-3">Payment Time</th>
-                <th class="px-4 py-3">Note</th>
-                <th class="px-4 py-3">Actions</th>
+            <thead class="text-xs text-gray-700 uppercase bg-gray-100 dark:bg-dark-2 dark:text-gray-300">
+              <tr>
+                <th scope="col" class="px-4 py-3 whitespace-nowrap">User</th>
+                <th scope="col" class="px-4 py-3 whitespace-nowrap">Plan Type</th>
+                <th scope="col" class="px-4 py-3 whitespace-nowrap">Amount</th>
+                <th scope="col" class="px-4 py-3 whitespace-nowrap">Status</th>
+                <th scope="col" class="px-4 py-3 whitespace-nowrap">Payment Method</th>
+                <th scope="col" class="px-4 py-3 whitespace-nowrap">Payment Time</th>
+                <th scope="col" class="px-4 py-3 whitespace-nowrap">Note</th>
+                <th scope="col" class="px-4 py-3 whitespace-nowrap">Actions</th>
               </tr>
             </thead>
             <tbody class="bg-white dark:bg-dark-2">
@@ -251,23 +251,30 @@
             </div>
           </td>
           <td class="px-4 py-3 text-sm relative">
-            <div class="dropdown inline-block relative">
-              <button type="button"
-                      class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200" 
-                      onclick="toggleDropdown('${order._id}')">
-                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
+            <div class="relative inline-block text-left">
+              <button 
+                onclick="toggleDropdown('${order._id}')"
+                class="p-2 hover:bg-gray-100 dark:hover:bg-dark-3 rounded-full"
+              >
+                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 13a1 1 0 1 1 0-2 1 1 0 0 1 0 2zm0-5a1 1 0 1 1 0-2 1 1 0 0 1 0 2zm0 10a1 1 0 1 1 0-2 1 1 0 0 1 0 2z"/>
                 </svg>
               </button>
-              <div id="dropdown-${order._id}" 
-                   class="dropdown-menu hidden absolute right-0 mt-2 py-2 w-48 bg-white rounded-lg shadow-xl z-20 dark:bg-dark-2">
-                <a href="/admin/orders/${order._id}"
-                   class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-dark-3">
+              <div 
+                id="dropdown-${order._id}" 
+                class="hidden fixed w-48 rounded-md shadow-lg bg-white dark:bg-dark-2 ring-1 ring-black ring-opacity-5 z-[100]"
+              >
+                <a 
+                  href="/admin/orders/${order._id}"
+                  class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-dark-3"
+                >
                   View Details
                 </a>
-                <a href="#" 
-                   onclick="openNoteModal('${order._id}')" 
-                   class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-dark-3">
+                <a 
+                  href="#" 
+                  onclick="openNoteModal('${order._id}')"
+                  class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-dark-3"
+                >
                   Add Note
                 </a>
               </div>
@@ -342,32 +349,32 @@
 
     // Toggle dropdown
     function toggleDropdown(orderId) {
-      event.stopPropagation(); // Ngăn event bubble lên parent elements
-      console.log('Toggling dropdown for order:', orderId);
-      
+      const button = event.currentTarget;
       const dropdown = document.getElementById(`dropdown-${orderId}`);
-      if (!dropdown) {
-        console.error('Dropdown not found for order:', orderId);
-        return;
-      }
+      const allDropdowns = document.querySelectorAll('[id^="dropdown-"]');
       
-      // Đóng tất cả các dropdown khác
-      document.querySelectorAll('.dropdown-menu').forEach(menu => {
-        if (menu.id !== `dropdown-${orderId}`) {
-          menu.classList.add('hidden');
+      // Đóng tất cả dropdown khác
+      allDropdowns.forEach(d => {
+        if (d.id !== `dropdown-${orderId}`) {
+          d.classList.add('hidden');
         }
       });
       
       // Toggle dropdown hiện tại
+      if (dropdown.classList.contains('hidden')) {
+        const rect = button.getBoundingClientRect();
+        dropdown.style.left = `${rect.left}px`;
+        dropdown.style.top = `${rect.top - dropdown.offsetHeight - 10}px`; // 10px spacing
+      }
+      
       dropdown.classList.toggle('hidden');
     }
 
     // Đóng dropdown khi click ra ngoài
     document.addEventListener('click', (e) => {
-      if (!e.target.closest('.dropdown')) {
-        document.querySelectorAll('.dropdown-menu').forEach(menu => {
-          menu.classList.add('hidden');
-        });
+      if (!e.target.closest('.relative')) {
+        const allDropdowns = document.querySelectorAll('[id^="dropdown-"]');
+        allDropdowns.forEach(d => d.classList.add('hidden'));
       }
     });
 
@@ -571,23 +578,38 @@
     // Thêm styles cho dropdown
     const style = document.createElement('style');
     style.textContent = `
-      .dropdown-menu {
-        min-width: 120px;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-        z-index: 1000;
-      }
-      
-      .dropdown {
-        position: relative;
+      .dropdown-menu:not(.hidden) {
+        z-index: 9999;
       }
     `;
     document.head.appendChild(style);
   </script>
 
   <style>
+    .dropdown {
+      position: relative;
+    }
+    
     .dropdown-menu {
+      position: absolute;
+      right: 0;
+      top: 0;
       min-width: 120px;
+      background: white;
+      border-radius: 0.5rem;
       box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      z-index: 1000;
+    }
+    
+    .dropdown-menu:not(.hidden) {
+      z-index: 9999;
+    }
+    
+    @media (prefers-color-scheme: dark) {
+      .dropdown-menu {
+        background: var(--dark-2);
+        box-shadow: 0 2px 5px rgba(0,0,0,0.4);
+      }
     }
   </style>
 </body>
