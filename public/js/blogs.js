@@ -4,6 +4,34 @@ document.addEventListener('DOMContentLoaded', function() {
   updateBlogLinksAndStatus();
 });
 
+document.getElementById('dropdownSearchButton').addEventListener('click', function () {
+  const dropdown = document.getElementById('dropdownSearch');
+  dropdown.classList.toggle('hidden');
+});
+
+function setSearchType(type) {
+  document.getElementById('search-type').innerText = type;
+  document.getElementById('search-type-input').value = type.toLowerCase();
+  document.getElementById('search-dropdown').placeholder = `Search by ${type.toLowerCase()}...`;
+}
+
+document.getElementById('dropdownTagButton').addEventListener('click', function() {
+  const dropdown = document.getElementById('dropdownTag');
+  dropdown.classList.toggle('hidden');
+});
+
+document.getElementById('dropdown-button').addEventListener('click', function() {
+  const dropdown = document.getElementById('dropdown');
+  dropdown.classList.toggle('hidden');
+});
+
+document.querySelectorAll('#dropdown button').forEach(button => {
+  button.addEventListener('click', function() {
+    setSearchType(this.innerText);
+    document.getElementById('dropdown').classList.add('hidden');
+  });
+});
+
 
 function updateBlogLinksAndStatus() {
     const links = document.querySelectorAll('.dynamic-link');
@@ -139,7 +167,7 @@ function bookmarkEventHandler() {
   
     if (page > 1)
       formData.push({ name: 'page', value: page });
-  
+
     $.ajax({
       url: $('#searchForm').attr('action') || window.location.pathname,
       method: 'GET',
