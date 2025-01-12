@@ -1,4 +1,6 @@
-const buildBlogQuery = ({ search, category, tags, timeRange, userId, bookmarked, status }) => {
+const User = require('../models/user'); // Ensure you have the User model imported
+
+const buildBlogQuery = async ({ search, category, tags, timeRange, userId, bookmarked, status, searchType, isPremium }) => {
   let query = {};
 
   if (userId) {
@@ -10,10 +12,16 @@ const buildBlogQuery = ({ search, category, tags, timeRange, userId, bookmarked,
   }
 
   if (search) {
-    query.$or = [
-      { title: { $regex: search, $options: 'i' } },
-      { content: { $regex: search, $options: 'i' } }
-    ];
+    if (searchType === 'title') {
+      query.$or = [
+        { title: { $regex: search, $options: 'i' } },
+        { content: { $regex: search, $options: 'i' } }
+      ];
+    } else if (searchType === 'author') {
+      const users = await User.find({ username: { $regex: search, $options: 'i' } });
+      const userIds = users.map(user => user._id);
+      query.author = { $in: userIds };
+    }
   }
 
   if (category) query.category = category;
@@ -37,6 +45,10 @@ const buildBlogQuery = ({ search, category, tags, timeRange, userId, bookmarked,
 
   if (status) {
     query.status = status;
+  }
+
+  if (isPremium) {
+    query.isPremium = true;
   }
 
   return query;

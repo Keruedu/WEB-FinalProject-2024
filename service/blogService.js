@@ -12,14 +12,14 @@ const Comment = require('../models/comment');
 const { timeAgo } = require('../utils/dateMoment');
 
 const getBlogsHandler = async (req, userId, bookmarked) => {
-  const { search, tags, category, timeRange, status = 'approved' } = req.query;
+  const { search, tags, category, timeRange, status = 'approved', searchType = 'title', isPremium } = req.query;
   const filter = req.query.filter || 'latest';
   const url = req.url;
   const page = parseInt(req.query.page) || 1;
 
   try {
     // Build query using utility function
-    const query = await buildBlogQuery({ search, category, tags, timeRange, userId, bookmarked, status: status === 'All' ? undefined : status });
+    const query = await buildBlogQuery({ search, category, tags, timeRange, userId, bookmarked, status: status === 'All' ? undefined : status, searchType, isPremium });
 
     // Determine sort order
     let sort = {};
@@ -54,7 +54,8 @@ const getBlogsHandler = async (req, userId, bookmarked) => {
       tags,
       category,
       timeRange,
-      status
+      status,
+      isPremium // Include isPremium in the response data
     };
   } catch (error) {
     console.error('Error in getBlogsHandler:', error);

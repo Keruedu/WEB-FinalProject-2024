@@ -143,50 +143,126 @@
     <!-- ====== Blog Section Start -->
 
     <section class="pt-20 pb-10 lg:pt-[80px] lg:pb-20 dark:bg-dark">
-      <div class="container">
-        <form id="searchForm" action="/user/<%= userDetails.id %>" method="GET" class="flex flex-wrap items-center justify-center gap-4 pb-20 w-full md:w-[80%] mx-auto">
-          <input type="text" name="search" placeholder="Search blogs..." value="<%= search %>"
-            class="w-full md:w-auto px-5 py-3 text-base transition bg-transparent border rounded-md outline-none border-stroke dark:border-dark-3 text-body-color dark:text-dark-6 placeholder:text-dark-6 focus:border-primary dark:focus:border-primary focus-visible:shadow-none" />
-          <select name="filter" class="w-full md:w-auto px-5 py-3 text-base transition bg-transparent border rounded-md outline-none border-stroke dark:border-dark-3 text-body-color dark:text-dark-6 focus:border-primary dark:focus:border-primary focus-visible:shadow-none">
-            <option value="" <%= filter === '' ? 'selected' : '' %>>All</option>
-            <option value="latest" <%= filter === 'latest' ? 'selected' : '' %>>Latest</option>
-            <option value="oldest" <%= filter === 'oldest' ? 'selected' : '' %>>Oldest</option>
-            <option value="popular" <%= filter === 'popular' ? 'selected' : '' %>>Most Popular</option>
-          </select>
-          
-          <select name="category" class="w-full md:w-auto px-5 py-3 text-base transition bg-transparent border rounded-md outline-none border-stroke dark:border-dark-3 text-body-color dark:text-dark-6 focus:border-primary dark:focus:border-primary focus-visible:shadow-none">
-            <option value="">All Categories</option>
-            <% categories.forEach(category => { %>
-              <option value="<%= category._id %>" <%= selectedCategory === category._id.toString() ? 'selected' : '' %>><%= category.name %></option>
-            <% }); %>
-          </select>
+      <div class="container flex flex-col">
 
-          <select name="timeRange" class="w-full md:w-auto px-5 py-3 text-base transition bg-transparent border rounded-md outline-none border-stroke dark:border-dark-3 text-body-color dark:text-dark-6 focus:border-primary dark:focus:border-primary focus-visible:shadow-none">
-            <option value="">All Time</option>
-            <option value="24h" <%= timeRange === '24h' ? 'selected' : '' %>>Last 24 Hours</option>
-            <option value="week" <%= timeRange === 'week' ? 'selected' : '' %>>Last Week</option>
-            <option value="month" <%= timeRange === 'month' ? 'selected' : '' %>>Last Month</option>
-            <option value="year" <%= timeRange === 'year' ? 'selected' : '' %>>Last Year</option>
-          </select>
-
-          <div class="relative w-full md:w-auto">
-            <button type="button" id="dropdownButton" class="w-full md:w-auto px-5 py-3 text-base text-white transition duration-300 ease-in-out border rounded-md cursor-pointer border-primary bg-primary hover:bg-blue-dark">Tags</button>
+        <button id="dropdownSearchButton" data-dropdown-toggle="dropdownSearch" data-dropdown-placement="bottom" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 self-end mb-5"  type="button">
+          Dropdown search
+          <svg class="w-2.5 h-2.5 ms-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
+            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4" />
+          </svg>
+        </button>
         
-            <div id="dropdown" class="hidden h-[160px] overflow-auto flex-col gap-2 mt-4 absolute z-10 p-2 bg-white border border-stroke rounded-md shadow-lg scrollbar-hide">
-              <% tags.forEach(tag => { %>
-                <label class="flex items-center">
-                  <input type="checkbox" name="tags" value="<%= tag._id %>" <%= selectedTags.includes(tag._id.toString()) ? 'checked' : '' %> />
-                  <span class="ml-2"><%= tag.name %></span>
-                </label>
-              <% }); %>
-            </div>
+        <div class="flex lg:flex-row flex-col justify-between w-full gap-4">
+  
+          <!-- Dropdown menu -->
+          <div id="dropdownSearch" class="lg:order-last z-10 lg:min-w-[200px] h-fit hidden bg-white rounded-lg shadow lg:w-80 w-full dark:bg-gray-700 lg:self-start">
+            <form id="searchForm" action="/user/<%= userDetails.id %>" method="GET" class="p-4">
+       
+              <!-- Dropdown filters -->
+              <div class="flex flex-col gap-3">
+
+                <!-- Input search -->
+                <div class="flex">
+                  <label for="search-dropdown" class="mb-2 text-sm font-medium text-gray-900 sr-only dark:text-white">Search</label>
+                  <button id="dropdown-button" class="flex-shrink-0 z-10 inline-flex items-center py-2.5 px-4 text-sm font-medium text-center text-gray-900 bg-gray-100 border border-gray-300 rounded-s-lg hover:bg-gray-200 focus:ring-4 focus:outline-none focus:ring-gray-100 dark:bg-gray-700 dark:hover:bg-gray-600 dark:focus:ring-gray-700 dark:text-white dark:border-gray-600" type="button">
+                    <span id="search-type">Title</span>
+                    <svg class="w-2.5 h-2.5 ms-2.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
+                      <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4"/>
+                    </svg>
+                  </button>
+                  <div id="dropdown" class="absolute z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700">
+                    <ul class="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdown-button">
+                      <li>
+                        <button type="button" class="inline-flex w-full px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white" onclick="setSearchType('Title')">Title</button>
+                      </li>
+                      <li>
+                        <button type="button" class="inline-flex w-full px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white" onclick="setSearchType('Author')">Author</button>
+                      </li>
+                    </ul>
+                  </div>
+                  <div class="relative w-full">
+                    <input type="search" id="search-dropdown" name="search" class="block p-2.5 w-full z-20 text-sm text-gray-900 bg-gray-50 rounded-e-lg border-s-gray-50 border-s-2 border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-s-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:border-blue-500" placeholder="Search by title..." />
+                    <input type="hidden" id="search-type-input" name="searchType" value="title">
+                  </div>
+                </div>
+
+                <select name="filter" class="w-full px-4 py-2 text-sm border rounded-md dark:border-dark-3 dark:bg-gray-600 dark:text-dark-6 focus:border-blue-500 dark:focus:border-blue-500">
+                  <option value="" <%= filter === '' ? 'selected' : '' %>>All</option>
+                  <option value="latest" <%= filter === 'latest' ? 'selected' : '' %>>Latest</option>
+                  <option value="oldest" <%= filter === 'oldest' ? 'selected' : '' %>>Oldest</option>
+                  <option value="popular" <%= filter === 'popular' ? 'selected' : '' %>>Most Popular</option>
+                </select>
+          
+                <select name="category" class="w-full px-4 py-2 text-sm border rounded-md dark:border-dark-3 dark:bg-gray-600 dark:text-dark-6 focus:border-blue-500 dark:focus:border-blue-500">
+                  <option value="">All Categories</option>
+                  <% categories.forEach(category => { %>
+                    <option value="<%= category._id %>" <%= selectedCategory === category._id.toString() ? 'selected' : '' %>><%= category.name %></option>
+                  <% }); %>
+                </select>
+          
+                <select name="timeRange" class="w-full px-4 py-2 text-sm border rounded-md dark:border-dark-3 dark:bg-gray-600 dark:text-dark-6 focus:border-blue-500 dark:focus:border-blue-500">
+                  <option value="">All Time</option>
+                  <option value="24h" <%= timeRange === '24h' ? 'selected' : '' %>>Last 24 Hours</option>
+                  <option value="week" <%= timeRange === 'week' ? 'selected' : '' %>>Last Week</option>
+                  <option value="month" <%= timeRange === 'month' ? 'selected' : '' %>>Last Month</option>
+                  <option value="year" <%= timeRange === 'year' ? 'selected' : '' %>>Last Year</option>
+                </select>
+  
+                <div class="relative w-full">
+                  <button
+                    type="button"
+                    id="dropdownTagButton"
+                    data-dropdown-toggle="dropdown"
+                    class="text-left w-full px-4 py-2 text-sm border rounded-md dark:border-dark-3 dark:bg-gray-600 dark:text-dark-6 focus:border-blue-500 dark:focus:border-blue-500">
+                    Tags
+                  </button>
+                
+                  <div
+                    id="dropdownTag"
+                    class="hidden h-fit overflow-auto flex-col gap-10 mt-4 absolute z-10 p-2 bg-white border border-gray-300 rounded-md shadow-lg dark:bg-gray-700 dark:border-gray-600">
+                    <% tags.forEach(tag => { %>
+                      <label class="flex items-center">
+                        <input
+                          type="checkbox"
+                          name="tags"
+                          value="<%= tag._id %>"
+                          class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500"
+                          <%= selectedTags.includes(tag._id.toString()) ? 'checked' : '' %> />
+                        <span class="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">
+                          <%= tag.name %>
+                        </span>
+                      </label>
+                    <% }); %>
+                  </div>
+                </div>
+                <!-- Checkbox for isPremium -->
+                <div class="mt-4">
+                  <label class="flex items-center">
+                    <input
+                      type="checkbox"
+                      name="isPremium"
+                      value="true"
+                      class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500"
+                        />
+                    <span class="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">
+                      Premium
+                    </span>
+                  </label>
+                </div>
+
+              </div>  
+          
+              <!-- Submit button -->
+              <div class="mt-4">
+                <button type="submit" class="w-full px-5 py-2 text-white bg-blue-700 hover:bg-blue-800 rounded-lg text-sm focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700">Search</button>
+              </div>
+            </form>
           </div>
-        
-          <button type="submit" class="w-full md:w-auto px-5 py-3 text-base text-white transition duration-300 ease-in-out border rounded-md cursor-pointer border-primary bg-primary hover:bg-blue-dark">Apply</button>
-        </form>
-        <div id="blogContainer" class="flex flex-wrap -mx-4">
-          <%- include('partials/blogs', { blogs: blogs }) %>
-          
+  
+          <div id="blogContainer" class="flex flex-row flex-wrap justify-center w-full">
+            <%- include('partials/blogs', { blogs: blogs }) %>
+          </div>
+  
         </div>
       </div>
 
