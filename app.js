@@ -73,6 +73,11 @@ app.use(async (req, res, next) => {
 // Routes
 app.use('/', [adminRoutes, webRoutes, userRoutes, blogRoutes, checkoutRoutes, paymentRoutes]);
 
+// 404 route handler
+app.use((req, res) => {
+  res.status(404).render('404');
+});
+
 // Global error handler
 app.use((err, req, res, next) => {
   console.error(err.stack);

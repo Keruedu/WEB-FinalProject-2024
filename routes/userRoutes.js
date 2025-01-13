@@ -50,15 +50,15 @@ router.get('/logout', (req, res) => {
   });
 });
 
-router.get('/forgot-password', (req, res) => {
+router.get('/forgot-password', ensureAuthenticated, (req, res) => {
   res.render('forgot-password', { errors: [], message: '' });
 });
 
-router.post('/forgot-password', userController.forgotPassword);
+router.post('/forgot-password', ensureAuthenticated, userController.forgotPassword);
 
-router.get('/reset-password/:token', userController.renderResetPasswordForm);
+router.get('/reset-password/:token', ensureAuthenticated, userController.renderResetPasswordForm);
 
-router.post('/reset-password/:token', userController.resetForgotPassword);
+router.post('/reset-password/:token', ensureAuthenticated, userController.resetForgotPassword);
 
 router.get('/user/:userId', userController.getUserDetails);
 router.patch('/follow/:id',   ensureAuthenticated, userController.toggleFollowUser);
