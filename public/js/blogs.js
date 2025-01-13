@@ -40,7 +40,9 @@ function updateBlogLinksAndStatus() {
       const blogId = link.getAttribute('data-blog-id');
       let currentPath = window.location.pathname;
       
-      if (currentPath.includes('user')) {
+      if (currentPath.includes('bookmarked-blogs')) {
+        currentPath = currentPath.split('bookmarked-blogs')[0] + 'blogs';
+      } else if (currentPath.includes('user')) {
         currentPath = currentPath.split('user')[0] + 'blogs';
       } else if (currentPath.includes('admin')) {
         currentPath = currentPath.split('admin')[0] + 'my-blogs';

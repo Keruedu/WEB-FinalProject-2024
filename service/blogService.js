@@ -55,7 +55,7 @@ const getBlogsHandler = async (req, userId, bookmarked) => {
       category,
       timeRange,
       status,
-      isPremium // Include isPremium in the response data
+      isPremium
     };
   } catch (error) {
     console.error('Error in getBlogsHandler:', error);
