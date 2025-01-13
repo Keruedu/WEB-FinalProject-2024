@@ -62,6 +62,18 @@
   <section class="pt-20 pb-10 lg:pt-[80px] lg:pb-20 dark:bg-dark">
     <div class="container flex flex-col">
 
+      <div class="flex flex-wrap gap-4 pb-10">
+        <button type="button" id="toggleSelectionMode" class="w-full md:w-auto px-5 py-3 text-base text-white transition duration-300 ease-in-out border rounded-md cursor-pointer border-white bg-primary hover:bg-blue-dark">Toggle Selection Mode</button>
+        <div id="changeStatusSelected" class="hidden">
+          <select id="bulkStatusDropdown" class="w-32 p-2 bg-white border border-gray-300 rounded-md">
+            <option value="approved">Approved</option>
+            <option value="pending">Pending</option>
+            <option value="rejected">Rejected</option>
+          </select>
+          <button type="button" id="applyStatusChange" class="w-full md:w-auto px-5 py-3 text-base text-white transition duration-300 ease-in-out border rounded-md cursor-pointer border-primary bg-primary hover:bg-blue-dark">Apply</button>
+        </div>
+      </div>
+      
       <button id="dropdownSearchButton" data-dropdown-toggle="dropdownSearch" data-dropdown-placement="bottom" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 self-end mb-5"  type="button">
         Dropdown search
         <svg class="w-2.5 h-2.5 ms-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
@@ -97,7 +109,7 @@
                   </ul>
                 </div>
                 <div class="relative w-full">
-                  <input type="search" id="search-dropdown" name="search" class="block p-2.5 w-full z-20 text-sm text-gray-900 bg-gray-50 rounded-e-lg border-s-gray-50 border-s-2 border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-s-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:border-blue-500" placeholder="Search by title..." required />
+                  <input type="search" id="search-dropdown" name="search" class="block p-2.5 w-full z-20 text-sm text-gray-900 bg-gray-50 rounded-e-lg border-s-gray-50 border-s-2 border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-s-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:border-blue-500" placeholder="Search by title..." />
                   <input type="hidden" id="search-type-input" name="searchType" value="title">
                 </div>
               </div>
