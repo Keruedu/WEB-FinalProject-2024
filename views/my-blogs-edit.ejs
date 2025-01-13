@@ -131,7 +131,11 @@
   <script src="/js/ckeditor.js"></script>
   <script src="/js/alerts.js"></script>
   <script>
-    initializeCKEditor('#editor');
+      // Ensure blog is passed as a JSON string
+  const blog = <%- JSON.stringify(blog) %>;
+
+  // Initialize CKEditor with the blog content
+  initializeCKEditor('#editor', blog);
   </script>
     </script>
     <!-- Add and remove tags -->
