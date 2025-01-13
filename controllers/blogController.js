@@ -139,7 +139,9 @@ exports.getBlogs = async (req, res) => {
       filter,
       tags,
       category,
-      timeRange
+      timeRange,
+      searchType,
+      isPremium // Add isPremium to the destructured object
     } = await blogService.getBlogsHandler(req);
 
     const oldUrl = req.originalUrl.split('?')[0] + '?';
@@ -164,6 +166,8 @@ exports.getBlogs = async (req, res) => {
         selectedTags: tags || [],
         selectedCategory: category || '',
         timeRange: timeRange || '',
+        searchType: searchType || '',
+        isPremium: isPremium || false, // Include isPremium in the response data
         action: '/blogs',
         oldUrl: oldUrl
       });
@@ -195,7 +199,9 @@ exports.getUserBlogs = async (req, res) => {
       tags,
       category,
       timeRange,
-      status
+      status,
+      searchType,
+      isPremium // Add isPremium to the destructured object
     } = await blogService.getBlogsHandler(req, userId);
 
     if (req.xhr) {
@@ -218,7 +224,9 @@ exports.getUserBlogs = async (req, res) => {
         selectedTags: tags || [],
         selectedCategory: category || '',
         timeRange: timeRange || '',
-        status
+        status,
+        searchType: searchType || '',
+        isPremium: isPremium || false, // Include isPremium in the response data
       });
     }
   } catch (error) {
@@ -241,8 +249,10 @@ exports.getBookmarkedBlogs = async (req, res) => {
       filter,
       tags,
       category,
-      timeRange
-    } = await blogService.getBlogsHandler(req, userId, req.user.bookmarks);
+      timeRange,
+      searchType,
+      isPremium // Add isPremium to the destructured object
+    } = await blogService.getBlogsHandler(req, null, req.user.bookmarks);
 
     const oldUrl = req.originalUrl.split('?')[0] + '?';
 
@@ -266,6 +276,8 @@ exports.getBookmarkedBlogs = async (req, res) => {
         selectedTags: tags || [],
         selectedCategory: category || '',
         timeRange: timeRange || '',
+        searchType: searchType || '',
+        isPremium: isPremium || false, // Include isPremium in the response data
         action: '/bookmarked-blogs',
         oldUrl: oldUrl
       });

@@ -127,7 +127,8 @@ exports.getUserDetails = async (req, res) => {
       filter,
       tags,
       category,
-      timeRange
+      timeRange,
+      searchType // Add searchType to the destructured object
     } = await userService.getUserDetails(userId, req.query);
 
     if (req.xhr) {
@@ -164,6 +165,7 @@ exports.getUserDetails = async (req, res) => {
         selectedTags: tags || [],
         selectedCategory: category || '',
         timeRange: timeRange || '',
+        searchType: searchType || '', // Include searchType in the response data
         lastLoginTimeAgo: timeAgo(user.lastLogin)
       });
     }

@@ -105,7 +105,7 @@ const toggleFollowUser = async (userId, followUserId) => {
 };
 
 const getUserDetails = async (userId, query) => {
-  const { search, tags, category, timeRange } = query;
+  const { search, tags, category, timeRange, searchType, isPremium } = query;
   const filter = query.filter || 'latest';
   const page = parseInt(query.page) || 1;
 
@@ -114,7 +114,7 @@ const getUserDetails = async (userId, query) => {
     throw new Error('User not found');
   }
 
-  const blogQuery = buildBlogQuery({ search, category, tags, timeRange, userId });
+  const blogQuery = await buildBlogQuery({ search, category, tags, timeRange, userId, searchType, isPremium });
   const sort =
     filter === 'latest' ? { createdAt: -1 } :
     filter === 'oldest' ? { createdAt: 1 } :
@@ -147,6 +147,8 @@ const getUserDetails = async (userId, query) => {
     tags,
     category,
     timeRange,
+    searchType,
+    isPremium,
     isFollowing,
     followers: user.followers
   };

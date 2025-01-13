@@ -721,9 +721,12 @@
           const response = await fetch(`/blogs/${blogId}/comments?page=${page}`);
           const data = await response.json();
           if (data.success) {
-            data.comments.forEach(comment => {
+          data.comments.forEach(comment => {
+            // Kiểm tra xem comment đã tồn tại trong commentsContainer hay chưa
+            if (!document.getElementById(`comment-${comment._id}`)) {
               const commentElement = document.createElement('div');
               commentElement.classList.add('comment', 'flex', 'items-start');
+              commentElement.id = `comment-${comment._id}`;
               commentElement.innerHTML = `
                 <img src="${comment.author.avatar}" alt="${comment.author.username}'s avatar" class="w-12 h-12 rounded-full mr-4">
                 <div class="flex flex-col">
@@ -735,15 +738,16 @@
                 </div>
               `;
               commentsContainer.appendChild(commentElement);
-            });
-            if (page >= data.totalPages) {
-              loadMoreCommentsButton.style.display = 'none';
             }
+          });
+          if (page >= data.totalPages) {
+            loadMoreCommentsButton.style.display = 'none';
           }
-        } catch (error) {
-          console.error('Error loading comments:', error);
         }
+      } catch (error) {
+        console.error('Error loading comments:', error);
       }
+    }
 
       loadMoreCommentsButton.addEventListener('click', () => {
         currentPage++;
@@ -751,8 +755,14 @@
       });
 
       // Load initial comments when the page loads
+      // Load initial comments when the page loads
       document.addEventListener('DOMContentLoaded', () => {
         loadComments(currentPage);
+
+        // Set interval to load comments every 10 seconds
+        setInterval(() => {
+          loadComments(currentPage);
+        }, 10000);
       });
     </script>
     <script>
@@ -819,6 +829,7 @@
         const commentsSection = document.querySelector('.comments-section');
         const commentDiv = document.createElement('div');
         commentDiv.classList.add('comment', 'flex', 'items-start');
+        commentDiv.id = `comment-${comment._id}`; // Thêm ID vào phần tử comment
         commentDiv.innerHTML = `
           <img src="${comment.author.avatar}" alt="${comment.author.username}'s avatar" class="w-12 h-12 rounded-full mr-4">
           <div class="flex flex-col">
@@ -829,7 +840,8 @@
             <small class="text-gray-500 dark:text-gray-400 px-4">${timeRange}</small>
           </div>
         `;
-        commentsSection.prepend(commentDiv); }
+        commentsSection.prepend(commentDiv);
+      }
     </script>
     <script>
       document.getElementById('content').addEventListener('input', function() {
