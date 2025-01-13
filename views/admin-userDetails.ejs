@@ -60,96 +60,155 @@
 <body>
     <%- include('partials/navbar') %>
 
-    <section class="py-20">
-        <div class="container mx-auto px-6">
-            <!-- Back Button -->
-            <div class="mb-6">
-                <a href="/admin/users"
-                    class="inline-flex items-center text-gray-700 hover:text-gray-900 transition hover-button p-2 rounded-lg">
-                    <div class="flex items-center justify-between w-full gap-3">
+    <section class="pt-[150px] pb-[120px]">
+        <div class="container px-4 mx-auto">
+            <div class="wow fadeInUp" data-wow-delay=".2s">
+                <!-- Back button -->
+                <div class="mb-6 flex items-center space-x-2">
+                    <a href="/admin/users" 
+                        class="inline-flex items-center p-2 hover:bg-gray-100 dark:hover:bg-dark-4 rounded-lg transition-colors">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
                         </svg>
-                        <span>Back to Users List</span>
-                    </div>
-                </a>
-            </div>
+                        <span class="ml-2 text-gray-700 dark:text-gray-300 text-lg">
+                            Back to Users
+                        </span>
+                    </a>
+                </div>
 
-            <!-- User Details Card -->
-            <div class="card p-8">
-                <div class="flex items-start gap-8">
-                    <!-- Avatar -->
-                    <div>
-                        <img src="<%= user.avatar || '/images/default-avatar.png' %>" alt="Profile picture"
-                            class="w-32 h-32 rounded-full object-cover <%= user.isPremium ? 'avatar-premium' : '' %>">
-                    </div>
-
-                    <!-- User Info -->
-                    <div class="flex-1 space-y-4">
-                        <!-- Header -->
+                <!-- User Details Card -->
+                <div class="max-w-5xl mx-auto bg-white dark:bg-dark-2 rounded-xl shadow-lg overflow-hidden">
+                    <!-- Header -->
+                    <div class="px-8 py-6 bg-gray-50 dark:bg-dark-3 border-b border-gray-200 dark:border-dark-4">
                         <div class="flex justify-between items-center">
-                            <h1 class="text-2xl font-bold text-gray-800">
-                                <%= user.fullName || 'Unknown User' %>
-                            </h1>
-                            <span
-                                class="px-3 py-1 rounded-full text-sm font-medium <%= user.role === 'admin' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700' %>">
-                                <%= user.role ? user.role.charAt(0).toUpperCase() + user.role.slice(1) : 'User' %>
+                            <h1 class="text-2xl font-bold text-gray-800 dark:text-white">User Details</h1>
+                            <!-- Header Status Badge -->
+                            <% const statusBadgeClass = user.isBanned ? 
+                                'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' : 
+                                'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' 
+                            %>
+                            <span class="px-4 py-2 rounded-full text-sm font-semibold <%= statusBadgeClass %>">
+                                <%= user.isBanned ? 'BANNED' : 'ACTIVE' %>
                             </span>
                         </div>
+                    </div>
+                    
+                    <div class="p-8">
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                            <!-- Left Column -->
+                            <div class="space-y-8">
+                                <!-- Basic Info -->
+                                <div class="bg-gray-50 dark:bg-dark-3 rounded-lg p-6">
+                                    <h2 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">
+                                        Basic Information
+                                    </h2>
+                                    <div class="space-y-4">
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-gray-600 dark:text-gray-400">Username</span>
+                                            <span class="font-medium text-gray-800 dark:text-white"><%= user.username %></span>
+                                        </div>
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-gray-600 dark:text-gray-400">Full Name</span>
+                                            <span class="font-medium text-gray-800 dark:text-white"><%= user.fullName || 'N/A' %></span>
+                                        </div>
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-gray-600 dark:text-gray-400">Email</span>
+                                            <span class="font-medium text-gray-800 dark:text-white"><%= user.email %></span>
+                                        </div>
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-gray-600 dark:text-gray-400">Role</span>
+                                            <span class="font-medium text-gray-800 dark:text-white"><%= user.role %></span>
+                                        </div>
+                                    </div>
+                                </div>
 
-                        <!-- User Details -->
-                        <div class="grid grid-cols-2 gap-6">
-                            <div>
-                                <p class="text-sm text-gray-500">Username</p>
-                                <p class="text-gray-800"><%= user.username || 'N/A' %></p>
+                                <!-- Account Status -->
+                                <div class="bg-gray-50 dark:bg-dark-3 rounded-lg p-6">
+                                    <h2 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">
+                                        Account Status
+                                    </h2>
+                                    <div class="space-y-4">
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-gray-600 dark:text-gray-400">Premium Member</span>
+                                            <!-- Premium Status Badge -->
+                                            <% const premiumBadgeClass = user.isPremium ? 
+                                                'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' : 
+                                                'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200' 
+                                            %>
+                                            <span class="px-3 py-1 rounded-full text-sm font-medium <%= premiumBadgeClass %>">
+                                                <%= user.isPremium ? 'YES' : 'NO' %>
+                                            </span>
+                                        </div>
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-gray-600 dark:text-gray-400">Registration Date</span>
+                                            <span class="font-medium text-gray-800 dark:text-white">
+                                                <%= new Date(user.createdAt).toLocaleString('vi-VN') %>
+                                            </span>
+                                        </div>
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-gray-600 dark:text-gray-400">Last Login</span>
+                                            <span class="font-medium text-gray-800 dark:text-white">
+                                                <%= user.lastLogin ? new Date(user.lastLogin).toLocaleString('vi-VN') : 'Never' %>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                            <div>
-                                <p class="text-sm text-gray-500">Email</p>
-                                <p class="text-gray-800"><%= user.email || 'N/A' %></p>
-                            </div>
-                            <div>
-                                <p class="text-sm text-gray-500">Registration Date</p>
-                                <p class="text-gray-800">
-                                    <%= user.createdAt ? new Date(user.createdAt).toLocaleDateString('en-GB') : 'N/A' %>
-                                </p>
-                            </div>
-                            <div>
-                                <p class="text-sm text-gray-500">Last Login</p>
-                                <p class="text-gray-800">
-                                    <%= user.lastLogin ? new Date(user.lastLogin).toLocaleDateString('en-GB') : 'N/A' %>
-                                </p>
-                            </div>
-                        </div>
 
-                        <!-- Description -->
-                        <div>
-                            <p class="text-sm text-gray-500">Description</p>
-                            <p class="text-gray-800"><%= user.description || 'No description provided' %></p>
-                        </div>
+                            <!-- Right Column -->
+                            <div class="space-y-8">
+                                <!-- Premium History -->
+                                <div class="bg-gray-50 dark:bg-dark-3 rounded-lg p-6">
+                                    <h2 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">
+                                        Premium History
+                                    </h2>
+                                    <% if (user.premiumHistory && user.premiumHistory.length > 0) { %>
+                                        <div class="space-y-4">
+                                            <% user.premiumHistory.forEach(history => { %>
+                                                <div class="p-4 bg-white dark:bg-dark-2 rounded-lg border border-gray-200 dark:border-dark-4">
+                                                    <div class="flex justify-between items-center mb-2">
+                                                        <span class="text-sm text-gray-600 dark:text-gray-400">Plan</span>
+                                                        <span class="font-medium text-gray-800 dark:text-white"><%= history.planName %></span>
+                                                    </div>
+                                                    <div class="flex justify-between items-center mb-2">
+                                                        <span class="text-sm text-gray-600 dark:text-gray-400">Start Date</span>
+                                                        <span class="text-sm text-gray-800 dark:text-white">
+                                                            <%= new Date(history.startDate).toLocaleDateString('vi-VN') %>
+                                                        </span>
+                                                    </div>
+                                                    <div class="flex justify-between items-center">
+                                                        <span class="text-sm text-gray-600 dark:text-gray-400">End Date</span>
+                                                        <span class="text-sm text-gray-800 dark:text-white">
+                                                            <%= new Date(history.endDate).toLocaleDateString('vi-VN') %>
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            <% }); %>
+                                        </div>
+                                    <% } else { %>
+                                        <p class="text-gray-600 dark:text-gray-400">No premium history available</p>
+                                    <% } %>
+                                </div>
 
-                        <!-- User Stats -->
-                        <div class="flex gap-8">
-                            <div class="text-center">
-                                <p class="text-sm text-gray-500">Followers</p>
-                                <p class="text-lg font-medium text-gray-800"><%= user.followers?.length || 0 %></p>
+                                <!-- Actions -->
+                                <div class="bg-gray-50 dark:bg-dark-3 rounded-lg p-6">
+                                    <h2 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">Actions</h2>
+                                    <div class="space-y-4">
+                                        <!-- Ban/Unban Button -->
+                                        <% const buttonClass = user.isBanned ? 
+                                            'bg-green-600 hover:bg-green-700' : 
+                                            'bg-red-600 hover:bg-red-700' 
+                                        %>
+                                        <button 
+                                        data-user-id="<%- user._id %>"
+                                        data-current-status="<%- user.isBanned %>"
+                                        onclick="toggleBanStatus(this.dataset.userId, this.dataset.currentStatus === 'false')"
+                                        class="w-full px-4 py-2 rounded-lg font-medium transition-colors text-white <%= buttonClass %>">
+                                            <%= user.isBanned ? 'Unban User' : 'Ban User' %>
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="text-center">
-                                <p class="text-sm text-gray-500">Following</p>
-                                <p class="text-lg font-medium text-gray-800"><%= user.following?.length || 0 %></p>
-                            </div>
-                            <div class="text-center">
-                                <p class="text-sm text-gray-500">Bookmarks</p>
-                                <p class="text-lg font-medium text-gray-800"><%= user.bookmarks?.length || 0 %></p>
-                            </div>
-                        </div>
-
-                        <!-- Status -->
-                        <div class="flex gap-6">
-                            <span class="text-sm text-gray-500">Account Status:</span>
-                            <span class="<%= user.isBanned ? 'status-banned' : 'status-active' %>">
-                                <%= user.isBanned ? 'Banned' : 'Active' %>
-                            </span>
                         </div>
                     </div>
                 </div>

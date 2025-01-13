@@ -127,62 +127,62 @@
           </script>
         <% } %>
 
-        <!-- Users List -->
-        <div class="overflow-x-auto">
-          <table class="min-w-full bg-white dark:bg-dark-2 rounded-lg overflow-hidden">
-            <thead class="bg-gray-50 dark:bg-dark-3">
+        <!-- Users Table Container -->
+        <div class="w-full overflow-x-auto relative shadow-md sm:rounded-lg">
+          <table class="w-full text-left">
+            <thead class="text-xs text-gray-700 uppercase bg-gray-100 dark:bg-dark-2 dark:text-gray-300">
               <tr>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Username</th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Full Name</th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Email</th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Role</th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Premium</th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Registration Time</th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>
+                <th scope="col" class="px-6 py-3 whitespace-nowrap">Username</th>
+                <th scope="col" class="px-6 py-3 whitespace-nowrap">Full Name</th>
+                <th scope="col" class="px-6 py-3 whitespace-nowrap">Email</th>
+                <th scope="col" class="px-6 py-3 whitespace-nowrap">Role</th>
+                <th scope="col" class="px-6 py-3 whitespace-nowrap">Premium</th>
+                <th scope="col" class="px-6 py-3 whitespace-nowrap">Status</th>
+                <th scope="col" class="px-6 py-3 whitespace-nowrap">Registration Time</th>
+                <th scope="col" class="px-6 py-3 whitespace-nowrap">Actions</th>
               </tr>
             </thead>
             <tbody id="usersTableBody">
-              <!-- Data will be loaded here -->
+              <!-- Users will be rendered here -->
             </tbody>
           </table>
-          <!-- Sau phần table -->
-          <div class="mt-8 flex justify-center" id="paginationContainer">
-            <nav class="inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
-              <!-- Previous page -->
-              <button id="prevPage" 
-                      class="relative inline-flex items-center rounded-l-md px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:z-20 disabled:opacity-50 disabled:hover:bg-white dark:text-gray-300 dark:hover:bg-dark-4 dark:disabled:hover:bg-dark-2">
-                <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-                </svg>
-                Previous
-              </button>
+        </div>
 
-              <!-- Page info -->
-              <div class="relative inline-flex items-center bg-white dark:bg-dark-2 rounded-md shadow-sm">
-                <input 
-                  type="number" 
-                  id="pageInput" 
-                  class="w-12 px-2 py-1 text-center bg-transparent border-none focus:outline-none focus:ring-2 focus:ring-primary rounded-l-md text-sm font-medium"
-                  min="1"
-                  style="-moz-appearance: textfield; -webkit-inner-spin-button: none; -webkit-outer-spin-button: none;"
-                >
-                <div class="px-2 py-1 border-l border-gray-200 dark:border-dark-4 text-sm font-medium text-gray-500 dark:text-gray-400">
-                  / <span id="totalPages" class="ml-1 font-medium">2</span>
-                </div>
+        <!-- Sau phần table -->
+        <div class="mt-8 flex justify-center" id="paginationContainer">
+          <nav class="inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
+            <!-- Previous page -->
+            <button id="prevPage" 
+                    class="relative inline-flex items-center rounded-l-md px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:z-20 disabled:opacity-50 disabled:hover:bg-white dark:text-gray-300 dark:hover:bg-dark-4 dark:disabled:hover:bg-dark-2">
+              <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+              </svg>
+              Previous
+            </button>
+
+            <!-- Page info -->
+            <div class="relative inline-flex items-center bg-white dark:bg-dark-2 rounded-md shadow-sm">
+              <input 
+                type="number" 
+                id="pageInput" 
+                class="w-12 px-2 py-1 text-center bg-transparent border-none focus:outline-none focus:ring-2 focus:ring-primary rounded-l-md text-sm font-medium"
+                min="1"
+                style="-moz-appearance: textfield; -webkit-inner-spin-button: none; -webkit-outer-spin-button: none;"
+              >
+              <div class="px-2 py-1 border-l border-gray-200 dark:border-dark-4 text-sm font-medium text-gray-500 dark:text-gray-400">
+                / <span id="totalPages" class="ml-1 font-medium">2</span>
               </div>
+            </div>
 
-              <!-- Next page -->
-              <button id="nextPage" 
-                      class="relative inline-flex items-center rounded-r-md px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:z-20 disabled:opacity-50 disabled:hover:bg-white dark:text-gray-300 dark:hover:bg-dark-4 dark:disabled:hover:bg-dark-2">
-                Next
-                <svg class="ml-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                </svg>
-              </button>
-            </nav>
-          </div>
-
+            <!-- Next page -->
+            <button id="nextPage" 
+                    class="relative inline-flex items-center rounded-r-md px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:z-20 disabled:opacity-50 disabled:hover:bg-white dark:text-gray-300 dark:hover:bg-dark-4 dark:disabled:hover:bg-dark-2">
+              Next
+              <svg class="ml-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+              </svg>
+            </button>
+          </nav>
         </div>
       </div>
     </div>
