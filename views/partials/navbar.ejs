@@ -3,13 +3,26 @@
     <div class="relative -mx-4 flex items-center justify-between">
       <div class="w-60 max-w-full px-4">
         <a href="#" class="navbar-logo block w-full">
-          <!-- <img
-                src="../../assets/images/logo/logo-white.svg"
-                alt="logo"
-                class="header-logo w-full"
-              /> -->
-          <svg width="132" height="46" viewBox="0 0 132 46" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <g clip-path="url(#clip0_2005_10874)">
+          <svg id="logo" width="132" height="46" viewBox="0 0 132 46" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- Default logo content for light theme -->
+            <g id="logo-light" clip-path="url(#clip0_2151_1148)">
+              <path
+                d="M54.9519 12.0439C56.8799 12.0439 58.5538 12.3618 59.9734 12.9974C61.4142 13.633 62.5159 14.5441 63.2787 15.7306C64.0415 16.9172 64.4228 18.3261 64.4228 19.9576C64.4228 21.5679 64.0415 22.9769 63.2787 24.1846C62.5159 25.3712 61.4142 26.2822 59.9734 26.9178C58.5538 27.5535 56.8799 27.8713 54.9519 27.8713H49.9303V34.2912H45.7987V12.0439H54.9519ZM54.7612 24.3753C56.5621 24.3753 57.9287 23.9939 58.861 23.2311C59.7933 22.4684 60.2594 21.3772 60.2594 19.9576C60.2594 18.5381 59.7933 17.4469 58.861 16.6841C57.9287 15.9213 56.5621 15.5399 54.7612 15.5399H49.9303V24.3753H54.7612ZM68.967 12.0439H73.0986V30.7952H84.7308V34.2912H68.967V12.0439ZM104.668 29.1426H93.5439L91.351 34.2912H87.0922L97.1035 12.0439H101.172L111.215 34.2912H106.892L104.668 29.1426ZM103.301 25.9008L99.1058 16.1756L94.9423 25.9008H103.301ZM122.726 26.4411V34.2912H118.594V26.5047L109.854 12.0439H114.272L120.787 22.8815L127.366 12.0439H131.434L122.726 26.4411Z"
+                fill="#111928" />
+              <path
+                d="M16.7273 39.309C25.9655 39.309 33.4545 31.82 33.4545 22.5818C33.4545 13.3435 25.9655 5.85449 16.7273 5.85449C7.48905 5.85449 0 13.3435 0 22.5818C0 31.82 7.48905 39.309 16.7273 39.309Z"
+                fill="#3758F9" />
+              <path fill-rule="evenodd" clip-rule="evenodd"
+                d="M10.5175 25.6612C8.74328 22.7044 9.0391 20.0428 11.4046 17.6774C14.9529 14.1289 18.0578 16.3467 20.2756 15.0161C21.7542 14.1289 22.3456 12.6506 22.0497 10.5806C23.8239 13.5374 23.5282 16.1989 21.1627 18.5644C17.6142 22.1128 14.5094 19.8951 12.2917 21.2257C10.813 22.1128 10.2217 23.5912 10.5175 25.6612ZM11.4046 35.4193C9.63041 32.4625 9.92614 29.801 12.2917 27.4354C15.8401 23.887 18.9449 26.1047 21.1627 24.7742C22.6413 23.887 23.2326 22.4086 22.9369 20.3387C24.711 23.2955 24.4152 25.957 22.0497 28.3225C18.5014 31.8709 15.3965 29.6532 13.1788 30.9838C11.7001 31.8709 11.1088 33.3493 11.4046 35.4193Z"
+                fill="white" />
+            </g>
+            <defs>
+              <clipPath id="clip0_2151_1148">
+                <rect width="131.309" height="46" fill="white" />
+              </clipPath>
+            </defs>
+            <!-- Default logo content for dark theme -->
+            <g clip-path="url(#clip0_2005_10874)" id="logo-dark" style="display: none;">
               <path
                 d="M54.9519 12.0439C56.8799 12.0439 58.5538 12.3618 59.9734 12.9974C61.4142 13.633 62.5159 14.5441 63.2787 15.7306C64.0415 16.9172 64.4228 18.3261 64.4228 19.9576C64.4228 21.5679 64.0415 22.9769 63.2787 24.1846C62.5159 25.3712 61.4142 26.2822 59.9734 26.9178C58.5538 27.5535 56.8799 27.8713 54.9519 27.8713H49.9303V34.2912H45.7987V12.0439H54.9519ZM54.7612 24.3753C56.5621 24.3753 57.9287 23.9939 58.861 23.2311C59.7933 22.4684 60.2594 21.3772 60.2594 19.9576C60.2594 18.5381 59.7933 17.4469 58.861 16.6841C57.9287 15.9213 56.5621 15.5399 54.7612 15.5399H49.9303V24.3753H54.7612ZM68.967 12.0439H73.0986V30.7952H84.7308V34.2912H68.967V12.0439ZM104.668 29.1426H93.5439L91.351 34.2912H87.0922L97.1035 12.0439H101.172L111.215 34.2912H106.892L104.668 29.1426ZM103.301 25.9008L99.1058 16.1756L94.9423 25.9008H103.301ZM122.726 26.4411V34.2912H118.594V26.5047L109.854 12.0439H114.272L120.787 22.8815L127.366 12.0439H131.434L122.726 26.4411Z"
                 fill="white" />
@@ -216,39 +229,22 @@
 
             </div>
             <!-- Dropdown menu -->
-            
+
             <% } %>
 
         </div>
 
         <div id="notificationDropdown"
-        class="z-20 hidden absolute top-4 bg-white divide-y divide-gray-100 rounded-lg shadow dark:bg-gray-800 dark:divide-gray-700"
-        aria-labelledby="dropdownNotificationButton">
-        <!-- <div
-          class="px-4 py-2 font-medium text-center text-gray-700 rounded-t-lg bg-gray-50 dark:bg-gray-800 dark:text-white">
-          Notifications
+          class="z-20 hidden absolute top-4 bg-white divide-y divide-gray-100 rounded-lg shadow dark:bg-gray-800 dark:divide-gray-700"
+          aria-labelledby="dropdownNotificationButton">
         </div>
-          <div id="notificationDropdown" class="divide-y divide-gray-100 dark:divide-gray-700">
-          </div>
-        <a href="#"
-          class="block py-2 text-sm font-medium text-center text-gray-900 rounded-b-lg bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-white">
-          <div class="inline-flex items-center ">
-            <svg class="w-4 h-4 me-2 text-gray-500 dark:text-gray-400" aria-hidden="true"
-              xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 14">
-              <path
-                d="M10 0C4.612 0 0 5.336 0 7c0 1.742 3.546 7 10 7 6.454 0 10-5.258 10-7 0-1.664-4.612-7-10-7Zm0 10a3 3 0 1 1 0-6 3 3 0 0 1 0 6Z" />
-            </svg>
-            View all
-          </div>
-        </a> -->
-      </div>
 
         <div class="hidden lg:flex lg:items-center lg:w-auto">
           <% if (user) { %>
             <div class="flex flex-row px-[24px] items-center py-2 justify-center">
               <img src="<%= user.avatar %>" alt="User Avatar"
                 class="w-10 h-10 rounded-full border-2 border-white shadow-sm cursor-pointer" id="userAvatar">
-              <span class="px-[10px] py-2 text-base font-medium text-white whitespace-nowrap">
+              <span class="px-[10px] py-2 text-base font-medium dark:text-white text-black whitespace-nowrap">
                 Welcome, <%= user.username %>
               </span>
               <div id="userDropdown"
@@ -309,7 +305,7 @@
   });
 </script>
 <script>
-  document.addEventListener('DOMContentLoaded', async function() {
+  document.addEventListener('DOMContentLoaded', async function () {
     const fetchNotifications = async () => {
       try {
         const response = await fetch('/notifications');
@@ -330,7 +326,7 @@
     setInterval(fetchNotifications, 10000);
   });
 
-  document.getElementById('notificationButton').addEventListener('click', async function() {
+  document.getElementById('notificationButton').addEventListener('click', async function () {
     const dropdown = document.getElementById('notificationDropdown');
     dropdown.classList.toggle('hidden');
 
@@ -374,7 +370,7 @@
   });
 
   // Close the dropdown if the user clicks outside of it
-  window.addEventListener('click', function(event) {
+  window.addEventListener('click', function (event) {
     const dropdown = document.getElementById('notificationDropdown');
     const button = document.getElementById('notificationButton');
     if (!dropdown.contains(event.target) && !button.contains(event.target)) {
@@ -402,4 +398,34 @@
       return `${day} ${month}${year}`;
     }
   }
+</script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const logoLight = document.getElementById('logo-light');
+    const logoDark = document.getElementById('logo-dark');
+
+    function updateLogo() {
+      if (document.documentElement.classList.contains('dark')) {
+        logoLight.style.display = 'none';
+        logoDark.style.display = 'block';
+      } else {
+        logoLight.style.display = 'block';
+        logoDark.style.display = 'none';
+      }
+    }
+
+    // Initial logo update
+    updateLogo();
+
+    // Update logo on theme change
+    const themeSwitcher = document.getElementById('themeSwitcher');
+    if (themeSwitcher) {
+      themeSwitcher.addEventListener('change', updateLogo);
+    }
+
+    // Update logo on manual theme switch
+    const observer = new MutationObserver(updateLogo);
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+  });
 </script>
