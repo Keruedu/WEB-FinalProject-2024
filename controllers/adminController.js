@@ -6,6 +6,7 @@ const Category = require('../models/category');
 const Tag = require('../models/tag');
 const Blog = require('../models/blog');
 const Order = require('../models/order'); 
+const SubscriptionPlan = require('../models/subscriptionPlan');
 
 // Trang admin dashboard
 exports.getAdminPage = async (req, res) => {
@@ -451,6 +452,17 @@ exports.getRevenueData = async (req, res) => {
         }
       },
       {
+        $lookup: {
+          from: 'subscriptionplans',
+          localField: 'subscriptionPlan',
+          foreignField: '_id',
+          as: 'subscriptionPlan'
+        }
+      },
+      {
+        $unwind: '$subscriptionPlan'
+      },
+      {
         $group: {
           _id: {
             $switch: {
@@ -462,8 +474,7 @@ exports.getRevenueData = async (req, res) => {
               default: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } }
             }
           },
-          totalRevenue: { $sum: "$totalAmount" },
-          totalSales: { $sum: 1 }
+          totalRevenue: { $sum: { $multiply: ['$totalAmount', '$subscriptionPlan.price'] } }
         }
       },
       {
@@ -471,7 +482,7 @@ exports.getRevenueData = async (req, res) => {
       }
     ]);
 
-    res.status(200).json(orders);
+    res.status(200).json({ orders, startDate, endDate });
   } catch (error) {
     console.error('Error fetching revenue data:', error);
     res.status(500).json({ message: 'Internal Server Error', error: error.message });
@@ -525,7 +536,6 @@ exports.getTopRevenueData = async (req, res) => {
       {
         $group: {
           _id: '$user',
-          totalSales: { $sum: '$totalAmount' },
           totalRevenue: { $sum: { $multiply: ['$totalAmount', '$subscriptionPlan.price'] } }
         }
       },
@@ -549,13 +559,12 @@ exports.getTopRevenueData = async (req, res) => {
       {
         $project: {
           username: '$user.username',
-          totalRevenue: 1,
-          totalSales: 1
+          totalRevenue: 1
         }
       }
     ]);
 
-    res.status(200).json(topRevenueUsers);
+    res.status(200).json({ topRevenueUsers, startDate, endDate });
   } catch (error) {
     console.error('Error fetching top revenue data:', error);
     res.status(500).json({ message: 'Internal Server Error', error: error.message });

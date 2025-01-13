@@ -46,7 +46,7 @@
   <section class="pt-20 pb-10 lg:pt-[80px] lg:pb-20 dark:bg-dark">
     <div class="container">
       <div class="mb-4">
-        <select id="timeRange" class="px-4 py-2 border rounded-md bg-primary text-dark dark:text-white">
+        <select id="timeRange" class="px-4 py-2 border rounded-md bg-primary text-dark dark:text-white ">
           <option value="today">Today</option>
           <option value="yesterday">Yesterday</option>
           <option value="last7days">Last 7 Days</option>
@@ -60,6 +60,8 @@
         <button id="dailyButton" class="px-4 py-2 mx-2 bg-primary text-dark dark:text-white rounded-md">Daily</button>
         <button id="weeklyButton" class="px-4 py-2 mx-2  text-dark dark:text-white rounded-md">Weekly</button>
         <button id="monthlyButton" class="px-4 py-2 mx-2   text-dark dark:text-white rounded-md">Monthly</button>
+        <span id="dateRange" class="ml-4 text-gray-700 dark:text-gray-300"></span>
+
       </div>
       <div id="revenueChart"></div>
     </div>
@@ -68,6 +70,7 @@
         <button id="dailyRevenueButton" class="px-4 py-2 mx-2 bg-primary text-dark dark:text-white rounded-md">Daily</button>
         <button id="weeklyRevenueButton" class="px-4 py-2 mx-2  text-dark dark:text-white rounded-md">Weekly</button>
         <button id="monthlyRevenueButton" class="px-4 py-2 mx-2   text-dark dark:text-white rounded-md">Monthly</button>
+        <span id="topRevDateRange" class="ml-4 text-gray-700 dark:text-gray-300"></span>
       </div>
       <div id="topRevenueGrid"></div>
     </div>
@@ -95,6 +98,8 @@
       const dailyRevenueButton = document.getElementById('dailyRevenueButton');
       const weeklyRevenueButton = document.getElementById('weeklyRevenueButton');
       const monthlyRevenueButton = document.getElementById('monthlyRevenueButton');
+      const dateRangeSpan = document.getElementById('dateRange');
+      const topRevDateRangeSpan = document.getElementById('topRevDateRange');
       let blogChart;
       let revenueChart;
 
@@ -193,10 +198,10 @@
 
       async function renderRevenueChart(timeRange) {
         const data = await fetchData(`/admin/revenue-data?timeRange=${timeRange}`);
+        const { orders, startDate, endDate } = data;
 
-        const labels = data.map(item => item._id);
-        const totalRevenue = data.map(item => item.totalRevenue);
-        const totalSales = data.map(item => item.totalSales);
+        const labels = orders.map(item => item._id);
+        const totalRevenue = orders.map(item => item.totalRevenue);
 
         const isDarkMode = document.documentElement.classList.contains('dark');
 
@@ -211,7 +216,7 @@
               enabled: true
             }
           },
-          colors: ['#1E90FF', '#FF6347'],
+          colors: ['#1E90FF'],
           dataLabels: {
             enabled: false
           },
@@ -222,10 +227,6 @@
             {
               name: 'Total Revenue',
               data: totalRevenue
-            },
-            {
-              name: 'Total Sales',
-              data: totalSales
             }
           ],
           xaxis: {
@@ -263,7 +264,7 @@
             }
           },
           title: {
-            text: 'Revenue and Sales Over Time',
+            text: 'Revenue Over Time',
             align: 'center',
             style: {
               fontSize: '20px',
@@ -283,11 +284,13 @@
 
         revenueChart = new ApexCharts(revenueChartContainer, options);
         revenueChart.render();
+        dateRangeSpan.textContent = `From ${new Date(startDate).toLocaleDateString('en-GB')} to ${new Date(endDate).toLocaleDateString('en-GB')}`;
+        dateRangeSpan.classList.add('flex', 'items-center');
       }
 
       async function renderTopRevenueGrid(timeRange) {
         const data = await fetchData(`/admin/top-revenue-data?timeRange=${timeRange}`);
-        console.log(data);
+        const { topRevenueUsers, startDate, endDate } = data;
         const isDarkMode = document.documentElement.classList.contains('dark');
 
         let gridHtml = `
@@ -297,18 +300,16 @@
                 <tr>
                   <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">User</th>
                   <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Total Revenue</th>
-                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Total Sales</th>
                 </tr>
               </thead>
               <tbody>
         `;
 
-        data.forEach(user => {
+        topRevenueUsers.forEach(user => {
           gridHtml += `
             <tr class="border-b dark:border-dark-3 dark:text-white">
               <td class="px-6 py-4 whitespace-nowrap">${user.username}</td>
               <td class="px-6 py-4 whitespace-nowrap">${user.totalRevenue.toFixed(2)}</td>
-              <td class="px-6 py-4 whitespace-nowrap">${user.totalSales}</td>
             </tr>
           `;
         });
@@ -320,6 +321,8 @@
         `;
 
         topRevenueGridContainer.innerHTML = gridHtml;
+        topRevDateRangeSpan.textContent = `From ${new Date(startDate).toLocaleDateString('en-GB')} to ${new Date(endDate).toLocaleDateString('en-GB')}`;
+        topRevDateRangeSpan.classList.add('flex', 'items-center');
       }
 
       timeRangeSelect.addEventListener('change', function() {
