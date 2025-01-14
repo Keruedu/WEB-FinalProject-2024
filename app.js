@@ -14,7 +14,6 @@ const adminRoutes = require('./routes/adminRoutes');
 const checkoutRoutes = require('./routes/checkoutRoutes');
 const paymentRoutes = require('./routes/paymentRoutes');
 
-
 // Import configurations
 require('./config/passport');
 const { connectToMongoDB } = require('./config/database');
