@@ -402,7 +402,7 @@ exports.getBlogCreationData = async (req, res) => {
       },
       {
         $group: {
-          _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+          _id: { $dateToString: { format: "%d-%m-%Y", date: "$createdAt" } },
           count: { $sum: 1 }
         }
       },
@@ -426,19 +426,19 @@ exports.getRevenueData = async (req, res) => {
     switch (timeRange) {
       case 'daily':
         startDate = new Date();
-        startDate.setDate(startDate.getDate() - 30);
+        startDate.setDate(startDate.getDate() - 1);
         break;
       case 'weekly':
         startDate = new Date();
-        startDate.setDate(startDate.getDate() - 210); // 30 weeks
+        startDate.setDate(startDate.getDate() - 7); 
         break;
       case 'monthly':
         startDate = new Date();
-        startDate.setMonth(startDate.getMonth() - 12); // 12 months
+        startDate.setMonth(startDate.getMonth() - 1); 
         break;
       default:
         startDate = new Date();
-        startDate.setDate(startDate.getDate() - 30);
+        startDate.setDate(startDate.getDate() - 1);
     }
 
     const orders = await Order.aggregate([
@@ -467,11 +467,11 @@ exports.getRevenueData = async (req, res) => {
           _id: {
             $switch: {
               branches: [
-                { case: { $eq: [timeRange, 'daily'] }, then: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } } },
-                { case: { $eq: [timeRange, 'weekly'] }, then: { $dateToString: { format: "%Y-%U", date: "$createdAt" } } },
-                { case: { $eq: [timeRange, 'monthly'] }, then: { $dateToString: { format: "%Y-%m", date: "$createdAt" } } }
+                { case: { $eq: [timeRange, 'daily'] }, then: { $dateToString: { format: "%d-%m-%Y", date: "$createdAt" } } },
+                { case: { $eq: [timeRange, 'weekly'] }, then: { $dateToString: { format: "%d-%m-%Y", date: "$createdAt" } } },
+                { case: { $eq: [timeRange, 'monthly'] }, then: { $dateToString: { format: "%d-%m-%Y", date: "$createdAt" } } }
               ],
-              default: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } }
+              default: { $dateToString: { format: "%d-%m-%Y", date: "$createdAt" } }
             }
           },
           totalRevenue: { $sum: { $multiply: ['$totalAmount', '$subscriptionPlan.price'] } }

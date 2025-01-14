@@ -306,10 +306,16 @@
         `;
 
         topRevenueUsers.forEach(user => {
+          const formattedRevenue = user.totalRevenue.toLocaleString('en-US', {
+            style: 'currency',
+            currency: 'USD',
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+          });
           gridHtml += `
             <tr class="border-b dark:border-dark-3 dark:text-white">
               <td class="px-6 py-4 whitespace-nowrap">${user.username}</td>
-              <td class="px-6 py-4 whitespace-nowrap">${user.totalRevenue.toFixed(2)}</td>
+              <td class="px-6 py-4 whitespace-nowrap">${formattedRevenue}</td>
             </tr>
           `;
         });
