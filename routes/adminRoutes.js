@@ -28,6 +28,7 @@ router.get('/admin/analytics', ensureAuthenticated, (req, res) => {
 router.get('/admin/blog-creation-data', ensureAuthenticated, adminController.getBlogCreationData);
 router.get('/admin/revenue-data', ensureAuthenticated, adminController.getRevenueData);
 router.get('/admin/top-revenue-data', ensureAuthenticated, adminController.getTopRevenueData);
+
 // Thêm routes cho orders management
 router.get('/admin/orders', ensureAuthenticated, ensureAdmin, adminController.getOrdersManagement);
 router.get('/api/admin/orders', ensureAuthenticated, ensureAdmin, adminController.getOrders);
