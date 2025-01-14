@@ -100,7 +100,6 @@ exports.getBlogs = async (req, res) => {
     if (!req.query.status) {
       req.query.status = 'pending';
     }
-    const userId = req.user._id;
     const {
       blogs,
       totalBlogs,
@@ -114,7 +113,7 @@ exports.getBlogs = async (req, res) => {
       category,
       timeRange,
       status
-    } = await blogService.getBlogsHandler(req, userId);
+    } = await blogService.getBlogsHandler(req);
 
     if (req.xhr) {
       const blogsHtml = await blogService.renderBlogsHtml(blogs, req.user);

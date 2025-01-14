@@ -289,6 +289,9 @@ const editorConfig = {
       }
     }
   },
+  simpleUpload: {
+    uploadUrl: '/upload',
+  },
   list: {
     properties: {
       styles: true,
