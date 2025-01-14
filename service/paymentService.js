@@ -16,8 +16,8 @@ const createMoMoPayment = async (amount, orderId, orderInfo) => {
   const partnerCode = process.env.MOMO_PARTNER_CODE;
   const accessKey = process.env.MOMO_ACCESS_KEY;
   const secretKey = process.env.MOMO_SECRET_KEY;
-  const redirectUrl = "http://localhost:3000/payment-success";
-  const ipnUrl = "http://localhost:3000/payment-notification";
+  const redirectUrl = process.env.MOMO_REDIRECT_URL;
+  const ipnUrl = process.env.MOMO_IPN_URL;
   const requestType = "captureWallet";
   const extraData = '';
 
