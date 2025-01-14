@@ -14,19 +14,22 @@ Before you begin, ensure you have the following installed on your machine:
 Create a `.env` file in the root directory of your project and add the following environment variables:
 
 ```env
-PORT=3000
-MONGO_URI=mongodb://localhost:27017/your-database-name
-SESSION_SECRET=your-session-secret
-CLOUDINARY_CLOUD_NAME=your-cloudinary-cloud-name
-CLOUDINARY_API_KEY=your-cloudinary-api-key
-CLOUDINARY_API_SECRET=your-cloudinary-api-secret
-MOMO_PARTNER_CODE=your-momo-partner-code
-MOMO_ACCESS_KEY=your-momo-access-key
-MOMO_SECRET_KEY=your-momo-secret-key
-VNPAY_TMN_CODE=your-vnpay-tmn-code
-VNPAY_HASH_SECRET=your-vnpay-hash-secret
-VNPAY_URL=your-vnpay-url
-VNPAY_RETURN_URL=your-vnpay-return-url
+   PORT=3000
+   MONGO_URI=mongodb://<your-mongo-uri>
+   SESSION_SECRET=your-session-secret
+   CLOUDINARY_CLOUD_NAME=your-cloudinary-cloud-name
+   HOST=domain-your-website
+   CLOUDINARY_API_KEY=your-cloudinary-api-key
+   CLOUDINARY_API_SECRET=your-cloudinary-api-secret
+   MOMO_PARTNER_CODE=your-momo-partner-code
+   MOMO_ACCESS_KEY=your-momo-access-key
+   MOMO_SECRET_KEY=your-momo-secret-key
+   MOMO_REDIRECT_URL=your-momo-redirect-url
+   MOMO_IPN_URL=your-momo-ipn-url
+   VNPAY_TMN_CODE=your-vnpay-tmn-code
+   VNPAY_HASH_SECRET=your-vnpay-hash-secret
+   VNPAY_URL=your-vnpay-url
+   VNPAY_RETURN_URL=your-vnpay-return-url
 ```
 ## Installation
 
@@ -90,11 +93,14 @@ To deploy the application on Render, follow these steps:
      MONGO_URI=mongodb://<your-mongo-uri>
      SESSION_SECRET=your-session-secret
      CLOUDINARY_CLOUD_NAME=your-cloudinary-cloud-name
+     HOST=domain-your-website
      CLOUDINARY_API_KEY=your-cloudinary-api-key
      CLOUDINARY_API_SECRET=your-cloudinary-api-secret
      MOMO_PARTNER_CODE=your-momo-partner-code
      MOMO_ACCESS_KEY=your-momo-access-key
      MOMO_SECRET_KEY=your-momo-secret-key
+     MOMO_REDIRECT_URL=your-momo-redirect-url
+     MOMO_IPN_URL=your-momo-ipn-url
      VNPAY_TMN_CODE=your-vnpay-tmn-code
      VNPAY_HASH_SECRET=your-vnpay-hash-secret
      VNPAY_URL=your-vnpay-url
