@@ -116,4 +116,14 @@ To deploy the application on Render, follow these steps:
 8. **Additional Configuration**:
    - Configure your domain and SSL (if applicable) in the Render dashboard.
 
+## Source Repository
+
+The source code for this project is available on GitHub:
+- [GitHub Repository](https://github.com/Keruedu/WEB-FinalProject-2024)
+
+## Frontend Template
+
+This project uses the Tailgrid Play template for the frontend. You can find more information about the template here:
+- [Tailgrid Play Template](https://tailgrid.xyz/templates/play)
+
 For any issues or questions, please refer to the [Render documentation](https://render.com/docs) or the [issue tracker](https://github.com/Keruedu/WEB-FinalProject-2024/issues) on GitHub.
