@@ -11,6 +11,7 @@ const nodemailer = require('nodemailer');
 const crypto = require('crypto');
 const ejs = require('ejs');
 const path = require('path');
+const mongoose = require('mongoose');
 
 const registerUser = async (userData) => {
   const { username, email, password } = userData;
@@ -104,7 +105,7 @@ const toggleFollowUser = async (userId, followUserId) => {
   return { success: true, message: isFollowing ? 'Unfollowed successfully' : 'Followed successfully' };
 };
 
-const getUserDetails = async (userId, query) => {
+const getUserDetails = async (userId, query, userIdLogin) => {
   const { search, tags, category, timeRange, searchType, isPremium } = query;
   const filter = query.filter || 'latest';
   const page = parseInt(query.page) || 1;
@@ -127,12 +128,12 @@ const getUserDetails = async (userId, query) => {
   const allTags = await Tag.find();
 
   const totalViews = await Blog.aggregate([
-    { $match: { author: userId } },
-    { $group: { _id: null, totalViews: { $sum: "$views" } } }
+    { $match: { author: new mongoose.Types.ObjectId(userId) } },
+    { $group: { _id: 1, totalViews: { $sum: "$views" } } }
   ]);
 
   const totalUserViews = totalViews.length > 0 ? totalViews[0].totalViews : 0;
-  const isFollowing = user.followers.some(follower => follower.equals(userId));
+  const isFollowing = userIdLogin ? user.followers.some(follower => follower.equals(userIdLogin)) : false;
 
   return {
     user,

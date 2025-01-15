@@ -129,7 +129,7 @@ exports.getUserDetails = async (req, res) => {
       category,
       timeRange,
       searchType // Add searchType to the destructured object
-    } = await userService.getUserDetails(userId, req.query);
+    } = await userService.getUserDetails(userId, req.query, req.user);
 
     if (req.xhr) {
       const blogsHtml = await ejs.renderFile(path.join(__dirname, '../views/partials/blogs.ejs'), { blogs, user: req.user });
